@@ -1,0 +1,116 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand tokens — Figma “Color Styles” 498:1681 */
+  --color-bb-green: #31542a; /* brand-primary */
+  --color-bb-green-dark: #132110; /* brand-primary-dark — footer, overlays */
+  --color-bb-lime: #f8ff98; /* brand-accent */
+  --color-bb-orange: #994622; /* brand-secondary */
+  --color-bb-brown: #633312; /* brand-tertiary */
+
+  /* Neutrals */
+  --color-bb-cream: #f9f6f1;
+  --color-bb-cream-soft: #faf7f2; /* neutral-50 */
+  --color-bb-gray-100: #f2f2f2;
+  --color-bb-gray-400: #9a9a99;
+  --color-bb-gray-700: #3b3b3c;
+  --color-bb-gray-800: #2c2c2c;
+  --color-bb-gray-900: #161513;
+  --color-bb-black: #010202;
+
+  /* Accent & semantic */
+  --color-bb-amber: #f2a51f; /* ratings, stars */
+  --color-bb-teal-dark: #0d2327; /* dark section bg */
+  --color-bb-teal-muted: #2b3230; /* dark card bg */
+  --color-bb-sage: #627976; /* muted text on dark */
+
+  --color-bb-coast: #9ed8f5;
+
+  /* Haffer → Outfit stand-in; HanziPen SC → Caveat; Otterco Display → serif stand-in */
+  --font-display: var(--font-body), system-ui, sans-serif;
+  --font-ui: var(--font-body), system-ui, sans-serif;
+  --font-script: var(--font-script), cursive;
+  --font-feature: var(--font-body), Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100%;
+  background: #f9f6f1;
+  color: #31542a;
+}
+
+/* Figma absolute artboards must not inherit legacy img constraints */
+img {
+  max-width: none;
+}
+
+/* Hero “Scroll Down” — smooth vertical bob */
+@keyframes bb-scroll-cue {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+.bb-scroll-cue {
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: bb-scroll-cue 2s ease-in-out infinite;
+}
+
+/* Brand CTA pill — invert on hover */
+.cta-btn {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.cta-btn:hover {
+  background-color: #31542a;
+  color: #f8ff98;
+  transform: translateY(-1px);
+}
+
+.cta-btn:active {
+  background-color: #264220;
+  color: #f8ff98;
+  transform: translateY(0);
+}
+
+.cta-btn:focus-visible {
+  outline: 2px solid #31542a;
+  outline-offset: 3px;
+}
+
