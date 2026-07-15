@@ -9,6 +9,9 @@ import { fileURLToPath } from 'url'
 import { getPayload } from 'payload'
 import config from '../payload.config'
 import { cmsDestinations, coxRecord } from '../lib/cms-data'
+import type { Destination } from '@/payload-types'
+
+type DestinationSeedData = Omit<Destination, 'id' | 'createdAt' | 'updatedAt'>
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '../..')
@@ -56,9 +59,10 @@ async function uploadLocal(
 
 async function upsertDestination(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  data: Record<string, unknown>,
+  data: DestinationSeedData,
 ) {
-  const slug = String(data.slug)
+  const slug = data.slug
+  const isDraft = data._status !== 'published'
   const found = await payload.find({
     collection: 'destinations',
     where: { slug: { equals: slug } },
@@ -67,19 +71,35 @@ async function upsertDestination(
     overrideAccess: true,
   })
   if (found.docs[0]) {
-    await payload.update({
+    if (isDraft) {
+      await payload.update({
+        collection: 'destinations',
+        id: found.docs[0].id,
+        data,
+        draft: true,
+        overrideAccess: true,
+      })
+    } else {
+      await payload.update({
+        collection: 'destinations',
+        id: found.docs[0].id,
+        data,
+        overrideAccess: true,
+      })
+    }
+    console.log('Updated', slug)
+  } else if (isDraft) {
+    await payload.create({
       collection: 'destinations',
-      id: found.docs[0].id,
       data,
-      draft: data._status !== 'published',
+      draft: true,
       overrideAccess: true,
     })
-    console.log('Updated', slug)
+    console.log('Created', slug)
   } else {
     await payload.create({
       collection: 'destinations',
       data,
-      draft: data._status !== 'published',
       overrideAccess: true,
     })
     console.log('Created', slug)
@@ -127,7 +147,7 @@ async function main() {
     metaTitle: coxRecord.metaTitle,
     metaDescription: coxRecord.metaDescription,
     _status: 'published',
-  })
+  } as DestinationSeedData)
 
   for (const stub of cmsDestinations) {
     if (stub.slug === 'coxs-bazar') continue
@@ -155,12 +175,12 @@ async function main() {
       reels: [],
       faqs: [],
       _status: stub.status,
-    })
+    } as DestinationSeedData)
   }
 
   // Wire related destinations for Cox after stubs exist
   const relatedSlugs = ['bandarban-hills', 'saint-martins-island', 'sajek-valley', 'kuakata']
-  const relatedIds: (number | string)[] = []
+  const relatedIds: number[] = []
   for (const s of relatedSlugs) {
     const found = await payload.find({
       collection: 'destinations',
