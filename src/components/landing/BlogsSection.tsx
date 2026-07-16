@@ -16,8 +16,8 @@ const CARDS = [
     textColor: '#5c3600',
     textLeft: 19.01,
     textBottom: 16.83,
-    titleSize: 18,
-    descSize: 14,
+    titleSize: 14,
+    descSize: 13,
   },
   {
     href: '/destinations/sajek',
@@ -33,8 +33,8 @@ const CARDS = [
     textColor: '#6d5600',
     textLeft: 20.01,
     textBottom: 16.83,
-    titleSize: 18,
-    descSize: 14,
+    titleSize: 14,
+    descSize: 13,
   },
   {
     href: '/destinations/bandarban',
@@ -50,8 +50,8 @@ const CARDS = [
     textColor: '#132110',
     textLeft: 20,
     textBottom: 24.11,
-    titleSize: 20.384,
-    descSize: 15.288,
+    titleSize: 16,
+    descSize: 14,
     centerCard: true,
   },
   {
@@ -68,8 +68,8 @@ const CARDS = [
     textColor: '#003a42',
     textLeft: 20,
     textBottom: 16.83,
-    titleSize: 18,
-    descSize: 14,
+    titleSize: 14,
+    descSize: 13,
   },
   {
     href: '/destinations/chittagong',
@@ -85,8 +85,8 @@ const CARDS = [
     textColor: '#440000',
     textLeft: 20.01,
     textBottom: 16.83,
-    titleSize: 18,
-    descSize: 14,
+    titleSize: 14,
+    descSize: 13,
   },
 ] as const
 
@@ -156,29 +156,27 @@ function BlogCard({
         )}
       </div>
 
-      {/* Caption */}
+      {/* Caption — sized to stay single-line (title) and ≤3 lines (desc) in
+          Outfit, which runs wider than the Figma font, so nothing overlaps
+          the photo or spills past the stamp frame. */}
       <div
-        className="absolute z-[2] flex flex-col gap-[4px] items-start justify-center pr-[9.2px] leading-[normal]"
+        className="absolute z-[2] flex flex-col gap-[4px] items-start justify-center"
         style={{
           bottom: textBottom,
           left: textLeft,
           color: textColor,
-          width: centerCard ? undefined : photoW,
+          width: photoW,
         }}
       >
         <p
-          className="font-[family-name:var(--font-body)] font-medium whitespace-nowrap text-center"
-          style={{ fontSize: titleSize }}
+          className="font-[family-name:var(--font-body)] font-medium whitespace-nowrap"
+          style={{ fontSize: titleSize, lineHeight: 1.15, letterSpacing: '-0.5px' }}
         >
           {title}
         </p>
         <p
-          className="font-[family-name:var(--font-body)] opacity-60 w-full"
-          style={{
-            fontSize: descSize,
-            lineHeight: centerCard ? 1.4 : undefined,
-            letterSpacing: centerCard ? '-0.4586px' : undefined,
-          }}
+          className="font-[family-name:var(--font-body)] opacity-60 w-full line-clamp-3"
+          style={{ fontSize: descSize, lineHeight: 1.25, letterSpacing: '-0.2px' }}
         >
           {desc}
         </p>
