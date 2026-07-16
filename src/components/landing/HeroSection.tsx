@@ -53,19 +53,26 @@ export function HeroSection() {
           aria-hidden="true"
         />
 
-        {/* Headline — upper left */}
-        <div className="absolute left-[60px] top-[120px]" data-node-id="466:887">
+        {/* Headline — Figma: absolute 60/60, w 720, 80px medium, lh 100%, ls −3.2 */}
+        <div className="absolute" style={{ left: vw(60), top: vw(60) }} data-node-id="466:887">
           <h1
-            className="font-[family-name:var(--font-display)] text-[80px] font-semibold leading-none tracking-[-3.2px] text-white"
-            style={{ lineHeight: 1 }}
+            className="font-[family-name:var(--font-display)] font-medium text-white"
+            style={{ fontSize: vw(80), letterSpacing: vw(-3.2), lineHeight: 1 }}
           >
             Beautiful<br />Bangladesh
           </h1>
         </div>
 
-        {/* Tagline — upper right */}
+        {/* Tagline — upper right; Figma 16px @ 1440, scales with viewport */}
         <p
-          className="absolute right-[60px] top-[107px] w-[239px] text-right font-[family-name:var(--font-ui)] text-[16px] leading-[1.4] text-white/80"
+          className="absolute text-right font-[family-name:var(--font-ui)] text-white/80"
+          style={{
+            right: vw(60),
+            top: vw(107),
+            width: vw(239),
+            fontSize: vw(16),
+            lineHeight: 1.4,
+          }}
           data-node-id="466:900"
         >
           From mangrove forests and rolling hills to waterfalls, tea estates, and endless coastlines
@@ -132,7 +139,8 @@ export function HeroSection() {
           </div>
         </div>
 
-        <ScrollDownCue />
+        {/* Same scaled left inset as the headline so both start on one line */}
+        <ScrollDownCue position={{ left: vw(60), bottom: vw(100) }} />
 
       </div>
     </div>

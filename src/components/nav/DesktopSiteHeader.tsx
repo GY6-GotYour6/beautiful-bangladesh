@@ -17,7 +17,7 @@ export function DesktopSiteHeader() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden md:block"
+      className="pointer-events-none absolute inset-x-0 top-0 z-50 hidden md:block"
       aria-hidden={false}
     >
       <div

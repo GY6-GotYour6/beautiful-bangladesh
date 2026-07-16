@@ -89,12 +89,20 @@ export function TopDestinations() {
       className="bg-white"
     >
       <div className="relative flex h-full w-[1440px] flex-col justify-center gap-12 bg-white px-20 py-20">
-        <h2 className="text-[32px] tracking-[-0.96px] text-[#132110]">
-          Top{' '}
-          <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-            Destinations
-          </span>
-        </h2>
+        <div className="flex w-full items-center justify-between">
+          <h2 className="text-[32px] tracking-[-0.96px] text-[#132110]">
+            Top{' '}
+            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+              Destinations
+            </span>
+          </h2>
+          <Link
+            href="/explore"
+            className="text-[14px] font-medium text-[#31542a] transition-opacity hover:opacity-70"
+          >
+            View All
+          </Link>
+        </div>
 
         <div
           ref={scrollerRef}

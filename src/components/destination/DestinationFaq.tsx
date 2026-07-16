@@ -33,7 +33,28 @@ function faqsFor(title: string): QA[] {
   ]
 }
 
-function FaqItem({ item, open, onToggle }: { item: QA; open: boolean; onToggle: () => void }) {
+type FaqSizes = {
+  gap: string | number
+  rowPad: string | number
+  q: string | number
+  box: string | number
+  icon: string | number
+  a: string | number
+  aMax?: string | number
+  aPad: string | number
+}
+
+function FaqItem({
+  item,
+  open,
+  onToggle,
+  s,
+}: {
+  item: QA
+  open: boolean
+  onToggle: () => void
+  s: FaqSizes
+}) {
   return (
     <div className="w-full">
       <button
@@ -41,11 +62,11 @@ function FaqItem({ item, open, onToggle }: { item: QA; open: boolean; onToggle: 
         aria-expanded={open}
         onClick={onToggle}
         className="flex w-full items-center justify-between text-left"
-        style={{ gap: vw(24), paddingBlock: vw(20) }}
+        style={{ gap: s.gap, paddingBlock: s.rowPad }}
       >
         <span
           className="font-[family-name:var(--font-body)] font-medium text-[#132110]"
-          style={{ fontSize: vw(20) }}
+          style={{ fontSize: s.q }}
         >
           {item.q}
         </span>
@@ -55,7 +76,7 @@ function FaqItem({ item, open, onToggle }: { item: QA; open: boolean; onToggle: 
               ? 'border-[#31542a] bg-[#31542a] text-white'
               : 'border-[#132110]/25 text-[#132110]'
           }`}
-          style={{ width: vw(26), height: vw(26) }}
+          style={{ width: s.box, height: s.box }}
           aria-hidden
         >
           <svg
@@ -64,7 +85,7 @@ function FaqItem({ item, open, onToggle }: { item: QA; open: boolean; onToggle: 
             viewBox="0 0 12 12"
             fill="none"
             className={`transition-transform ${open ? 'rotate-90' : ''}`}
-            style={{ width: vw(13), height: vw(13) }}
+            style={{ width: s.icon, height: s.icon }}
           >
             <path
               d="M4.5 2.5L8 6l-3.5 3.5"
@@ -80,10 +101,10 @@ function FaqItem({ item, open, onToggle }: { item: QA; open: boolean; onToggle: 
         <p
           className="font-[family-name:var(--font-body)] text-[#132110]/50"
           style={{
-            fontSize: vw(16),
+            fontSize: s.a,
             lineHeight: 1.5,
-            maxWidth: vw(660),
-            paddingBottom: vw(20),
+            maxWidth: s.aMax,
+            paddingBottom: s.aPad,
           }}
         >
           {item.a}
@@ -93,10 +114,72 @@ function FaqItem({ item, open, onToggle }: { item: QA; open: boolean; onToggle: 
   )
 }
 
+const DESKTOP_SIZES: FaqSizes = {
+  gap: vw(24),
+  rowPad: vw(20),
+  q: vw(20),
+  box: vw(26),
+  icon: vw(13),
+  a: vw(16),
+  aMax: vw(660),
+  aPad: vw(20),
+}
+
+const MOBILE_SIZES: FaqSizes = {
+  gap: 16,
+  rowPad: 16,
+  q: 16,
+  box: 24,
+  icon: 12,
+  a: 14,
+  aPad: 16,
+}
+
 /** FAQ accordion — replaces baked Figma `466:1747`; placeholder content for now. */
-export function DestinationFaq({ title }: { title: string }) {
+export function DestinationFaq({ title, mobile = false }: { title: string; mobile?: boolean }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const faqs = faqsFor(title)
+
+  if (mobile) {
+    return (
+      <section
+        className="flex w-full flex-col gap-[12px] bg-white px-[16px] py-[40px]"
+        data-node-id="498:2910-faq"
+        aria-label="Frequently asked questions"
+      >
+        <h2 className="font-[family-name:var(--font-body)] text-[24px] font-medium tracking-[-0.72px] text-[#132110]">
+          Frequently{' '}
+          <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+            Asked
+          </span>{' '}
+          Questions
+        </h2>
+        <p className="font-[family-name:var(--font-body)] text-[14px] leading-[1.4] text-[#132110]/60">
+          A bustling port city between the sea and hills, the commercial capital of Bangladesh.
+        </p>
+        <div className="relative mt-[8px] aspect-[455/403] w-full overflow-hidden rounded-[16px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/landing/destinations/faq-coxs-bazar.webp"
+            alt={title}
+            className="absolute inset-0 size-full object-cover"
+            draggable={false}
+          />
+        </div>
+        <div className="mt-[8px] flex flex-col divide-y-2 divide-[#31542a]">
+          {faqs.map((item, i) => (
+            <FaqItem
+              key={item.q}
+              item={item}
+              open={openIndex === i}
+              onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+              s={MOBILE_SIZES}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section
@@ -150,6 +233,7 @@ export function DestinationFaq({ title }: { title: string }) {
             item={item}
             open={openIndex === i}
             onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+            s={DESKTOP_SIZES}
           />
         ))}
       </div>

@@ -94,15 +94,15 @@ export function YoutubeLineup() {
 
   return (
     <section
-      className="bg-white flex flex-col gap-[48px] items-center justify-center p-[80px] w-full"
+      className="bg-white flex flex-col gap-[32px] md:gap-[48px] items-center justify-center px-[16px] py-[48px] md:p-[80px] w-full"
       data-node-id="466:1414"
     >
       {/* Header row: title + search */}
-      <div className="flex items-center justify-between w-full max-w-[1280px]" data-node-id="466:1415">
-        <div className="flex flex-col gap-[6px] text-[#132110] whitespace-nowrap" data-node-id="466:1416">
-          <p className="font-[family-name:var(--font-body)] font-medium text-[32px] tracking-[-0.96px] leading-[normal]">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-[16px] justify-between w-full max-w-[1280px]" data-node-id="466:1415">
+        <div className="flex flex-col gap-[6px] text-[#132110] md:whitespace-nowrap" data-node-id="466:1416">
+          <p className="font-[family-name:var(--font-body)] font-medium text-[24px] md:text-[32px] tracking-[-0.96px] leading-[normal]">
             The{' '}
-            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">Full</span>
+            <span className="mr-[6px] font-[family-name:var(--font-script)] font-bold text-[#31542a]">Full</span>
             {' Lineup'}
           </p>
           <p className="font-[family-name:var(--font-body)] text-[16px] leading-[1.4] opacity-70">
@@ -111,7 +111,7 @@ export function YoutubeLineup() {
         </div>
 
         {/* Search input */}
-        <label className="flex items-center gap-[10px] border border-[#eae7e1] bg-white h-[40px] w-[400px] px-[12px] cursor-text">
+        <label className="flex items-center gap-[10px] border border-[#eae7e1] bg-white h-[40px] w-full md:w-[400px] px-[12px] cursor-text">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/landing/interactive/icons/search.svg" alt="" width={16} height={16} className="pointer-events-none shrink-0" draggable={false} />
           <span className="sr-only">Search a creator or videos</span>
@@ -128,21 +128,23 @@ export function YoutubeLineup() {
 
       {/* Channel cards */}
       <div className="flex flex-col items-start justify-center w-full" data-node-id="466:1424">
-        <div className="flex gap-[32px] items-start w-full" data-node-id="466:1425">
+        <div className="flex flex-col md:flex-row gap-[32px] items-start w-full" data-node-id="466:1425">
           {channels.map((ch) => (
-            <div key={ch.name} className="flex flex-1 min-w-0 flex-col gap-[16px] items-start">
+            <div key={ch.name} className="flex w-full flex-1 min-w-0 flex-col gap-[16px] items-start">
               {/* Thumbnail card */}
               <div className="bg-[#faf7f2] border border-[#eae7e1] flex flex-col items-center justify-center overflow-clip p-[12px] rounded-[24px] w-full">
                 <ThumbnailGrid thumbs={ch.thumbs} channelHref={ch.href} />
               </div>
               {/* Channel info */}
               <div className="flex flex-col gap-[8px] text-[#132110] w-full">
-                <p className="font-[family-name:var(--font-body)] font-medium text-[24px] leading-[normal]">
+                <p className="font-[family-name:var(--font-body)] font-medium text-[20px] md:text-[24px] leading-[normal]">
                   {ch.name}
                 </p>
-                <div className="flex gap-[4px] items-center font-[family-name:var(--font-body)] text-[16px] whitespace-nowrap">
+                <div className="flex gap-[8px] items-center font-[family-name:var(--font-body)] text-[14px] whitespace-nowrap">
                   <span className="opacity-70 leading-[1.4]">{ch.topVideo}</span>
-                  <span className="opacity-70 text-[10px] list-disc ml-[15px]" role="presentation">•</span>
+                  <span className="opacity-70" role="presentation" aria-hidden>
+                    •
+                  </span>
                   <span className="opacity-70 leading-[1.4]">{ch.views}</span>
                 </div>
               </div>

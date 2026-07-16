@@ -1,6 +1,7 @@
 import { FigmaStack, hs } from '@/components/landing/FigmaStack'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { DestinationFaq } from './DestinationFaq'
+import { MobileCta } from '@/components/landing/MobileSections'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
 import { DESKTOP_HEADER_CLIP, MOBILE_HEADER_CLIP } from '@/lib/nav-config'
 
@@ -87,21 +88,25 @@ function DestinationDesktop({ title }: { title: string }) {
 
 function DestinationMobile({ title }: { title: string }) {
   return (
-    <FigmaStack
-      nodeId="498:2910"
-      destination={title}
-      sections={[
-        {
-          src: '/landing/figma/designs/mobile/destination.webp',
-          width: 390,
-          height: 7473,
-          nodeId: '498:2910',
-          label: `${title} mobile`,
-          clipTop: MOBILE_HEADER_CLIP,
-          hotspots: [hs('/explore', 'View All destinations', 310, 5376, 64, 24)],
-        },
-      ]}
-    />
+    <div className="relative w-full overflow-x-clip bg-white" data-node-id="498:2910">
+      <FigmaStack
+        nodeId="498:2910"
+        destination={title}
+        sections={[
+          {
+            src: '/landing/figma/designs/mobile/destination-body.webp',
+            width: 390,
+            height: 5730,
+            nodeId: '498:2910-body',
+            label: `${title} mobile`,
+            clipTop: MOBILE_HEADER_CLIP,
+            hotspots: [hs('/explore', 'View All destinations', 310, 5376, 64, 24)],
+          },
+        ]}
+      />
+      <DestinationFaq title={title} mobile />
+      <MobileCta />
+    </div>
   )
 }
 

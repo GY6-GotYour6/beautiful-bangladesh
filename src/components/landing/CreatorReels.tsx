@@ -1,7 +1,7 @@
 import { FigmaFrame } from './FigmaFrame'
 
 /** Creator reel card data — Figma 466:1298 */
-const ROW1 = [
+export const ROW1 = [
   { id: 'nadir', name: 'Nadir On the Go' },
   { id: 'tawhid', name: 'Tawhid Afridi' },
   { id: 'rafsan', name: 'Rafsan the chotobhai' },
@@ -22,7 +22,7 @@ const ROW2 = [
 /** Single reel card with photo + avatar + creator name. */
 function ReelCard({ id, name }: { id: string; name: string }) {
   return (
-    <div className="relative flex w-[240px] shrink-0 flex-col gap-[12px] items-start">
+    <div className="relative flex w-[240px] shrink-0 flex-col gap-[12px] items-center">
       <div className="relative h-[350px] w-full shrink-0 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

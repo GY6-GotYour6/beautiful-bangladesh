@@ -43,7 +43,7 @@ export function MobileNavDrawer({ open, onClose, panelId }: Props) {
     <>
       <button
         type="button"
-        className="fixed inset-0 z-40 bg-black/30"
+        className="pointer-events-auto fixed inset-0 z-40 bg-black/30"
         aria-label="Close menu"
         onClick={onClose}
       />
@@ -53,9 +53,9 @@ export function MobileNavDrawer({ open, onClose, panelId }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="fixed z-50 flex w-[min(358px,calc(100vw-32px))] flex-col gap-[14px] rounded-[24px] bg-[#31542a] p-5 text-white"
+        className="pointer-events-auto fixed z-50 flex w-[min(358px,calc(100vw-32px))] flex-col gap-[14px] rounded-[24px] bg-[#31542a] p-5 text-white"
         style={{
-          top: `calc(${68}px * var(--nav-mobile-scale, 1) + 8px)`,
+          top: 62,
           left: '50%',
           transform: 'translateX(-50%)',
         }}

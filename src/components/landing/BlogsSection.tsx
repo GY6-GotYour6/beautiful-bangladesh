@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { FigmaFrame } from './FigmaFrame'
 
-const CARDS = [
+export const BLOG_CARDS = [
   {
     href: '/explore',
     frame: '/landing/blogs/frame-yellow.svg',
@@ -90,7 +90,7 @@ const CARDS = [
   },
 ] as const
 
-function BlogCard({
+export function BlogCard({
   href,
   frame,
   photo,
@@ -107,7 +107,7 @@ function BlogCard({
   titleSize,
   descSize,
   centerCard,
-}: (typeof CARDS)[number] & { centerCard?: boolean }) {
+}: (typeof BLOG_CARDS)[number] & { centerCard?: boolean }) {
   return (
     <Link
       href={href}
@@ -187,7 +187,7 @@ function BlogCard({
 
 /** Blogs / Locations section — Figma `466:1378` (1440×1028). */
 export function BlogsSection() {
-  const [left1, left2, center, right1, right2] = CARDS
+  const [left1, left2, center, right1, right2] = BLOG_CARDS
 
   return (
     <FigmaFrame

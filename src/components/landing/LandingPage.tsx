@@ -1,8 +1,13 @@
-import { MOBILE_HEADER_CLIP } from '@/lib/nav-config'
-import { FigmaStack, hs } from './FigmaStack'
 import { FigmaSection } from './FigmaSection'
-import { CtaButton } from './CtaButton'
 import { HeroSection } from './HeroSection'
+import {
+  MobileHero,
+  MobileLatestReels,
+  MobileExperience,
+  MobileTopDestinations,
+  MobileBlogs,
+  MobileCta,
+} from './MobileSections'
 import { ExperienceSection } from './ExperienceSection'
 import { CreatorReels } from './CreatorReels'
 import { YoutubeLineup } from './YoutubeLineup'
@@ -46,23 +51,33 @@ function LandingDesktop() {
 
 function LandingMobile() {
   return (
-    <div className="relative w-full overflow-x-clip bg-[#f9f6f1]" data-node-id="498:2373">
+    <div className="relative w-full overflow-x-clip bg-[#faf7f2]" data-node-id="498:2373">
+      <MobileHero />
+      <MobileLatestReels />
+      {/* Intro illustrations still baked — complex vectors (same as desktop) */}
       <FigmaSection
-        src="/landing/figma/designs/mobile/landing.webp"
+        id="about"
+        src="/landing/figma/designs/mobile/landing-intro.webp"
         width={390}
-        height={7137}
-        nodeId="498:2373"
-        label="Landing mobile"
-        clipTop={MOBILE_HEADER_CLIP}
-        hotspots={[
-          hs('/destinations/chittagong', 'Chittagong', 16, 2996, 195, 209),
-          hs('/destinations/sylhet', 'Sylhet', 227, 2996, 195, 209),
-        ]}
-      >
-        <div className="absolute z-30" style={{ left: 110, top: 1010 }}>
-          <CtaButton size="sm" label="Check Out Reels" />
-        </div>
-      </FigmaSection>
+        height={1529}
+        nodeId="498:2373-intro"
+        label="Nature culture cuisine"
+      />
+      <MobileExperience />
+      <MobileTopDestinations />
+      {/* Viral Travel Contents — baked slice from the destination mobile
+          export, per preference for that exact design */}
+      <FigmaSection
+        id="creator-reels"
+        src="/landing/figma/designs/mobile/viral-reels.webp"
+        width={390}
+        height={930}
+        nodeId="498:2910-reels"
+        label="Explore the viral travel contents"
+      />
+      <MobileBlogs />
+      <YoutubeLineup />
+      <MobileCta />
     </div>
   )
 }

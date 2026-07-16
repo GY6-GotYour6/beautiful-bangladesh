@@ -1,14 +1,9 @@
 import Link from 'next/link'
-import { FigmaSection } from '@/components/landing/FigmaSection'
-import { FigmaStack } from '@/components/landing/FigmaStack'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { CtaButton } from '@/components/landing/CtaButton'
-import {
-  DESKTOP_ARTBOARD,
-  DESKTOP_EXPLORE_OFFSET,
-  MOBILE_HEADER_CLIP,
-} from '@/lib/nav-config'
+import { MobileCta } from '@/components/landing/MobileSections'
+import { DESKTOP_ARTBOARD, DESKTOP_EXPLORE_OFFSET } from '@/lib/nav-config'
 
 /** Single destination card — photo bg, dark overlay, and name text. */
 function DestCard({
@@ -68,27 +63,31 @@ function ExploreCategories() {
           className="flex flex-col items-start justify-between self-stretch shrink-0 w-[346px]"
           data-node-id="466:734"
         >
-          <div
-            className="sticky flex flex-col gap-[24px] items-start w-full"
-            style={{ top: EXPLORE_TOP }}
-            data-node-id="466:735"
-          >
-            <p
-              className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none tracking-[-1.28px] text-[#132110] capitalize w-full"
-              data-node-id="466:736"
+          {/* flex-1 wrapper bounds the sticky text so it stops 48px above the
+              CTA instead of sliding into it at the end of the scroll */}
+          <div className="w-full min-h-0 flex-1 pb-[48px]">
+            <div
+              className="sticky flex flex-col gap-[24px] items-start w-full"
+              style={{ top: EXPLORE_TOP }}
+              data-node-id="466:735"
             >
-              Find your{' '}
-              <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-                perfect
-              </span>{' '}
-              destination experience
-            </p>
-            <p
-              className="font-[family-name:var(--font-body)] text-[18px] leading-[1.4] text-[#132110] opacity-60 w-full"
-              data-node-id="466:737"
-            >
-              Experience Bangladesh like never before, go to places which is not less than heaven. Visit the Beautiful Bangladesh
-            </p>
+              <p
+                className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none tracking-[-1.28px] text-[#132110] capitalize w-full"
+                data-node-id="466:736"
+              >
+                Find your{' '}
+                <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+                  perfect
+                </span>{' '}
+                destination experience
+              </p>
+              <p
+                className="font-[family-name:var(--font-body)] text-[18px] leading-[1.4] text-[#132110] opacity-60 w-full"
+                data-node-id="466:737"
+              >
+                Experience Bangladesh like never before, go to places which is not less than heaven. Visit the Beautiful Bangladesh
+              </p>
+            </div>
           </div>
 
           {/* Stamp CTA — Figma 466:738 */}
@@ -232,21 +231,62 @@ function ExploreDesktop() {
   )
 }
 
+const MOBILE_DESTS = [
+  { name: 'Sylhet', slug: 'sylhet', img: '/landing/destinations/sylhet-hq.png' },
+  { name: "Cox's Bazar", slug: 'coxs-bazar', img: '/landing/destinations/coxs-bazar-hq.png' },
+  { name: 'Sundarbans', slug: 'sundarbans', img: '/landing/destinations/sundarbans.png' },
+  { name: 'Sajek Valley', slug: 'sajek', img: '/landing/destinations/sajek-hq.png' },
+  { name: 'Rangamati', slug: 'rangamati', img: '/landing/destinations/rangamati.png' },
+  { name: 'Saint Martin', slug: 'saint-martin', img: '/landing/destinations/saint-martin.png' },
+  { name: 'Ratargul', slug: 'ratargul', img: '/landing/destinations/ratargul.png' },
+  { name: 'Jaflong', slug: 'jaflong', img: '/landing/destinations/jaflong.png' },
+] as const
+
 function ExploreMobile() {
   return (
-    <FigmaStack
-      nodeId="498:3222"
-      sections={[
-        {
-          src: '/landing/figma/designs/mobile/explore.webp',
-          width: 390,
-          height: 1544,
-          nodeId: '498:3222',
-          label: 'Explore mobile',
-          clipTop: MOBILE_HEADER_CLIP,
-        },
-      ]}
-    />
+    <div className="relative w-full overflow-x-clip bg-white" data-node-id="498:3222">
+      <section className="flex w-full flex-col gap-[24px] px-[16px] pt-[78px] pb-[40px]">
+        <div className="flex flex-col gap-[12px]">
+          <h1 className="font-[family-name:var(--font-body)] text-[20px] font-medium tracking-[-0.6px] text-[#132110] capitalize">
+            Find your{' '}
+            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+              perfect
+            </span>{' '}
+            destination experience
+          </h1>
+          <p className="font-[family-name:var(--font-body)] text-[13px] leading-[1.4] text-[#132110] opacity-60">
+            Experience Bangladesh like never before, go to places which is not less than heaven.
+            Visit the Beautiful Bangladesh
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-[12px]">
+          {MOBILE_DESTS.map((d) => (
+            <Link
+              key={d.slug}
+              href={`/destinations/${d.slug}`}
+              className="group relative aspect-[171/120] overflow-clip rounded-[12px] block"
+              aria-label={d.name}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={d.img}
+                alt=""
+                className="absolute inset-0 size-full max-w-none object-cover"
+                draggable={false}
+              />
+              <div className="absolute inset-0 bg-[rgba(0,0,0,0.35)]" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <p className="font-[family-name:var(--font-body)] text-[16px] font-medium leading-none text-white whitespace-nowrap">
+                  {d.name}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <CtaButton size="sm" label="Check Out Reels" className="mt-[8px] self-center" />
+      </section>
+      <MobileCta />
+    </div>
   )
 }
 
