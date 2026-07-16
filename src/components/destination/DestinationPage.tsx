@@ -1,5 +1,6 @@
 import { FigmaStack, hs } from '@/components/landing/FigmaStack'
 import { CtaSection } from '@/components/landing/CtaSection'
+import { DestinationFaq } from './DestinationFaq'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
 import { DESKTOP_HEADER_CLIP, MOBILE_HEADER_CLIP } from '@/lib/nav-config'
 
@@ -76,15 +77,9 @@ function DestinationDesktop({ title }: { title: string }) {
             label: 'Top destinations',
             hotspots: relatedDest,
           },
-          {
-            src: `${BASE}/08-faq.webp`,
-            width: 1440,
-            height: 693,
-            nodeId: '466:1747',
-            label: `${title} FAQ`,
-          },
         ]}
       />
+      <DestinationFaq title={title} />
       <CtaSection />
     </div>
   )

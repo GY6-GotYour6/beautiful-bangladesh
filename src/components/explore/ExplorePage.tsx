@@ -61,14 +61,18 @@ function ExploreCategories() {
       data-node-id="466:731"
     >
       <div className="flex gap-[48px] items-start w-full" data-node-id="466:733">
-        {/* Left column: title + CTA — sticks under the fixed navbar while the grid
-            scrolls; spans the viewport so the CTA pins to the bottom left */}
+        {/* Left column spans the full grid height; text and CTA stick
+            independently — text pins under the navbar for the whole grid
+            scroll, CTA pins to the viewport bottom left */}
         <div
-          className="sticky flex flex-col items-start justify-between self-start shrink-0 w-[346px]"
-          style={{ top: EXPLORE_TOP, height: `calc(100svh - ${EXPLORE_TOP} - 40px)` }}
+          className="flex flex-col items-start justify-between self-stretch shrink-0 w-[346px]"
           data-node-id="466:734"
         >
-          <div className="flex flex-col gap-[24px] items-start w-full" data-node-id="466:735">
+          <div
+            className="sticky flex flex-col gap-[24px] items-start w-full"
+            style={{ top: EXPLORE_TOP }}
+            data-node-id="466:735"
+          >
             <p
               className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none tracking-[-1.28px] text-[#132110] capitalize w-full"
               data-node-id="466:736"
@@ -88,7 +92,9 @@ function ExploreCategories() {
           </div>
 
           {/* Stamp CTA — Figma 466:738 */}
-          <CtaButton size="sm" label="Check Out Reels" />
+          <div className="sticky bottom-[40px]">
+            <CtaButton size="sm" label="Check Out Reels" />
+          </div>
         </div>
 
         {/* Right: 4-row × 2-col destination grid */}
