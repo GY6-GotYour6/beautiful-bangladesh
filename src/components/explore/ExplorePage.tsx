@@ -27,7 +27,7 @@ function DestCard({
   return (
     <Link
       href={`/destinations/${slug}`}
-      className="group relative min-w-0 flex-1 h-[300px] overflow-clip rounded-[24px] block"
+      className="group relative min-w-0 flex-1 h-[var(--dest-card-h,300px)] min-h-[200px] overflow-clip rounded-[24px] block"
       aria-label={name}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -43,19 +43,29 @@ function DestCard({
   )
 }
 
+/** Content top offset below the fixed navbar (116px @ 1440, scales with viewport). */
+const EXPLORE_TOP = `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)`
+
 /** Destination category grid — Figma 466:731. */
 function ExploreCategories() {
   return (
     <section
       className="bg-white flex flex-col gap-[48px] items-center pb-[40px] px-[40px] w-full"
-      style={{ paddingTop: `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)` }}
+      style={{
+        paddingTop: EXPLORE_TOP,
+        // Row height so exactly 3 rows (6 cards) fill one viewport with 20px of
+        // whitespace under row 3. Must stay under the 24px row gap so row 4
+        // remains below the fold: (100svh − top offset − 2 row gaps − 20) / 3.
+        ['--dest-card-h' as string]: `calc((100svh - ${EXPLORE_TOP} - 68px) / 3)`,
+      }}
       data-node-id="466:731"
     >
       <div className="flex gap-[48px] items-start w-full" data-node-id="466:733">
-        {/* Left column: title + CTA — sticks under the fixed navbar while the grid scrolls */}
+        {/* Left column: title + CTA — sticks under the fixed navbar while the grid
+            scrolls; spans the viewport so the CTA pins to the bottom left */}
         <div
-          className="sticky flex flex-col items-start gap-[32px] self-start shrink-0 w-[346px]"
-          style={{ top: `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)` }}
+          className="sticky flex flex-col items-start justify-between self-start shrink-0 w-[346px]"
+          style={{ top: EXPLORE_TOP, height: `calc(100svh - ${EXPLORE_TOP} - 40px)` }}
           data-node-id="466:734"
         >
           <div className="flex flex-col gap-[24px] items-start w-full" data-node-id="466:735">
@@ -121,8 +131,7 @@ function ExploreCategories() {
             >
               {/* Bottom-left text with description — Figma 466:747 */}
               <div
-                className="absolute left-[20px] right-[20px] flex flex-col gap-[8px] text-white"
-                style={{ top: 194 }}
+                className="absolute left-[20px] right-[20px] bottom-[20px] flex flex-col gap-[8px] text-white"
                 data-node-id="466:747"
               >
                 <p className="font-[family-name:var(--font-body)] text-[24px] font-medium leading-none">
