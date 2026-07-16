@@ -1,7 +1,8 @@
 import { FigmaStack, hs } from '@/components/landing/FigmaStack'
+import { FigmaSection } from '@/components/landing/FigmaSection'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { DestinationFaq } from './DestinationFaq'
-import { MobileCta } from '@/components/landing/MobileSections'
+import { MobileCta, MobileCreatorReels } from '@/components/landing/MobileSections'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
 import { DESKTOP_HEADER_CLIP, MOBILE_HEADER_CLIP } from '@/lib/nav-config'
 
@@ -86,22 +87,36 @@ function DestinationDesktop({ title }: { title: string }) {
   )
 }
 
+/* Baked body split around the reels section (y 3325–4255 in the 5730
+   artboard) so the real interactive component renders in its place. */
+const MOBILE_BODY = '/landing/figma/designs/mobile/destination-body.webp'
+const MOBILE_BODY_HEIGHT = 5730
+const MOBILE_REELS_TOP = 3325
+const MOBILE_REELS_BOTTOM = 4255
+
 function DestinationMobile({ title }: { title: string }) {
   return (
-    <div className="relative w-full overflow-x-clip bg-white" data-node-id="498:2910">
-      <FigmaStack
-        nodeId="498:2910"
-        destination={title}
-        sections={[
-          {
-            src: '/landing/figma/designs/mobile/destination-body.webp',
-            width: 390,
-            height: 5730,
-            nodeId: '498:2910-body',
-            label: `${title} mobile`,
-            clipTop: MOBILE_HEADER_CLIP,
-            hotspots: [hs('/explore', 'View All destinations', 310, 5376, 64, 24)],
-          },
+    <div className="relative w-full overflow-x-clip bg-white" data-node-id="498:2910" data-destination={title}>
+      <FigmaSection
+        src={MOBILE_BODY}
+        width={390}
+        height={MOBILE_REELS_TOP}
+        fullHeight={MOBILE_BODY_HEIGHT}
+        nodeId="498:2910-body-top"
+        label={`${title} mobile`}
+        clipTop={MOBILE_HEADER_CLIP}
+      />
+      <MobileCreatorReels />
+      <FigmaSection
+        src={MOBILE_BODY}
+        width={390}
+        height={MOBILE_BODY_HEIGHT - MOBILE_REELS_BOTTOM}
+        fullHeight={MOBILE_BODY_HEIGHT}
+        cropTop={MOBILE_REELS_BOTTOM}
+        nodeId="498:2910-body-bottom"
+        label={`${title} highlights and related destinations`}
+        hotspots={[
+          hs('/explore', 'View All destinations', 310, 5376 - MOBILE_REELS_BOTTOM, 64, 24),
         ]}
       />
       <DestinationFaq title={title} mobile />

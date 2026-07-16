@@ -23,6 +23,10 @@ type Props = {
   id?: string
   hotspots?: HotspotInput[]
   clipTop?: number
+  /** Render a vertical slice of a taller export: full image height... */
+  fullHeight?: number
+  /** ...shifted up so the slice starting at this artboard y is visible. */
+  cropTop?: number
   /** Absolute overlays in Figma artboard coords (e.g. search input). */
   children?: ReactNode
 }
@@ -37,6 +41,8 @@ export function FigmaSection({
   id,
   hotspots = [],
   clipTop = 0,
+  fullHeight,
+  cropTop = 0,
   children,
 }: Props) {
   return (
@@ -59,7 +65,8 @@ export function FigmaSection({
           className="pointer-events-none absolute inset-0 block max-w-none"
           style={{
             width,
-            height,
+            height: fullHeight ?? height,
+            top: -cropTop,
             ...(clipTop > 0 ? { clipPath: `inset(${clipTop}px 0 0 0)` } : null),
           }}
           draggable={false}
