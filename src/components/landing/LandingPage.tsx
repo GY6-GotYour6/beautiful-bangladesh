@@ -5,6 +5,7 @@ import {
   MobileLatestReels,
   MobileExperience,
   MobileTopDestinations,
+  MobileCreatorReels,
   MobileBlogs,
   MobileCta,
 } from './MobileSections'
@@ -65,16 +66,7 @@ function LandingMobile() {
       />
       <MobileExperience />
       <MobileTopDestinations />
-      {/* Viral Travel Contents — baked slice from the destination mobile
-          export, per preference for that exact design */}
-      <FigmaSection
-        id="creator-reels"
-        src="/landing/figma/designs/mobile/viral-reels.webp"
-        width={390}
-        height={930}
-        nodeId="498:2910-reels"
-        label="Explore the viral travel contents"
-      />
+      <MobileCreatorReels />
       <MobileBlogs />
       <YoutubeLineup />
       <MobileCta />

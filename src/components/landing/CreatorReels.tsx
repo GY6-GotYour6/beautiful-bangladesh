@@ -10,8 +10,8 @@ export const ROW1 = [
   { id: 'rakib', name: 'Rakib Hussain' },
 ] as const
 
-const ROW2 = [
-  { id: 'dipu', name: 'Dipu Backpacker' },
+export const ROW2 = [
+  { id: 'salahuddin', name: 'Salahuddin Sumon' },
   { id: 'anirban', name: 'Anirban Kaisar' },
   { id: 'nihab', name: 'Nihab Rahaman' },
   { id: 'shishir', name: 'Shishir Deb' },

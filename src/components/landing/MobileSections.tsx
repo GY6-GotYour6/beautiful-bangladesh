@@ -3,7 +3,7 @@ import { destinations } from '@/lib/landing-content'
 import { FigmaFrame } from './FigmaFrame'
 import { CtaButton } from './CtaButton'
 import { ScrollDownCue } from './ScrollDownCue'
-import { ROW1 } from './CreatorReels'
+import { ROW1, ROW2 } from './CreatorReels'
 import { BlogCard, BLOG_CARDS } from './BlogsSection'
 
 /*
@@ -132,11 +132,50 @@ export function MobileTopDestinations() {
   )
 }
 
+/* Geometry from viral-reels.webp (2x export): cards 200x260, 12px gaps,
+   rows start at the 16px page margin and bleed off the right edge. */
+function MobileReelRow({ creators }: { creators: readonly { id: string; name: string }[] }) {
+  return (
+    <div className="-mx-[16px] flex gap-[12px] overflow-x-auto px-[16px] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {creators.map((r) => (
+        <div key={r.id} className="flex w-[200px] shrink-0 flex-col gap-[10px]">
+          <div className="relative aspect-[200/260] w-full overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/landing/reels/${r.id}.png`}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+              draggable={false}
+            />
+          </div>
+          <p className="font-[family-name:var(--font-body)] text-[14px] font-medium leading-[1.35] text-[#132110]">
+            The Stories Hidden Between Rivers, Roads &amp; People
+          </p>
+          <div className="flex items-center gap-[6px]">
+            <div className="relative size-[16px] shrink-0 overflow-hidden rounded-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/landing/reels/avatar-${r.id}.png`}
+                alt=""
+                className="absolute inset-0 size-full"
+                draggable={false}
+              />
+            </div>
+            <p className="font-[family-name:var(--font-body)] text-[13px] font-medium text-[#132110] opacity-70">
+              {r.name}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function MobileCreatorReels() {
   return (
     <section
       id="creator-reels"
-      className="flex w-full flex-col gap-[24px] bg-white px-[16px] py-[40px]"
+      className="flex w-full flex-col gap-[40px] bg-white px-[16px] pt-[32px] pb-[48px]"
     >
       <h2 className="mx-auto w-[280px] text-center font-[family-name:var(--font-body)] text-[24px] font-medium tracking-[-0.72px] text-[#132110]">
         {'Explore the '}
@@ -145,40 +184,8 @@ export function MobileCreatorReels() {
         </span>
         {' Contents'}
       </h2>
-      {/* Card design from the destination page mobile export: poster,
-          caption, then avatar + name */}
-      <div className="grid grid-cols-2 gap-x-[12px] gap-y-[24px]">
-        {ROW1.slice(0, 4).map((r) => (
-          <div key={r.id} className="flex flex-col gap-[10px]">
-            <div className="relative aspect-[178/300] w-full overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/landing/reels/${r.id}.png`}
-                alt=""
-                className="absolute inset-0 size-full object-cover"
-                draggable={false}
-              />
-            </div>
-            <p className="font-[family-name:var(--font-body)] text-[14px] font-medium leading-[1.35] text-[#132110]">
-              The Stories Hidden Between Rivers, Roads &amp; People
-            </p>
-            <div className="flex items-center gap-[6px]">
-              <div className="relative size-[16px] shrink-0 overflow-hidden rounded-full">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/landing/reels/avatar-${r.id}.png`}
-                  alt=""
-                  className="absolute inset-0 size-full"
-                  draggable={false}
-                />
-              </div>
-              <p className="font-[family-name:var(--font-body)] text-[13px] font-medium text-[#132110] opacity-70">
-                {r.name}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <MobileReelRow creators={ROW1} />
+      <MobileReelRow creators={ROW2} />
     </section>
   )
 }
@@ -241,7 +248,7 @@ export function MobileCta() {
     >
       <div className="relative size-full overflow-hidden bg-white">
         <p
-          className="pointer-events-none absolute left-1/2 top-[32px] -translate-x-1/2 whitespace-nowrap text-center font-[family-name:var(--font-body)] text-[36px] font-semibold leading-none tracking-[-1px] text-transparent"
+          className="pointer-events-none absolute left-1/2 top-[32px] -translate-x-1/2 whitespace-nowrap text-center font-[family-name:var(--font-body)] text-[31px] font-semibold leading-none tracking-[-1.5px] text-transparent"
           style={{
             backgroundImage: 'url(/landing/cta/title-fill.png)',
             backgroundSize: 'cover',
