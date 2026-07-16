@@ -53,12 +53,17 @@ export function ExperienceSection() {
                 <div className="absolute bg-[rgba(0,0,0,0.2)] inset-0" />
               </div>
             </div>
-            <p
-              className="font-[family-name:var(--font-script)] leading-[normal] text-[#f8ff98] text-[24px] text-center tracking-[-1.92px] relative whitespace-nowrap"
-              style={{ gridColumn: 1, gridRow: 1, marginLeft: 67.81, marginTop: 92.83, textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+            <div
+              className="pointer-events-none relative flex h-[203.84px] w-[194.88px] items-center justify-center"
+              style={{ gridColumn: 1, gridRow: 1, marginLeft: 14, marginTop: 9.95 }}
             >
-              Shopping
-            </p>
+              <p
+                className="font-[family-name:var(--font-script)] leading-[normal] text-[#f8ff98] text-[24px] text-center tracking-[-1.92px] whitespace-nowrap"
+                style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+              >
+                Shopping
+              </p>
+            </div>
             <div
               className="h-[224px] relative w-[222.88px]"
               style={{ gridColumn: 1, gridRow: 1 }}
@@ -95,12 +100,17 @@ export function ExperienceSection() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" className="absolute block inset-0 max-w-none size-full" src="/landing/experience/stamp-activities.svg" draggable={false} />
             </div>
-            <p
-              className="font-[family-name:var(--font-script)] leading-[normal] opacity-90 text-[#f8ff98] text-[32px] text-center tracking-[-2.56px] relative whitespace-nowrap"
-              style={{ gridColumn: 1, gridRow: 1, marginLeft: 85, marginTop: 112, textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+            <div
+              className="pointer-events-none relative flex h-[247px] w-[239px] items-center justify-center"
+              style={{ gridColumn: 1, gridRow: 1, marginLeft: 16, marginTop: 11 }}
             >
-              Activities
-            </p>
+              <p
+                className="font-[family-name:var(--font-script)] leading-[normal] opacity-90 text-[#f8ff98] text-[32px] text-center tracking-[-2.56px] whitespace-nowrap"
+                style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+              >
+                Activities
+              </p>
+            </div>
           </div>
 
           {/* Food & Drinks (center, largest) */}
@@ -114,12 +124,14 @@ export function ExperienceSection() {
                 <div className="absolute bg-[rgba(0,0,0,0.2)] inset-0" />
               </div>
             </div>
-            <p
-              className="-translate-x-1/2 absolute font-[family-name:var(--font-script)] leading-[normal] left-[calc(50%-0.5px)] text-[#f8ff98] text-[36px] text-center tracking-[-2.88px] top-[calc(50%-24.5px)] whitespace-nowrap"
-              style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
-            >
-              Food & Drinks
-            </p>
+            <div className="pointer-events-none absolute flex h-[270px] left-[18.44px] top-[15px] w-[263px] items-center justify-center">
+              <p
+                className="font-[family-name:var(--font-script)] leading-[normal] text-[#f8ff98] text-[36px] text-center tracking-[-2.88px] whitespace-nowrap"
+                style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+              >
+                Food & Drinks
+              </p>
+            </div>
             <div className="-translate-x-1/2 -translate-y-1/2 absolute h-[299px] left-[calc(50%+1px)] top-1/2 w-[300px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img alt="" className="absolute block inset-0 max-w-none size-full" src="/landing/experience/stamp-food.svg" draggable={false} />
@@ -143,12 +155,14 @@ export function ExperienceSection() {
                   <div className="absolute bg-[rgba(0,0,0,0.2)] inset-0" />
                 </div>
               </div>
-              <p
-                className="-translate-x-1/2 absolute font-[family-name:var(--font-script)] leading-[normal] left-[calc(50%+0.61px)] text-[#f8ff98] text-[32px] text-center tracking-[-2.56px] top-[calc(50%-22.34px)] whitespace-nowrap"
-                style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
-              >
-                Culture
-              </p>
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <p
+                  className="font-[family-name:var(--font-script)] leading-[normal] text-[#f8ff98] text-[32px] text-center tracking-[-2.56px] whitespace-nowrap"
+                  style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+                >
+                  Culture
+                </p>
+              </div>
             </div>
             <div
               className="h-[275px] relative w-[274px]"
@@ -177,12 +191,17 @@ export function ExperienceSection() {
                 <div className="absolute bg-[rgba(0,0,0,0.2)] inset-0" />
               </div>
             </div>
-            <p
-              className="font-[family-name:var(--font-script)] leading-[normal] text-[#f8ff98] text-[24px] text-center tracking-[-1.92px] relative whitespace-nowrap"
-              style={{ gridColumn: 1, gridRow: 1, marginLeft: 82, marginTop: 96.5, textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+            <div
+              className="pointer-events-none relative flex h-[201px] w-[195px] items-center justify-center"
+              style={{ gridColumn: 1, gridRow: 1, marginLeft: 13, marginTop: 11.84 }}
             >
-              History
-            </p>
+              <p
+                className="font-[family-name:var(--font-script)] leading-[normal] text-[#f8ff98] text-[24px] text-center tracking-[-1.92px] whitespace-nowrap"
+                style={{ textShadow: '0px 4px 4px rgba(0,0,0,0.25)' }}
+              >
+                History
+              </p>
+            </div>
             <div
               className="h-[224px] relative w-[223px]"
               style={{ gridColumn: 1, gridRow: 1 }}

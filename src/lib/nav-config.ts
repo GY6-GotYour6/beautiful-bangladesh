@@ -6,7 +6,21 @@ export const NAV_INACTIVE = '#FFFFFF'
 export const NAV_CREAM = '#F9F6F1'
 
 /** Desktop header band: instance y=20 + height 48 */
-export const DESKTOP_HEADER_CLIP = 68
+export const DESKTOP_HEADER_TOP = 20
+export const DESKTOP_HEADER_HEIGHT = 48
+export const DESKTOP_HEADER_CLIP = DESKTOP_HEADER_TOP + DESKTOP_HEADER_HEIGHT
+/** Gap between header and hero image — Hero frame `466:883` gap */
+export const DESKTOP_HEADER_GAP = 24
+/** Top padding before hero image when header is fixed above content */
+export const DESKTOP_HERO_OFFSET = DESKTOP_HEADER_CLIP + DESKTOP_HEADER_GAP
+/** Hero image block height at 1440 artboard — `466:885` */
+export const DESKTOP_HERO_HEIGHT = 988
+/** Gap between header and explore content — Explore `466:733` y=116 − header bottom 68 */
+export const DESKTOP_EXPLORE_GAP = 48
+/** Top padding before explore content when header is fixed above it */
+export const DESKTOP_EXPLORE_OFFSET = DESKTOP_HEADER_CLIP + DESKTOP_EXPLORE_GAP
+/** Horizontal inset shared by header + hero — 40px @ 1440 */
+export const DESKTOP_PAGE_INSET = 40
 /** Mobile header band: instance y=24 + height 44 */
 export const MOBILE_HEADER_CLIP = 68
 

@@ -42,7 +42,7 @@ function ReelCard({ id, name }: { id: string; name: string }) {
             draggable={false}
           />
         </div>
-        <p className="whitespace-nowrap font-[family-name:var(--font-script)] text-[20px] font-bold leading-[normal] tracking-[-0.6px] text-[#132110] opacity-80">
+        <p className="whitespace-nowrap font-[family-name:var(--font-body)] text-[16px] font-medium leading-[normal] text-[#132110] opacity-80">
           {name}
         </p>
       </div>

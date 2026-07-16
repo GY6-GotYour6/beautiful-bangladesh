@@ -2,6 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import {
+  DESKTOP_ARTBOARD,
+  DESKTOP_HERO_OFFSET,
+  DESKTOP_PAGE_INSET,
+} from '@/lib/nav-config'
 import { CtaButton } from './CtaButton'
 import { ScrollDownCue } from './ScrollDownCue'
 
@@ -11,17 +16,25 @@ const reels = [
   { src: '/hero/reel3.webp', alt: 'Scenic reel', href: '/#creator-reels' },
 ]
 
-/** Desktop hero — Figma 466:883 */
+const vw = (px: number) => `calc(${px} / ${DESKTOP_ARTBOARD} * 100vw)`
+
+/** Desktop hero — Figma `466:883`: frame is one 1080px viewport, hero image
+    fills from y=92 to the frame bottom. Height derives from the real viewport
+    (100svh − scaled 92px offset) so the whole hero fits on screen unscrolled. */
 export function HeroSection() {
   return (
     <div
-      className="hidden w-full bg-[#faf7f2] px-10 pb-10 md:block"
-      style={{ paddingTop: 'calc(68 / 1440 * 100vw)' }}
+      className="hidden w-full bg-[#faf7f2] md:block"
+      style={{
+        paddingTop: vw(DESKTOP_HERO_OFFSET),
+        paddingLeft: vw(DESKTOP_PAGE_INSET),
+        paddingRight: vw(DESKTOP_PAGE_INSET),
+      }}
       data-node-id="466:883"
     >
       <div
-        className="relative min-h-[600px] overflow-hidden rounded-tl-[40px] rounded-tr-[40px]"
-        style={{ height: 'calc(100vh - 68 / 1440 * 100vw - 40px)' }}
+        className="relative w-full overflow-hidden rounded-tl-[40px] rounded-tr-[40px]"
+        style={{ height: `calc(100svh - ${vw(DESKTOP_HERO_OFFSET)})`, minHeight: 720 }}
       >
         {/* Background photo */}
         <Image

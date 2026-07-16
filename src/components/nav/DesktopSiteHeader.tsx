@@ -1,7 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { DESKTOP_ARTBOARD, DESKTOP_HEADER_CLIP } from '@/lib/nav-config'
+import {
+  DESKTOP_ARTBOARD,
+  DESKTOP_HEADER_CLIP,
+  DESKTOP_HEADER_HEIGHT,
+  DESKTOP_HEADER_TOP,
+  DESKTOP_PAGE_INSET,
+} from '@/lib/nav-config'
 import { NavPill } from './NavPill'
 import { useDesktopNavScale } from './useNavScale'
 
@@ -30,8 +36,13 @@ export function DesktopSiteHeader() {
           }}
         >
           <header
-            className="relative flex h-[48px] w-[1360px] content-stretch items-center justify-between"
-            style={{ marginLeft: 40, marginTop: 20 }}
+            className="relative flex content-stretch items-center justify-between"
+            style={{
+              marginLeft: DESKTOP_PAGE_INSET,
+              marginTop: DESKTOP_HEADER_TOP,
+              width: DESKTOP_ARTBOARD - DESKTOP_PAGE_INSET * 2,
+              height: DESKTOP_HEADER_HEIGHT,
+            }}
             data-node-id="428:414"
           >
             <Link

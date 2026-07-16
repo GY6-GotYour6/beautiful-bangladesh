@@ -5,9 +5,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { destinations } from '@/lib/landing-content'
 import { FigmaFrame } from './FigmaFrame'
 
-const CARD_W = 260
-const GAP = 24
-const STEP = CARD_W + GAP
 const THUMB = 0.28
 
 /** Interactive Top Destinations — Designs `466:1260`. */
@@ -15,9 +12,6 @@ export function TopDestinations() {
   const scrollerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const [offset, setOffset] = useState(0)
-  const [canPrev, setCanPrev] = useState(false)
-  const [canNext, setCanNext] = useState(false)
-  const [mounted, setMounted] = useState(false)
 
   const sync = useCallback(() => {
     const el = scrollerRef.current
@@ -25,14 +19,11 @@ export function TopDestinations() {
     const max = el.scrollWidth - el.clientWidth
     const ratio = max > 0 ? el.scrollLeft / max : 0
     setOffset(ratio * (1 - THUMB))
-    setCanPrev(el.scrollLeft > 2)
-    setCanNext(max > 0 && el.scrollLeft < max - 2)
   }, [])
 
   useEffect(() => {
     const el = scrollerRef.current
     if (!el) return
-    setMounted(true)
     sync()
     el.addEventListener('scroll', sync, { passive: true })
     const ro = new ResizeObserver(sync)
@@ -42,10 +33,6 @@ export function TopDestinations() {
       ro.disconnect()
     }
   }, [sync])
-
-  const scrollByStep = (dir: -1 | 1) => {
-    scrollerRef.current?.scrollBy({ left: dir * STEP, behavior: 'smooth' })
-  }
 
   // Drag the progress scrubber (large hit target).
   useEffect(() => {
@@ -102,35 +89,12 @@ export function TopDestinations() {
       className="bg-white"
     >
       <div className="relative flex h-full w-[1440px] flex-col justify-center gap-12 bg-white px-20 py-20">
-        <div className="flex w-full items-center justify-between">
-          <h2 className="text-[32px] tracking-[-0.96px] text-[#132110]">
-            Top{' '}
-            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-              Destinations
-            </span>
-          </h2>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <CarouselBtn
-                label="Previous destinations"
-                disabled={mounted ? !canPrev : undefined}
-                onClick={() => scrollByStep(-1)}
-                mirror
-              />
-              <CarouselBtn
-                label="Next destinations"
-                disabled={mounted ? !canNext : undefined}
-                onClick={() => scrollByStep(1)}
-              />
-            </div>
-            <Link
-              href="/explore"
-              className="text-[14px] font-medium text-[#31542a] transition-opacity hover:opacity-70"
-            >
-              View All
-            </Link>
-          </div>
-        </div>
+        <h2 className="text-[32px] tracking-[-0.96px] text-[#132110]">
+          Top{' '}
+          <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+            Destinations
+          </span>
+        </h2>
 
         <div
           ref={scrollerRef}
@@ -186,44 +150,5 @@ export function TopDestinations() {
         </div>
       </div>
     </FigmaFrame>
-  )
-}
-
-function CarouselBtn({
-  label,
-  onClick,
-  disabled,
-  mirror,
-}: {
-  label: string
-  onClick: () => void
-  disabled?: boolean
-  mirror?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled ?? undefined}
-      onClick={onClick}
-      className="flex size-9 items-center justify-center rounded-full border border-[#132110]/20 text-[#132110] transition enabled:hover:border-[#31542a] enabled:hover:bg-[#31542a] enabled:hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-    >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        aria-hidden
-        className={mirror ? 'rotate-180' : undefined}
-      >
-        <path
-          d="M6 3l5 5-5 5"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
   )
 }

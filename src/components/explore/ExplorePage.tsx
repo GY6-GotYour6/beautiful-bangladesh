@@ -4,7 +4,11 @@ import { FigmaStack } from '@/components/landing/FigmaStack'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { CtaButton } from '@/components/landing/CtaButton'
-import { MOBILE_HEADER_CLIP } from '@/lib/nav-config'
+import {
+  DESKTOP_ARTBOARD,
+  DESKTOP_EXPLORE_OFFSET,
+  MOBILE_HEADER_CLIP,
+} from '@/lib/nav-config'
 
 /** Single destination card — photo bg, dark overlay, and name text. */
 function DestCard({
@@ -44,7 +48,7 @@ function ExploreCategories() {
   return (
     <section
       className="bg-white flex flex-col gap-[48px] items-center pb-[40px] px-[40px] w-full"
-      style={{ paddingTop: 'calc(68 / 1440 * 100vw + 20px)' }}
+      style={{ paddingTop: `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)` }}
       data-node-id="466:731"
     >
       <div className="flex gap-[48px] items-start w-full" data-node-id="466:733">
