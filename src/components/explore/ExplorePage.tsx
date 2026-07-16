@@ -52,8 +52,12 @@ function ExploreCategories() {
       data-node-id="466:731"
     >
       <div className="flex gap-[48px] items-start w-full" data-node-id="466:733">
-        {/* Left column: title + CTA */}
-        <div className="flex flex-col items-start justify-between self-stretch shrink-0 w-[346px]" data-node-id="466:734">
+        {/* Left column: title + CTA — sticks under the fixed navbar while the grid scrolls */}
+        <div
+          className="sticky flex flex-col items-start gap-[32px] self-start shrink-0 w-[346px]"
+          style={{ top: `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)` }}
+          data-node-id="466:734"
+        >
           <div className="flex flex-col gap-[24px] items-start w-full" data-node-id="466:735">
             <p
               className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none tracking-[-1.28px] text-[#132110] capitalize w-full"
