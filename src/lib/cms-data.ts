@@ -1,6 +1,7 @@
 export type CmsStatus = 'published' | 'draft'
 
 export type CmsDestinationListItem = {
+  id?: number | string
   slug: string
   name: string
   region: string

@@ -26,7 +26,7 @@ export async function getDestinationBySlug(
   const result = await payload.find({
     collection: 'destinations',
     where: { slug: { equals: slug } },
-    depth: 2,
+    depth: 1,
     limit: 1,
     draft: opts?.draft ?? false,
     overrideAccess: opts?.overrideAccess ?? false,

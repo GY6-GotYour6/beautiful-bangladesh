@@ -6,7 +6,11 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
   },
-  auth: true,
+  auth: {
+    maxLoginAttempts: 5,
+    lockTime: 10 * 60 * 1000,
+    tokenExpiration: 60 * 60 * 24 * 7,
+  },
   access: {
     read: isLoggedIn,
     create: async ({ req }) => {

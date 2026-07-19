@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 type Props = {
   crumbs?: { href?: string; label: string }[]
@@ -121,43 +123,106 @@ export function RepeatList({
   onChange,
   onAdd,
   onRemove,
+  onMove,
   titlePlaceholder = 'Title',
   subtitlePlaceholder = 'Description',
+  subtitleMultiline = false,
 }: {
   items: { title: string; subtitle: string }[]
   addLabel: string
   onChange?: (index: number, next: { title: string; subtitle: string }) => void
   onAdd?: () => void
   onRemove?: (index: number) => void
+  onMove?: (from: number, to: number) => void
   titlePlaceholder?: string
   subtitlePlaceholder?: string
+  subtitleMultiline?: boolean
 }) {
   const editable = Boolean(onChange)
+  const draggable = editable && Boolean(onMove)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
+
+  function endDrag() {
+    setDragIndex(null)
+    setOverIndex(null)
+  }
+
+  const inputShared =
+    'w-full rounded border border-[#e5e7eb] bg-white px-2 py-1.5 outline-none transition-colors focus:border-[#31542a] focus:ring-2 focus:ring-[rgba(49,84,42,0.12)]'
+
   return (
     <>
       {items.map((item, i) => (
         <div
           key={`row-${i}`}
-          className="flex items-start gap-3 rounded-lg border border-[#e5e7eb] bg-[#fafafa] p-3"
+          onDragOver={
+            draggable
+              ? (e) => {
+                  e.preventDefault()
+                  if (overIndex !== i) setOverIndex(i)
+                }
+              : undefined
+          }
+          onDrop={
+            draggable
+              ? () => {
+                  if (dragIndex != null && dragIndex !== i) onMove?.(dragIndex, i)
+                  endDrag()
+                }
+              : undefined
+          }
+          className={`flex items-start gap-3 rounded-lg border bg-[#fafafa] p-3 transition-[opacity,border-color,box-shadow] ${
+            dragIndex === i
+              ? 'border-[#e5e7eb] opacity-40'
+              : overIndex === i && dragIndex != null
+                ? 'border-[#31542a] shadow-[0_0_0_1px_#31542a]'
+                : 'border-[#e5e7eb]'
+          }`}
         >
-          <span className="mt-1 text-[#9ca3af]" aria-hidden>
+          <span
+            draggable={draggable}
+            onDragStart={
+              draggable
+                ? (e) => {
+                    e.dataTransfer.effectAllowed = 'move'
+                    setDragIndex(i)
+                  }
+                : undefined
+            }
+            onDragEnd={draggable ? endDrag : undefined}
+            className={`mt-1 select-none text-[#9ca3af] ${
+              draggable ? 'cursor-grab transition-colors hover:text-[#31542a] active:cursor-grabbing' : ''
+            }`}
+            title={draggable ? 'Drag to reorder' : undefined}
+            aria-hidden
+          >
             ⋮⋮
           </span>
           <div className="min-w-0 flex-1 space-y-2">
             {editable ? (
               <>
                 <input
-                  className="w-full rounded border border-[#e5e7eb] bg-white px-2 py-1.5 text-[15px] font-semibold outline-none focus:border-[#31542a]"
+                  className={`${inputShared} text-[15px] font-semibold`}
                   value={item.title}
                   placeholder={titlePlaceholder}
                   onChange={(e) => onChange?.(i, { ...item, title: e.target.value })}
                 />
-                <input
-                  className="w-full rounded border border-[#e5e7eb] bg-white px-2 py-1.5 text-[13px] text-[#6b7280] outline-none focus:border-[#31542a]"
-                  value={item.subtitle}
-                  placeholder={subtitlePlaceholder}
-                  onChange={(e) => onChange?.(i, { ...item, subtitle: e.target.value })}
-                />
+                {subtitleMultiline ? (
+                  <textarea
+                    className={`${inputShared} min-h-[72px] text-[13px] text-[#6b7280]`}
+                    value={item.subtitle}
+                    placeholder={subtitlePlaceholder}
+                    onChange={(e) => onChange?.(i, { ...item, subtitle: e.target.value })}
+                  />
+                ) : (
+                  <input
+                    className={`${inputShared} text-[13px] text-[#6b7280]`}
+                    value={item.subtitle}
+                    placeholder={subtitlePlaceholder}
+                    onChange={(e) => onChange?.(i, { ...item, subtitle: e.target.value })}
+                  />
+                )}
               </>
             ) : (
               <>
@@ -169,7 +234,7 @@ export function RepeatList({
           <button
             type="button"
             aria-label="Remove"
-            className="text-[#9ca3af]"
+            className="rounded p-1 text-[#9ca3af] transition-colors hover:bg-[#fef2f2]"
             onClick={() => onRemove?.(i)}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -179,6 +244,141 @@ export function RepeatList({
       ))}
       <AddRowButton label={addLabel} onClick={onAdd} />
     </>
+  )
+}
+
+export function Toast({
+  kind,
+  children,
+  onDismiss,
+  autoDismissMs = 3500,
+}: {
+  kind: 'success' | 'error'
+  children: ReactNode
+  onDismiss: () => void
+  autoDismissMs?: number
+}) {
+  useEffect(() => {
+    if (!autoDismissMs) return
+    const t = setTimeout(onDismiss, autoDismissMs)
+    return () => clearTimeout(t)
+  }, [autoDismissMs, onDismiss])
+
+  return (
+    <div
+      role="status"
+      className={`fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg px-4 py-3 text-[14px] font-medium shadow-[0_8px_24px_rgba(0,0,0,0.15)] ${
+        kind === 'success' ? 'bg-[#31542a] text-white' : 'bg-[#b91c1c] text-white'
+      }`}
+    >
+      <span className="max-w-[70vw]">{children}</span>
+      <button type="button" aria-label="Dismiss" className="opacity-70 hover:opacity-100" onClick={onDismiss}>
+        ✕
+      </button>
+    </div>
+  )
+}
+
+export function ConfirmDialog({
+  open,
+  title,
+  body,
+  confirmLabel = 'Confirm',
+  busy = false,
+  danger = false,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean
+  title: string
+  body?: ReactNode
+  confirmLabel?: string
+  busy?: boolean
+  danger?: boolean
+  onConfirm: () => void
+  onCancel: () => void
+}) {
+  useEffect(() => {
+    if (!open) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onCancel])
+
+  if (!open) return null
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onCancel}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div
+        className="w-full max-w-[420px] rounded-xl bg-white p-6 shadow-[0_16px_48px_rgba(0,0,0,0.2)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-[17px] font-bold text-[#132110]">{title}</h2>
+        {body ? <div className="mt-2 text-[14px] leading-relaxed text-[#4b5563]">{body}</div> : null}
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            className="rounded-lg border border-[#e5e7eb] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#4b5563] transition-colors hover:bg-[#f9fafb]"
+            onClick={onCancel}
+            disabled={busy}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={`rounded-lg px-4 py-2.5 text-[14px] font-semibold text-white transition-opacity disabled:opacity-50 ${
+              danger ? 'bg-[#b91c1c] hover:opacity-90' : 'bg-[#31542a] hover:opacity-90'
+            }`}
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? 'Working…' : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function Checkbox({
+  checked,
+  onChange,
+  label,
+  indeterminate = false,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+  label: string
+  indeterminate?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={indeterminate ? 'mixed' : checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`flex size-[18px] items-center justify-center rounded border-2 transition-colors ${
+        checked || indeterminate
+          ? 'border-[#31542a] bg-[#31542a] text-white'
+          : 'border-[#d1d5db] bg-white hover:border-[#31542a]'
+      }`}
+    >
+      {indeterminate ? (
+        <span className="block h-0.5 w-2 rounded bg-white" />
+      ) : checked ? (
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
+          <path d="M2 6l3 3 5-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : null}
+    </button>
   )
 }
 
@@ -194,7 +394,7 @@ export function TextInput({
   minHeight?: number
 }) {
   const shared =
-    'w-full rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-3 text-[15px] text-[#132110] outline-none focus:border-[#31542a]'
+    'w-full rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-3 text-[15px] text-[#132110] outline-none transition-colors focus:border-[#31542a] focus:bg-white focus:ring-2 focus:ring-[rgba(49,84,42,0.12)]'
   if (multiline) {
     return (
       <textarea
@@ -226,7 +426,7 @@ export function SelectField({
   return (
     <div className="relative">
       <select
-        className="min-h-[44px] w-full appearance-none rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2.5 pr-10 text-[15px] text-[#132110] outline-none focus:border-[#31542a]"
+        className="min-h-[44px] w-full appearance-none rounded-lg border border-[#e5e7eb] bg-[#fafafa] px-3 py-2.5 pr-10 text-[15px] text-[#132110] outline-none transition-colors focus:border-[#31542a] focus:bg-white focus:ring-2 focus:ring-[rgba(49,84,42,0.12)]"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -283,7 +483,7 @@ export function AddRowButton({ label, onClick }: { label: string; onClick?: () =
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-center rounded-lg border border-dashed border-[#d1d5db] px-4 py-3 text-[14px] font-semibold text-[#31542a] hover:bg-[#f9fafb]"
+      className="flex w-full items-center justify-center rounded-lg border border-dashed border-[#d1d5db] px-4 py-3 text-[14px] font-semibold text-[#31542a] transition-colors hover:border-[#31542a] hover:bg-[rgba(49,84,42,0.05)]"
     >
       + {label}
     </button>

@@ -1,11 +1,23 @@
 import type { CmsDestinationListItem, CmsDestinationRecord, CmsStatus } from '@/lib/cms-data'
 
-type MediaLike = { url?: string | null; id?: number | string } | number | string | null | undefined
+type MediaSize = 'thumbnail' | 'card' | 'hero'
 
-function mediaUrl(m: MediaLike): string {
-  if (!m) return ''
-  if (typeof m === 'object' && m !== null && 'url' in m) return m.url || ''
-  return ''
+type MediaLike =
+  | {
+      url?: string | null
+      id?: number | string
+      sizes?: Partial<Record<MediaSize, { url?: string | null }>>
+    }
+  | number
+  | string
+  | null
+  | undefined
+
+/** Prefer the requested webp rendition; fall back to the original upload. */
+function mediaUrl(m: MediaLike, size?: MediaSize): string {
+  if (!m || typeof m !== 'object') return ''
+  const sized = size ? m.sizes?.[size]?.url : undefined
+  return sized || m.url || ''
 }
 
 function mediaId(m: MediaLike): number | string | null {
@@ -46,13 +58,14 @@ function formatModified(iso?: string | null): string {
 export function toListItem(doc: Record<string, unknown>): CmsDestinationListItem {
   const status = (doc._status as CmsStatus) || 'draft'
   return {
+    id: doc.id as number | string | undefined,
     slug: String(doc.slug || ''),
     name: String(doc.name || ''),
     region: String(doc.region || ''),
     status,
     items: countItems(doc),
     modified: formatModified(doc.updatedAt as string | undefined),
-    thumb: mediaUrl(doc.heroImage as MediaLike) || '/cms/thumbs/01.jpg',
+    thumb: mediaUrl(doc.heroImage as MediaLike, 'thumbnail') || '/cms/thumbs/01.jpg',
   }
 }
 
@@ -76,7 +89,7 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
     region: String(doc.region || 'Chittagong'),
     status,
     featured: Boolean(doc.featured),
-    heroImage: mediaUrl(doc.heroImage as MediaLike) || '/cms/thumbs/01.jpg',
+    heroImage: mediaUrl(doc.heroImage as MediaLike, 'hero') || '/cms/thumbs/01.jpg',
     heroImageId: mediaId(doc.heroImage as MediaLike),
     heroTitle: String(doc.heroTitle || doc.name || ''),
     heroSubtitle: String(doc.heroSubtitle || ''),
@@ -87,7 +100,7 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
     overviewTitle: String(doc.overviewTitle || ''),
     overviewDescription: String(doc.overviewDescription || ''),
     sidebarQuote: String(doc.sidebarQuote || ''),
-    gallery: gallery.map((g: { image?: MediaLike }) => mediaUrl(g?.image)).filter(Boolean),
+    gallery: gallery.map((g: { image?: MediaLike }) => mediaUrl(g?.image, 'card')).filter(Boolean),
     galleryIds: gallery
       .map((g: { image?: MediaLike }) => mediaId(g?.image))
       .filter((id): id is number | string => id != null),

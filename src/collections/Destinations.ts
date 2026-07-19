@@ -11,6 +11,25 @@ const cardFields = [
   },
 ]
 
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/['']/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+async function revalidateDestination(slug?: string | null) {
+  try {
+    const { revalidatePath } = await import('next/cache')
+    if (slug) revalidatePath(`/destinations/${slug}`)
+    revalidatePath('/explore')
+    revalidatePath('/cms')
+  } catch {
+    // Outside Next request context (seed / CLI)
+  }
+}
+
 /** Destination details template — Figma cms-content-structure-v2 (`392:4`). */
 export const Destinations: CollectionConfig = {
   slug: 'destinations',
@@ -28,17 +47,26 @@ export const Destinations: CollectionConfig = {
     delete: isEditor,
   },
   hooks: {
-    afterChange: [
-      async ({ doc }) => {
-        if (!doc?.slug) return
-        try {
-          const { revalidatePath } = await import('next/cache')
-          revalidatePath(`/destinations/${doc.slug}`)
-          revalidatePath('/explore')
-          revalidatePath('/cms')
-        } catch {
-          // Outside Next request context (seed / CLI)
+    beforeValidate: [
+      ({ data }) => {
+        // Normalize slug server-side so API consumers can't create unroutable slugs
+        if (data && (data.slug || data.name)) {
+          data.slug = slugify(String(data.slug || data.name))
         }
+        return data
+      },
+    ],
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        await revalidateDestination(doc?.slug)
+        if (previousDoc?.slug && previousDoc.slug !== doc?.slug) {
+          await revalidateDestination(previousDoc.slug)
+        }
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        await revalidateDestination(doc?.slug)
       },
     ],
   },
@@ -66,6 +94,7 @@ export const Destinations: CollectionConfig = {
               name: 'region',
               type: 'select',
               required: true,
+              index: true,
               options: [
                 'Chittagong',
                 'Khulna',
@@ -81,6 +110,7 @@ export const Destinations: CollectionConfig = {
               name: 'featured',
               type: 'checkbox',
               defaultValue: false,
+              index: true,
               admin: { position: 'sidebar' },
             },
             {
@@ -228,6 +258,7 @@ export const Destinations: CollectionConfig = {
               type: 'relationship',
               relationTo: 'destinations',
               hasMany: true,
+              maxDepth: 1,
               admin: {
                 description: 'Up to 4 related destinations',
               },
