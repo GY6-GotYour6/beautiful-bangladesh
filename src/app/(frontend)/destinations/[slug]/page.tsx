@@ -46,14 +46,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function DestinationRoute({ params }: Props) {
   const { slug } = await params
 
+  // The Figma design always wins; CmsDestinationView is a plain fallback
+  // for CMS-only slugs until the designed template is data-driven.
+  const dest = staticDestinations.find((d) => d.slug === slug)
+  if (dest) return <DestinationPage title={dest.title} />
+
   try {
     const record = await getPublishedDestination(slug)
     if (record) return <CmsDestinationView record={record} />
   } catch {
-    // DB unavailable — fall back to static template
+    // DB unavailable
   }
 
-  const dest = staticDestinations.find((d) => d.slug === slug)
-  if (!dest) notFound()
-  return <DestinationPage title={dest.title} />
+  notFound()
 }
