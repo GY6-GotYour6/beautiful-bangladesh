@@ -5,6 +5,11 @@ const cardFields = [
   { name: 'title', type: 'text' as const, required: true },
   { name: 'description', type: 'textarea' as const },
   {
+    name: 'embedUrl',
+    type: 'text' as const,
+    admin: { description: 'YouTube watch/embed URL' },
+  },
+  {
     name: 'image',
     type: 'upload' as const,
     relationTo: 'media' as const,
@@ -134,6 +139,11 @@ export const Destinations: CollectionConfig = {
               relationTo: 'media',
             },
             {
+              name: 'heroVideoUrl',
+              type: 'text',
+              admin: { description: 'Hero background video embed URL (YouTube)' },
+            },
+            {
               name: 'heroTitle',
               type: 'text',
             },
@@ -221,9 +231,14 @@ export const Destinations: CollectionConfig = {
               ],
             },
             {
+              name: 'highlightImage',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: 'Image shown beside the highlights list' },
+            },
+            {
               name: 'highlights',
               type: 'array',
-              maxRows: 8,
               fields: [
                 { name: 'title', type: 'text', required: true },
                 { name: 'description', type: 'textarea' },
@@ -237,7 +252,6 @@ export const Destinations: CollectionConfig = {
             {
               name: 'reels',
               type: 'array',
-              maxRows: 12,
               fields: [
                 { name: 'creator', type: 'text', required: true },
                 {
@@ -266,7 +280,6 @@ export const Destinations: CollectionConfig = {
             {
               name: 'faqs',
               type: 'array',
-              maxRows: 5,
               fields: [
                 { name: 'question', type: 'text', required: true },
                 { name: 'answer', type: 'textarea', required: true },

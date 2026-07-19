@@ -18,23 +18,16 @@ const LEGAL_LINKS = [
 ]
 
 function DiamondStrip() {
+  // CSS-repeated data URI instead of an svg <pattern> — url(#id) refs can
+  // silently fail to paint after client re-renders.
+  const diamond =
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23.3' height='35'%3E%3Cpolygon points='11.65,2 19.15,17.5 11.65,33 4.15,17.5' fill='%23f8ff98'/%3E%3C/svg%3E\")"
   return (
-    <svg
-      className="absolute bottom-0 left-0 w-full"
-      height="35"
-      preserveAspectRatio="xMidYMid slice"
+    <div
+      className="absolute bottom-0 left-0 h-[35px] w-full"
+      style={{ backgroundImage: diamond, backgroundRepeat: 'repeat-x', backgroundSize: '23.3px 35px' }}
       aria-hidden="true"
-    >
-      <defs>
-        <pattern id="bb-diamonds" width="23.3" height="35" patternUnits="userSpaceOnUse">
-          <polygon
-            points="11.65,2 19.15,17.5 11.65,33 4.15,17.5"
-            fill="#f8ff98"
-          />
-        </pattern>
-      </defs>
-      <rect width="100%" height="35" fill="url(#bb-diamonds)" />
-    </svg>
+    />
   )
 }
 
@@ -64,7 +57,7 @@ function YouTubeIcon() {
 
 export function SiteFooter() {
   const pathname = usePathname()
-  if (pathname.startsWith('/cms') || pathname.startsWith('/admin')) return null
+  if (pathname.startsWith('/admin')) return null
 
   return (
     <footer
@@ -164,7 +157,8 @@ export function SiteFooter() {
       </div>
 
       {/* Diamond strip */}
-      <DiamondStrip />
+      {/* CMS footer per Figma has a plain bottom — no diamond strip */}
+      {pathname.startsWith('/cms') ? null : <DiamondStrip />}
     </footer>
   )
 }

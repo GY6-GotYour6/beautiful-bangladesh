@@ -27,6 +27,14 @@ function mediaId(m: MediaLike): number | string | null {
   return null
 }
 
+function toCardItem(f: { title?: string; description?: string; embedUrl?: string }) {
+  return {
+    title: String(f.title || ''),
+    description: String(f.description || ''),
+    embedUrl: String(f.embedUrl || ''),
+  }
+}
+
 function countItems(doc: Record<string, unknown>): number {
   const keys = [
     'gallery',
@@ -91,6 +99,7 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
     featured: Boolean(doc.featured),
     heroImage: mediaUrl(doc.heroImage as MediaLike, 'hero') || '/cms/thumbs/01.jpg',
     heroImageId: mediaId(doc.heroImage as MediaLike),
+    heroVideoUrl: String(doc.heroVideoUrl || ''),
     heroTitle: String(doc.heroTitle || doc.name || ''),
     heroSubtitle: String(doc.heroSubtitle || ''),
     location: String(doc.location || ''),
@@ -104,22 +113,15 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
     galleryIds: gallery
       .map((g: { image?: MediaLike }) => mediaId(g?.image))
       .filter((id): id is number | string => id != null),
-    foods: foods.map((f: { title?: string; description?: string }) => ({
-      title: String(f.title || ''),
-      description: String(f.description || ''),
-    })),
-    subDestinations: subDestinations.map((f: { title?: string; description?: string }) => ({
-      title: String(f.title || ''),
-      description: String(f.description || ''),
-    })),
-    cultureItems: cultureItems.map((f: { title?: string; description?: string }) => ({
-      title: String(f.title || ''),
-      description: String(f.description || ''),
-    })),
+    foods: foods.map(toCardItem),
+    subDestinations: subDestinations.map(toCardItem),
+    cultureItems: cultureItems.map(toCardItem),
     events: events.map((f: { title?: string; date?: string }) => ({
       title: String(f.title || ''),
       date: String(f.date || ''),
     })),
+    highlightImage: mediaUrl(doc.highlightImage as MediaLike, 'card'),
+    highlightImageId: mediaId(doc.highlightImage as MediaLike),
     highlights: highlights.map((f: { title?: string; description?: string }) => ({
       title: String(f.title || ''),
       description: String(f.description || ''),
@@ -157,6 +159,7 @@ export function toPayloadData(record: CmsDestinationRecord) {
     region: record.region,
     featured: record.featured,
     heroImage: record.heroImageId || undefined,
+    heroVideoUrl: record.heroVideoUrl || '',
     heroTitle: record.heroTitle,
     heroSubtitle: record.heroSubtitle,
     location: record.location,
@@ -171,6 +174,7 @@ export function toPayloadData(record: CmsDestinationRecord) {
     subDestinations: record.subDestinations,
     cultureItems: record.cultureItems,
     events: record.events,
+    highlightImage: record.highlightImageId || undefined,
     highlights: record.highlights,
     reels: record.social.map((s) => ({
       creator: s.creator,

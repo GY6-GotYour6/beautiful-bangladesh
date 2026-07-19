@@ -3,14 +3,12 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CmsDestinationRecord } from '@/lib/cms-data'
+import type { CmsCardItem, CmsDestinationRecord } from '@/lib/cms-data'
 import { toPayloadData } from '@/lib/destination-dto'
 import {
-  AddRowButton,
   CmsTopBar,
   ConfirmDialog,
   Field,
-  RepeatList,
   SectionCard,
   SelectField,
   StatusBadge,
@@ -18,9 +16,20 @@ import {
   Toast,
   Toggle,
 } from './CmsChrome'
+import {
+  EmbedLinkBox,
+  EmbedRowList,
+  FaqAccordion,
+  GalleryGrid,
+  HighlightRowList,
+  ImageDropzone,
+  ReadOnlyField,
+  RelatedPicker,
+  SocialRowList,
+  type SocialRow,
+} from './CmsEditorControls'
 
 const regions = ['Chittagong', 'Khulna', 'Sylhet', 'Barishal', 'Dhaka', 'Rajshahi', 'Rangpur', 'Mymensingh']
-const hangouts = ['Group/Couple', 'Solo', 'Family']
 
 function slugify(name: string) {
   return name
@@ -37,8 +46,7 @@ function moveItem<T>(arr: T[], from: number, to: number): T[] {
   return next
 }
 
-type Row = { title: string; subtitle: string }
-type ListKey = 'foods' | 'subDestinations' | 'cultureItems' | 'events' | 'highlights' | 'social' | 'faqs'
+type ArrayKey = 'foods' | 'subDestinations' | 'cultureItems' | 'highlights' | 'social' | 'faqs'
 
 export function DestinationEditor({
   initial,
@@ -50,11 +58,9 @@ export function DestinationEditor({
   relatable?: { id: number | string; name: string }[]
 }) {
   const router = useRouter()
-  const fileRef = useRef<HTMLInputElement>(null)
-  const galleryRef = useRef<HTMLInputElement>(null)
   const [record, setRecord] = useState(initial)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState<'hero' | 'gallery' | null>(null)
+  const [uploading, setUploading] = useState<'hero' | 'gallery' | 'highlight' | null>(null)
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
   const [confirmDiscard, setConfirmDiscard] = useState(false)
   const published = record.status === 'published'
@@ -94,31 +100,35 @@ export function DestinationEditor({
     })
   }
 
-  /** RepeatList props for a record list, mapped through {title, subtitle} rows. */
-  function listProps<T>(
-    key: ListKey,
-    toRow: (item: T) => Row,
-    fromRow: (row: Row) => T,
-    empty: T,
-  ) {
-    const arr = record[key] as unknown as T[]
+  /** Row-list handlers (change/add/remove/move) for an array field. */
+  function listOps<T>(key: ArrayKey, empty: T) {
     const set = (fn: (a: T[]) => T[]) =>
       setRecord((r) => ({ ...r, [key]: fn(r[key] as unknown as T[]) }))
     return {
-      items: arr.map(toRow),
-      onChange: (i: number, next: Row) =>
-        set((a) => a.map((item, x) => (x === i ? fromRow(next) : item))),
+      onChange: (i: number, next: T) => set((a) => a.map((item, x) => (x === i ? next : item))),
       onAdd: () => set((a) => [...a, empty]),
       onRemove: (i: number) => set((a) => a.filter((_, x) => x !== i)),
       onMove: (from: number, to: number) => set((a) => moveItem(a, from, to)),
     }
   }
 
-  const titleDesc = (item: { title: string; description: string }): Row => ({
-    title: item.title,
-    subtitle: item.description,
-  })
-  const fromTitleDesc = (row: Row) => ({ title: row.title, description: row.subtitle })
+  const emptyCard: CmsCardItem = { title: '', description: '', embedUrl: '' }
+  const cardRows = (items: CmsCardItem[]) =>
+    items.map((f) => ({ title: f.title, embedUrl: f.embedUrl || '' }))
+  /** Merge an {title, embedUrl} row edit back into the full card item (description preserved). */
+  function cardOps(key: 'foods' | 'subDestinations' | 'cultureItems') {
+    const ops = listOps<CmsCardItem>(key, emptyCard)
+    return {
+      ...ops,
+      onChange: (i: number, row: { title: string; embedUrl: string }) =>
+        setRecord((r) => ({
+          ...r,
+          [key]: r[key].map((item, x) =>
+            x === i ? { ...item, title: row.title, embedUrl: row.embedUrl } : item,
+          ),
+        })),
+    }
+  }
 
   async function uploadMedia(file: File, alt: string) {
     const body = new FormData()
@@ -176,38 +186,47 @@ export function DestinationEditor({
   }
   saveRef.current = (status) => void save(status)
 
-  async function onHeroFile(file: File | null) {
-    if (!file) return
-    setUploading('hero')
-    try {
-      const uploaded = await uploadMedia(file, record.name || 'Hero image')
-      setRecord((r) => ({ ...r, heroImage: uploaded.url, heroImageId: uploaded.id }))
-    } catch (e) {
-      setToast({ kind: 'error', text: e instanceof Error ? e.message : 'Upload failed' })
-    } finally {
-      setUploading(null)
+  function makeImageUpload(
+    kind: 'hero' | 'gallery' | 'highlight',
+    apply: (r: CmsDestinationRecord, uploaded: { id: number | string; url: string }) => CmsDestinationRecord,
+    altFor: () => string,
+  ) {
+    return async (file: File | null) => {
+      if (!file) return
+      setUploading(kind)
+      try {
+        const uploaded = await uploadMedia(file, altFor())
+        setRecord((r) => apply(r, uploaded))
+      } catch (e) {
+        setToast({ kind: 'error', text: e instanceof Error ? e.message : 'Upload failed' })
+      } finally {
+        setUploading(null)
+      }
     }
   }
 
-  async function onGalleryFile(file: File | null) {
-    if (!file) return
-    setUploading('gallery')
-    try {
-      const uploaded = await uploadMedia(file, `${record.name || 'Gallery'} photo`)
-      setRecord((r) => ({
-        ...r,
-        gallery: [...(r.gallery || []), uploaded.url],
-        galleryIds: [...(r.galleryIds || []), uploaded.id],
-      }))
-    } catch (e) {
-      setToast({ kind: 'error', text: e instanceof Error ? e.message : 'Upload failed' })
-    } finally {
-      setUploading(null)
-    }
-  }
+  const onHeroFile = makeImageUpload(
+    'hero',
+    (r, u) => ({ ...r, heroImage: u.url, heroImageId: u.id }),
+    () => record.name || 'Hero image',
+  )
+  const onGalleryFile = makeImageUpload(
+    'gallery',
+    (r, u) => ({
+      ...r,
+      gallery: [...(r.gallery || []), u.url],
+      galleryIds: [...(r.galleryIds || []), u.id],
+    }),
+    () => `${record.name || 'Gallery'} photo`,
+  )
+  const onHighlightFile = makeImageUpload(
+    'highlight',
+    (r, u) => ({ ...r, highlightImage: u.url, highlightImageId: u.id }),
+    () => `${record.name || 'Destination'} highlight`,
+  )
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] text-[#132110]" data-node-id="474:1539">
+    <div className="min-h-screen bg-[#f5f5f5] text-[#132110]" data-node-id="618:4168">
       <CmsTopBar
         backHref="/cms"
         title={
@@ -228,7 +247,7 @@ export function DestinationEditor({
           <>
             <button
               type="button"
-              className="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#4b5563] transition-colors hover:bg-[#f9fafb] md:px-4"
+              className="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2.5 text-[14px] font-medium text-[#4b5563] transition-colors hover:bg-[#f9fafb] md:px-4"
               onClick={() => (dirty ? setConfirmDiscard(true) : router.push('/cms'))}
             >
               Discard
@@ -237,7 +256,7 @@ export function DestinationEditor({
               type="button"
               disabled={saving}
               title="Ctrl+S"
-              className="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#132110] transition-colors hover:bg-[#f9fafb] disabled:opacity-50 md:px-4"
+              className="rounded-lg border border-[#31542a] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#31542a] transition-colors hover:bg-[rgba(49,84,42,0.06)] disabled:opacity-50 md:px-4"
               onClick={() => void save('draft')}
             >
               {saving ? 'Saving…' : 'Save Draft'}
@@ -254,7 +273,7 @@ export function DestinationEditor({
         }
       />
 
-      <div className="mx-auto flex w-full max-w-[800px] flex-col gap-6 px-4 py-8 md:px-0 md:py-14">
+      <div className="mx-auto flex w-full max-w-[800px] flex-col gap-6 px-4 py-8 md:px-0 md:py-10">
         <SectionCard title="Basic Information">
           <Field label="Destination Name">
             <TextInput value={record.name} onChange={(v) => patch('name', v)} />
@@ -274,54 +293,19 @@ export function DestinationEditor({
         </SectionCard>
 
         <SectionCard title="Hero Section">
+          <Field label="Hero Background Video">
+            <EmbedLinkBox
+              value={record.heroVideoUrl || ''}
+              onChange={(v) => patch('heroVideoUrl', v)}
+            />
+          </Field>
           <Field label="Hero Background Image">
-            <div
-              className="flex h-[240px] flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-[#e5e7eb] bg-[#f9fafb] p-6 transition-colors"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault()
-                void onHeroFile(e.dataTransfer.files?.[0] || null)
-              }}
-            >
-              {record.heroImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={record.heroImage}
-                  alt=""
-                  className="h-[100px] w-[160px] rounded-lg object-cover"
-                />
-              ) : (
-                <p className="text-[13px] text-[#9ca3af]">Drop an image here or use the buttons below</p>
-              )}
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  disabled={uploading === 'hero'}
-                  className="rounded-md border border-[#e5e7eb] bg-white px-3 py-2 text-[13px] font-semibold transition-colors hover:bg-[#f9fafb] disabled:opacity-50"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  {uploading === 'hero' ? 'Uploading…' : record.heroImage ? 'Replace Image' : 'Upload Image'}
-                </button>
-                {record.heroImage ? (
-                  <button
-                    type="button"
-                    className="rounded-md bg-[#fef2f2] px-3 py-2 text-[13px] font-semibold text-[#ef4444] transition-colors hover:bg-[#fee2e2]"
-                    onClick={() =>
-                      setRecord((r) => ({ ...r, heroImage: '', heroImageId: null }))
-                    }
-                  >
-                    Remove
-                  </button>
-                ) : null}
-              </div>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => void onHeroFile(e.target.files?.[0] || null)}
-              />
-            </div>
+            <ImageDropzone
+              value={record.heroImage}
+              uploading={uploading === 'hero'}
+              onFile={(f) => void onHeroFile(f)}
+              onRemove={() => setRecord((r) => ({ ...r, heroImage: '', heroImageId: null }))}
+            />
           </Field>
           <Field label="Hero Title">
             <TextInput value={record.heroTitle} onChange={(v) => patch('heroTitle', v)} />
@@ -349,7 +333,7 @@ export function DestinationEditor({
             <Field label="Hangout Type">
               <SelectField
                 value={record.hangoutType}
-                options={hangouts}
+                options={['Group/Couple', 'Solo', 'Family']}
                 onChange={(v) => patch('hangoutType', v)}
               />
             </Field>
@@ -377,190 +361,107 @@ export function DestinationEditor({
           </Field>
         </SectionCard>
 
-        <SectionCard title="Photo Gallery">
-          <div
-            className="grid grid-cols-2 gap-3 md:grid-cols-4"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault()
-              void onGalleryFile(e.dataTransfer.files?.[0] || null)
-            }}
-          >
-            {(record.gallery || []).map((src, i) => (
-              <div key={`${src}-${i}`} className="group relative aspect-[4/3] overflow-hidden rounded-lg">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="size-full object-cover" />
-                <button
-                  type="button"
-                  className="absolute top-1 right-1 rounded bg-white/90 px-2 py-0.5 text-[11px] font-semibold opacity-0 transition-opacity group-hover:opacity-100"
-                  onClick={() =>
-                    setRecord((r) => ({
-                      ...r,
-                      gallery: (r.gallery || []).filter((_, idx) => idx !== i),
-                      galleryIds: (r.galleryIds || []).filter((_, idx) => idx !== i),
-                    }))
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            {(record.gallery || []).length < 4
-              ? Array.from({ length: 4 - (record.gallery || []).length }).map((_, i) => (
-                  <div
-                    key={`empty-${i}`}
-                    className="aspect-[4/3] rounded-lg border border-dashed border-[#e5e7eb] bg-[#f9fafb]"
-                  />
-                ))
-              : null}
-          </div>
-          <AddRowButton
-            label={uploading === 'gallery' ? 'Uploading…' : 'Add Gallery Photo'}
-            onClick={() => uploading !== 'gallery' && galleryRef.current?.click()}
-          />
-          <input
-            ref={galleryRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => void onGalleryFile(e.target.files?.[0] || null)}
+        <SectionCard title="Gallery Images" count={(record.gallery || []).length}>
+          <GalleryGrid
+            images={record.gallery || []}
+            uploading={uploading === 'gallery'}
+            onAddFile={(f) => void onGalleryFile(f)}
+            onRemove={(i) =>
+              setRecord((r) => ({
+                ...r,
+                gallery: (r.gallery || []).filter((_, idx) => idx !== i),
+                galleryIds: (r.galleryIds || []).filter((_, idx) => idx !== i),
+              }))
+            }
           />
         </SectionCard>
 
-        <SectionCard title="Must Try Food">
-          <RepeatList
+        <SectionCard title="Must Try Food" count={record.foods.length}>
+          <EmbedRowList
             addLabel="Add Food Item"
-            {...listProps('foods', titleDesc, fromTitleDesc, { title: 'New food', description: '' })}
+            items={cardRows(record.foods)}
+            {...cardOps('foods')}
           />
         </SectionCard>
 
-        <SectionCard title="Sub Destinations Nearby">
-          <RepeatList
+        <SectionCard title="Go To Destinations" count={record.subDestinations.length}>
+          <EmbedRowList
             addLabel="Add Sub-Destination"
-            {...listProps('subDestinations', titleDesc, fromTitleDesc, {
-              title: 'New spot',
-              description: '',
-            })}
+            items={cardRows(record.subDestinations)}
+            {...cardOps('subDestinations')}
           />
         </SectionCard>
 
-        <SectionCard title="Heritage & Culture">
-          <RepeatList
+        <SectionCard title="Heritage & Culture" count={record.cultureItems.length}>
+          <EmbedRowList
             addLabel="Add Item"
-            {...listProps('cultureItems', titleDesc, fromTitleDesc, {
-              title: 'New item',
-              description: '',
-            })}
+            items={cardRows(record.cultureItems)}
+            {...cardOps('cultureItems')}
           />
         </SectionCard>
 
-        <SectionCard title="What's Happening Around">
-          <RepeatList
+        <SectionCard title="Social Content" count={record.social.length}>
+          <ReadOnlyField label="Section Title" value="Explore the Viral Travel Contents" />
+          <SocialRowList
+            items={record.social}
+            {...listOps<SocialRow>('social', { creator: '', platform: 'YouTube', embedUrl: '' })}
+          />
+        </SectionCard>
+
+        <SectionCard title="Highlights" count={record.highlights.length}>
+          <ReadOnlyField
+            label="Section Title"
+            value={`Highlights of ${record.name || 'this destination'}`}
+          />
+          <Field label="Highlight Image">
+            <ImageDropzone
+              value={record.highlightImage}
+              uploading={uploading === 'highlight'}
+              onFile={(f) => void onHighlightFile(f)}
+              onRemove={() =>
+                setRecord((r) => ({ ...r, highlightImage: '', highlightImageId: null }))
+              }
+            />
+          </Field>
+          <HighlightRowList
             addLabel="Add Item"
-            subtitlePlaceholder="Date"
-            {...listProps<{ title: string; date: string }>(
-              'events',
-              (i) => ({ title: i.title, subtitle: i.date }),
-              (row) => ({ title: row.title, date: row.subtitle }),
-              { title: 'New event', date: '' },
-            )}
-          />
-        </SectionCard>
-
-        <SectionCard title="Highlights of Destination">
-          <RepeatList
-            addLabel="Add Item"
-            {...listProps('highlights', titleDesc, fromTitleDesc, {
-              title: 'New highlight',
-              description: '',
-            })}
-          />
-        </SectionCard>
-
-        <SectionCard title="Viral Travel Contents">
-          <RepeatList
-            addLabel="Add Social Content"
-            titlePlaceholder="Creator"
-            subtitlePlaceholder="Platform · URL"
-            {...listProps<{ creator: string; platform: string; embedUrl?: string }>(
-              'social',
-              (i) => ({
-                title: i.creator,
-                subtitle: i.embedUrl ? `${i.platform} · ${i.embedUrl}` : i.platform,
-              }),
-              (row) => {
-                const [platform, ...rest] = row.subtitle.split('·').map((s) => s.trim())
-                return {
-                  creator: row.title,
-                  platform: platform || 'YouTube',
-                  embedUrl: rest.join(' · '),
-                }
-              },
-              { creator: 'Creator', platform: 'YouTube', embedUrl: '' },
-            )}
+            items={record.highlights}
+            {...listOps('highlights', { title: '', description: '' })}
           />
         </SectionCard>
 
         <SectionCard title="Related Destinations">
-          {relatable.length === 0 ? (
-            <p className="text-[13px] text-[#9ca3af]">No other destinations to link yet.</p>
-          ) : (
-            <>
-              <div className="flex flex-wrap gap-2">
-                {relatable.map((d) => {
-                  const on = (record.relatedIds || []).includes(d.id)
-                  const full = (record.relatedIds || []).length >= 4
-                  return (
-                    <button
-                      key={d.id}
-                      type="button"
-                      aria-pressed={on}
-                      disabled={!on && full}
-                      className={`rounded-full border px-3 py-1.5 text-[13px] transition-colors disabled:opacity-40 ${
-                        on
-                          ? 'border-[#31542a] bg-[#31542a] text-white'
-                          : 'border-[#e5e7eb] bg-[#fafafa] hover:border-[#31542a]'
-                      }`}
-                      onClick={() =>
-                        setRecord((r) => {
-                          const ids = r.relatedIds || []
-                          const nextIds = on ? ids.filter((id) => id !== d.id) : [...ids, d.id]
-                          const names = relatable
-                            .filter((x) => nextIds.includes(x.id))
-                            .map((x) => x.name)
-                          return { ...r, relatedIds: nextIds, related: names }
-                        })
-                      }
-                    >
-                      {on ? '✓ ' : ''}
-                      {d.name}
-                    </button>
-                  )
-                })}
-              </div>
-              <p className="text-[13px] text-[#9ca3af]">
-                Pick up to 4. {(record.relatedIds || []).length}/4 selected.
-              </p>
-            </>
-          )}
-        </SectionCard>
-
-        <SectionCard title="Frequently Asked Questions">
-          <RepeatList
-            addLabel="Add FAQ"
-            titlePlaceholder="Question"
-            subtitlePlaceholder="Answer"
-            subtitleMultiline
-            {...listProps<{ question: string; answer: string }>(
-              'faqs',
-              (i) => ({ title: i.question, subtitle: i.answer }),
-              (row) => ({ question: row.title, answer: row.subtitle }),
-              { question: 'New question?', answer: '' },
-            )}
+          <RelatedPicker
+            options={relatable}
+            selectedIds={record.relatedIds || []}
+            onChange={(ids) =>
+              setRecord((r) => ({
+                ...r,
+                relatedIds: ids,
+                related: relatable.filter((x) => ids.includes(x.id)).map((x) => x.name),
+              }))
+            }
           />
         </SectionCard>
 
-        <p className="pb-10 text-center text-[13px] text-[#9ca3af]">
+        <SectionCard title="Frequently Asked Questions" count={record.faqs.length}>
+          <FaqAccordion
+            items={record.faqs}
+            {...listOps('faqs', { question: '', answer: '' })}
+          />
+        </SectionCard>
+
+        <SectionCard title="Final CTA">
+          <ReadOnlyField label="CTA Background Image" />
+          <ReadOnlyField label="CTA Title" value="BEAUTIFUL BANGLADESH" />
+          <ReadOnlyField label="Button Text" value="Explore More Reels" />
+          <ReadOnlyField label="Button Link" value="/reels" />
+          <p className="text-[12px] text-[#9ca3af]">
+            The final CTA is shared across the site and not editable per destination.
+          </p>
+        </SectionCard>
+
+        <p className="pb-4 text-center text-[13px] text-[#9ca3af]">
           Saves to Payload ·{' '}
           {record.slug ? (
             <Link href={`/destinations/${record.slug}`} className="underline">

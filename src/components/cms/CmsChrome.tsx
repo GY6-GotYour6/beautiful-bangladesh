@@ -22,7 +22,7 @@ export function CmsTopBar({ crumbs, actions, backHref, title }: Props) {
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
-                d="M15 18l-6-6 6-6"
+                d="M19 12H5M12 19l-7-7 7-7"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
@@ -88,15 +88,20 @@ export function StatusBadge({ status }: { status: 'published' | 'draft' }) {
 
 export function SectionCard({
   title,
+  count,
   children,
 }: {
   title: string
+  count?: number
   children: ReactNode
 }) {
   return (
     <section className="flex w-full flex-col gap-6 rounded-xl bg-white p-6 shadow-[0_4px_6px_rgba(0,0,0,0.03)] md:p-8">
       <header className="flex flex-col gap-1">
-        <h2 className="text-[18px] font-bold uppercase text-[#132110]">{title}</h2>
+        <h2 className="text-[18px] font-bold uppercase text-[#132110]">
+          {title}
+          {count != null ? ` — ${count} item${count === 1 ? '' : 's'}` : ''}
+        </h2>
         <div className="h-[3px] w-10 rounded-sm bg-[#31542a]" />
       </header>
       <div className="flex flex-col gap-5">{children}</div>

@@ -11,6 +11,8 @@ export type CmsDestinationListItem = {
   thumb: string
 }
 
+export type CmsCardItem = { title: string; description: string; embedUrl?: string }
+
 export type CmsDestinationRecord = {
   id?: number | string
   slug: string
@@ -20,6 +22,7 @@ export type CmsDestinationRecord = {
   featured: boolean
   heroImage: string
   heroImageId?: number | string | null
+  heroVideoUrl?: string
   heroTitle: string
   heroSubtitle: string
   location: string
@@ -31,10 +34,12 @@ export type CmsDestinationRecord = {
   sidebarQuote: string
   gallery?: string[]
   galleryIds?: (number | string)[]
-  foods: { title: string; description: string }[]
-  subDestinations: { title: string; description: string }[]
-  cultureItems: { title: string; description: string }[]
+  foods: CmsCardItem[]
+  subDestinations: CmsCardItem[]
+  cultureItems: CmsCardItem[]
   events: { title: string; date: string }[]
+  highlightImage?: string
+  highlightImageId?: number | string | null
   highlights: { title: string; description: string }[]
   social: { creator: string; platform: string; embedUrl?: string }[]
   related: string[]
@@ -222,6 +227,7 @@ export function emptyDestinationRecord(): CmsDestinationRecord {
     status: 'draft',
     featured: false,
     heroImage: '',
+    heroVideoUrl: '',
     heroTitle: '',
     heroSubtitle: '',
     location: '',
@@ -237,6 +243,8 @@ export function emptyDestinationRecord(): CmsDestinationRecord {
     subDestinations: [],
     cultureItems: [],
     events: [],
+    highlightImage: '',
+    highlightImageId: null,
     highlights: [],
     social: [],
     related: [],

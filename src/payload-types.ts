@@ -209,6 +209,10 @@ export interface Destination {
    */
   metaDescription?: string | null;
   heroImage?: (number | null) | Media;
+  /**
+   * Hero background video embed URL (YouTube)
+   */
+  heroVideoUrl?: string | null;
   heroTitle?: string | null;
   heroSubtitle?: string | null;
   location?: string | null;
@@ -228,6 +232,10 @@ export interface Destination {
     | {
         title: string;
         description?: string | null;
+        /**
+         * YouTube watch/embed URL
+         */
+        embedUrl?: string | null;
         image?: (number | null) | Media;
         id?: string | null;
       }[]
@@ -236,6 +244,10 @@ export interface Destination {
     | {
         title: string;
         description?: string | null;
+        /**
+         * YouTube watch/embed URL
+         */
+        embedUrl?: string | null;
         image?: (number | null) | Media;
         id?: string | null;
       }[]
@@ -244,6 +256,10 @@ export interface Destination {
     | {
         title: string;
         description?: string | null;
+        /**
+         * YouTube watch/embed URL
+         */
+        embedUrl?: string | null;
         image?: (number | null) | Media;
         id?: string | null;
       }[]
@@ -256,6 +272,10 @@ export interface Destination {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Image shown beside the highlights list
+   */
+  highlightImage?: (number | null) | Media;
   highlights?:
     | {
         title: string;
@@ -455,6 +475,7 @@ export interface DestinationsSelect<T extends boolean = true> {
   metaTitle?: T;
   metaDescription?: T;
   heroImage?: T;
+  heroVideoUrl?: T;
   heroTitle?: T;
   heroSubtitle?: T;
   location?: T;
@@ -475,6 +496,7 @@ export interface DestinationsSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        embedUrl?: T;
         image?: T;
         id?: T;
       };
@@ -483,6 +505,7 @@ export interface DestinationsSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        embedUrl?: T;
         image?: T;
         id?: T;
       };
@@ -491,6 +514,7 @@ export interface DestinationsSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        embedUrl?: T;
         image?: T;
         id?: T;
       };
@@ -502,6 +526,7 @@ export interface DestinationsSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
+  highlightImage?: T;
   highlights?:
     | T
     | {
