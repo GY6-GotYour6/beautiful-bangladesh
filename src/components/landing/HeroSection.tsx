@@ -37,33 +37,15 @@ export function HeroSection() {
         className="relative w-full overflow-hidden rounded-tl-[40px] rounded-tr-[40px]"
         style={{ height: `calc(100svh - ${vw(DESKTOP_HERO_OFFSET)})`, minHeight: 720 }}
       >
-        {/*
-          The source video is 720×1280 portrait. object-cover on a landscape container
-          would upscale it ~1.9× (blurry) and crop 60%+ of the height (zoomed in).
-          Fix: two layers —
-            1. Blurred fill: same video, blurred+scaled to cover gaps around the portrait frame
-            2. Sharp center: video fitted by height (h-full, w-auto) → downscaled from 720px → crisp
-          Browser serves both from the same cache entry; blur makes sync drift invisible.
-        */}
-        {/* Layer 1 — blurred background fill */}
+        {/* Background video */}
         <video
-          className="absolute inset-0 size-full object-cover scale-110 blur-[32px] pointer-events-none"
+          className="absolute inset-0 size-full object-cover pointer-events-none"
           src="/hero/hero.mp4"
           autoPlay
           muted
           loop
           playsInline
           poster="/hero/bg.webp"
-          aria-hidden="true"
-        />
-        {/* Layer 2 — sharp portrait video centered at natural width */}
-        <video
-          className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 h-full w-auto pointer-events-none"
-          src="/hero/hero.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
           aria-hidden="true"
         />
 
