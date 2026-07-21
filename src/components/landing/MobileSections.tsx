@@ -15,9 +15,10 @@ import { ExperienceCarousel } from './ExperienceCarousel'
  */
 
 const heroReels = [
-  { src: '/hero/reel1.webp', alt: "Cox's Bazar reel" },
-  { src: '/hero/reel2.webp', alt: 'Sunset reel' },
-  { src: '/hero/reel3.webp', alt: 'Scenic reel' },
+  { src: '/hero/reel1.webp',          alt: "Cox's Bazar reel" },
+  { src: '/hero/reel2.webp',          alt: 'Sunset reel' },
+  { src: '/hero/reel3.webp',          alt: 'Scenic reel' },
+  { src: '/landing/reels/rafsan.png', alt: 'Bangladesh reel' },
 ]
 
 export function MobileHero() {

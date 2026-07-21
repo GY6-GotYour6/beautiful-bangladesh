@@ -11,9 +11,10 @@ import { CtaButton } from './CtaButton'
 import { ScrollDownCue } from './ScrollDownCue'
 
 const reels = [
-  { src: '/hero/reel1.webp', alt: "Cox's Bazar reel", href: '/#creator-reels' },
-  { src: '/hero/reel2.webp', alt: 'Sunset reel', href: '/#creator-reels' },
-  { src: '/hero/reel3.webp', alt: 'Scenic reel', href: '/#creator-reels' },
+  { src: '/hero/reel1.webp',          alt: "Cox's Bazar reel",    href: '/#creator-reels' },
+  { src: '/hero/reel2.webp',          alt: 'Sunset reel',         href: '/#creator-reels' },
+  { src: '/hero/reel3.webp',          alt: 'Scenic reel',         href: '/#creator-reels' },
+  { src: '/landing/reels/rafsan.png', alt: 'Bangladesh reel',     href: '/#creator-reels' },
 ]
 
 const vw = (px: number) => `calc(${px} / ${DESKTOP_ARTBOARD} * 100vw)`
@@ -36,14 +37,16 @@ export function HeroSection() {
         className="relative w-full overflow-hidden rounded-tl-[40px] rounded-tr-[40px]"
         style={{ height: `calc(100svh - ${vw(DESKTOP_HERO_OFFSET)})`, minHeight: 720 }}
       >
-        {/* Background photo */}
-        <Image
-          src="/hero/bg.webp"
-          alt="Beautiful Bangladesh — aerial landscape"
-          fill
-          className="object-cover pointer-events-none"
-          priority
-          sizes="(min-width: 768px) 100vw"
+        {/* Background video */}
+        <video
+          className="absolute inset-0 size-full object-cover pointer-events-none"
+          src="/hero/hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero/bg.webp"
+          aria-hidden="true"
         />
 
         {/* Top-down gradient */}
@@ -99,7 +102,7 @@ export function HeroSection() {
                 <Link
                   key={r.src}
                   href={r.href}
-                  className="relative h-[280px] w-[180px] shrink-0 overflow-hidden rounded-sm self-center"
+                  className="relative h-[280px] w-[160px] shrink-0 overflow-hidden rounded-sm self-center"
                   aria-label={r.alt}
                 >
                   <Image
@@ -107,7 +110,7 @@ export function HeroSection() {
                     alt={r.alt}
                     fill
                     className="object-cover"
-                    sizes="180px"
+                    sizes="160px"
                   />
                 </Link>
               ))}
