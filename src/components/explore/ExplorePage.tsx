@@ -76,7 +76,8 @@ function ExploreCategories() {
           data-node-id="603:412"
         >
           Where endless golden shores meet the Bay of Bengal. From sunrise walks and seafood feasts
-          to dramatic coastal drives and hidden beaches.
+          to dramatic coastal drives and hidden beaches. Where endless golden shores meet the Bay of
+          Bengal. From sunrise walks and seafood feasts to dramatic coastal drives and hidden beaches.
         </p>
       </div>
 
