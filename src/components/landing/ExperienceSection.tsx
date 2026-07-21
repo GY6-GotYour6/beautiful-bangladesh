@@ -21,34 +21,50 @@ export function ExperienceSection() {
         />
       </div>
 
-      {/* Title */}
+      {/* Title — Figma text: "once & it will" */}
       <p
         className="relative font-[family-name:var(--font-body)] font-medium text-[32px] text-[#39260b] text-center tracking-[-0.96px] w-[352px] leading-[normal]"
         data-node-id="466:1234"
       >
         Experience it{' '}
         <span className="font-[family-name:var(--font-script)] font-bold">once</span>
-        {', and it will '}
+        {' & it will '}
         <span className="font-[family-name:var(--font-script)] font-bold">live in</span>
         {' you forever'}
       </p>
 
-      {/*
-        Figma 466:1232 proportions:
-          pos 0  (Food):       300 × 300 px  → scale 1.000
-          pos ±1 (Activities/Culture): ~272 px → scale 0.907
-          pos ±2 (Shopping/History):   ~223 px → scale 0.743
-          gap between cards: 32 px
-      */}
-      {/* Carousel — fades and blur handled inside the component, bounded to card height */}
+      {/* Carousel — fades are section-level below, not inside carousel */}
       <ExperienceCarousel
         cardW={300}
         cardH={300}
         scale1={0.907}
         scale2={0.743}
         gap={32}
-        labelSize={28}
-        fadeW={120}
+      />
+
+      {/*
+        Cloud fades — Figma 466:1258 / 466:1259.
+        Left fade positioned left=-50px (50px outside section, clipped by overflow-hidden)
+        so the fully-opaque part is off-screen and the section edge sees ~80% opacity,
+        fading to transparent at 183px from left edge. Width/offset/color match Figma exactly.
+      */}
+      <div
+        className="pointer-events-none absolute top-0 bottom-0 z-10"
+        style={{
+          left: -50,
+          width: 233,
+          background: 'linear-gradient(to right, #f4df92 0%, rgba(241,209,96,0) 125.47%)',
+        }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute top-0 bottom-0 z-10"
+        style={{
+          right: -60,
+          width: 234,
+          background: 'linear-gradient(to left, #f4df92 0%, rgba(241,209,96,0) 125.47%)',
+        }}
+        aria-hidden
       />
     </div>
   )

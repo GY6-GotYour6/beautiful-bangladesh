@@ -98,7 +98,7 @@ export function MobileExperience() {
       <p className="relative px-[24px] text-center font-[family-name:var(--font-body)] text-[22px] font-medium tracking-[-0.66px] text-[#39260b] leading-[normal]">
         Experience it{' '}
         <span className="font-[family-name:var(--font-script)] font-bold">once</span>
-        {', and it will '}
+        {' & it will '}
         <span className="font-[family-name:var(--font-script)] font-bold">live in</span>
         {' you forever'}
       </p>
@@ -110,7 +110,25 @@ export function MobileExperience() {
         scale2={0.743}
         gap={16}
         labelSize={14}
-        fadeW={80}
+      />
+      {/* Section-level fades — negative offset so opaque end is outside section (clipped) */}
+      <div
+        className="pointer-events-none absolute top-0 bottom-0 z-10"
+        style={{
+          left: -14,
+          width: 63,
+          background: 'linear-gradient(to right, #f4df92 0%, rgba(241,209,96,0) 125.47%)',
+        }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute top-0 bottom-0 z-10"
+        style={{
+          right: -14,
+          width: 63,
+          background: 'linear-gradient(to left, #f4df92 0%, rgba(241,209,96,0) 125.47%)',
+        }}
+        aria-hidden
       />
     </section>
   )

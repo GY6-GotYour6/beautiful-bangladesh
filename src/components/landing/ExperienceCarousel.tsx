@@ -3,11 +3,31 @@
 import { useState, useEffect, useRef } from 'react'
 
 const STAMPS = [
-  { id: 'shopping',   label: 'Shopping',      photo: '/landing/experience/shopping.png',   svg: '/landing/experience/stamp-shopping.svg' },
-  { id: 'activities', label: 'Activities',    photo: '/landing/experience/activities.png', svg: '/landing/experience/stamp-activities.svg' },
-  { id: 'food',       label: 'Food & Drinks', photo: '/landing/experience/food.png',        svg: '/landing/experience/stamp-food.svg' },
-  { id: 'culture',    label: 'Culture',       photo: '/landing/experience/culture.png',    svg: '/landing/experience/stamp-culture.svg' },
-  { id: 'history',    label: 'History',       photo: '/landing/experience/history.png',    svg: '/landing/experience/stamp-history.svg' },
+  {
+    id: 'shopping',   label: 'Shopping',      photo: '/landing/experience/shopping.png',
+    svg: '/landing/experience/stamp-shopping.svg',
+    nativeLabelSize: 24, tracking: '-1.92px', labelOpacity: 1,
+  },
+  {
+    id: 'activities', label: 'Activities',    photo: '/landing/experience/activities.png',
+    svg: '/landing/experience/stamp-activities.svg',
+    nativeLabelSize: 32, tracking: '-2.56px', labelOpacity: 0.9,
+  },
+  {
+    id: 'food',       label: 'Food & Drinks', photo: '/landing/experience/food.png',
+    svg: '/landing/experience/stamp-food.svg',
+    nativeLabelSize: 36, tracking: '-2.88px', labelOpacity: 1,
+  },
+  {
+    id: 'culture',    label: 'Culture',       photo: '/landing/experience/culture.png',
+    svg: '/landing/experience/stamp-culture.svg',
+    nativeLabelSize: 32, tracking: '-2.56px', labelOpacity: 1,
+  },
+  {
+    id: 'history',    label: 'History',       photo: '/landing/experience/history.png',
+    svg: '/landing/experience/stamp-history.svg',
+    nativeLabelSize: 24, tracking: '-1.92px', labelOpacity: 1,
+  },
 ]
 
 const N = STAMPS.length
@@ -27,8 +47,8 @@ interface Props {
   scale1:     number
   scale2:     number
   gap:        number
+  /** Override label size for all stamps (mobile). Omit to use Figma native per-stamp sizes. */
   labelSize?: number
-  fadeW?:     number
   className?: string
 }
 
@@ -38,8 +58,7 @@ export function ExperienceCarousel({
   scale1,
   scale2,
   gap,
-  labelSize = 28,
-  fadeW     = 120,
+  labelSize,
   className,
 }: Props) {
   const [active,    setActive]    = useState(2)
@@ -57,17 +76,16 @@ export function ExperienceCarousel({
 
       const prev     = activeRef.current
       const next     = (prev + 1) % N
-      // Card sitting at pos=-2 (far left) will wrap to pos=+2 (far right)
+      // Card at pos=-2 (far left) wraps to pos=+2 (far right)
       const jumpCard = ((prev - 2) % N + N) % N
 
-      // Fade jump card OUT at left edge, slide all other cards to new positions
+      // Fade jump card OUT at left edge; slide all other cards to new positions
       setJumpState({ card: jumpCard, phase: 'out' })
       setActive(next)
 
-      // After fade-out: instantly move jump card to right edge (still opacity=0)
+      // After fade-out: instantly move jump card to right edge (opacity=0, no transition)
       t1 = setTimeout(() => {
         setJumpState({ card: jumpCard, phase: 'teleport' })
-        // Next paint: fade jump card IN at right edge
         requestAnimationFrame(() =>
           requestAnimationFrame(() =>
             setJumpState({ card: jumpCard, phase: 'in' })
@@ -75,7 +93,6 @@ export function ExperienceCarousel({
         )
       }, 350)
 
-      // After full animation cycle: clear jump state
       t2 = setTimeout(() => setJumpState(null), 920)
     }, 3200)
 
@@ -92,10 +109,6 @@ export function ExperienceCarousel({
   const tx1   = half + gap + half1
   const tx2   = tx1 + half1 + gap + half2
 
-  // #f5de8f — matches section background for both desktop and mobile
-  const fadeColor = 'rgba(245,222,143,1)'
-  const fadeTrans = 'rgba(245,222,143,0)'
-
   return (
     <div
       className={`relative w-full overflow-hidden ${className ?? ''}`}
@@ -111,16 +124,14 @@ export function ExperienceCarousel({
 
         if (isJump) {
           if (phase === 'out') {
-            pos        = -2                    // hold at left-edge position while fading out
-            opacity    = 0                     // CSS will animate from previous opacity(1) → 0
-            transition = 'opacity 0.3s ease'   // only opacity, no transform slide
-          } else if (phase === 'teleport') {
-            // pos = computePos(...) now = +2 (correct after active update)
+            pos        = -2
             opacity    = 0
-            transition = 'none'               // instant: no jump flash, no opacity transition
+            transition = 'opacity 0.3s ease'
+          } else if (phase === 'teleport') {
+            opacity    = 0
+            transition = 'none'
           } else {
-            // phase === 'in'
-            opacity    = 1                     // CSS will animate from 0 → 1
+            opacity    = 1
             transition = 'opacity 0.5s ease'
           }
         } else {
@@ -134,6 +145,9 @@ export function ExperienceCarousel({
                     : pos ===  2 ?  tx2
                     :              -tx2
         const scale = pos === 0 ? 1 : Math.abs(pos) === 1 ? scale1 : scale2
+
+        const fontSize   = labelSize ?? stamp.nativeLabelSize
+        const tracking   = labelSize ? `${-(labelSize * 0.08).toFixed(2)}px` : stamp.tracking
 
         return (
           <div
@@ -182,13 +196,14 @@ export function ExperienceCarousel({
                   transform:     'translateY(-50%)',
                   textAlign:     'center',
                   color:         '#f8ff98',
-                  fontSize:      labelSize,
+                  fontSize,
                   fontFamily:    'var(--font-script)',
-                  letterSpacing: '-0.08em',
+                  letterSpacing: tracking,
                   lineHeight:    'normal',
                   textShadow:    '0px 4px 4px rgba(0,0,0,0.25)',
                   whiteSpace:    'nowrap',
                   pointerEvents: 'none',
+                  opacity:       stamp.labelOpacity,
                 }}
               >
                 {stamp.label}
@@ -197,40 +212,6 @@ export function ExperienceCarousel({
           </div>
         )
       })}
-
-      {/* Cloud fades — inside carousel div so they're bounded to card height only */}
-      {fadeW > 0 && (
-        <>
-          <div
-            aria-hidden
-            style={{
-              position:            'absolute',
-              inset:               0,
-              right:               'auto',
-              width:               fadeW,
-              background:          `linear-gradient(to right, ${fadeColor} 40%, ${fadeTrans} 125.47%)`,
-              backdropFilter:      'blur(8px)',
-              WebkitBackdropFilter:'blur(8px)',
-              pointerEvents:       'none',
-              zIndex:              10,
-            }}
-          />
-          <div
-            aria-hidden
-            style={{
-              position:            'absolute',
-              inset:               0,
-              left:                'auto',
-              width:               fadeW,
-              background:          `linear-gradient(to left, ${fadeColor} 40%, ${fadeTrans} 125.47%)`,
-              backdropFilter:      'blur(8px)',
-              WebkitBackdropFilter:'blur(8px)',
-              pointerEvents:       'none',
-              zIndex:              10,
-            }}
-          />
-        </>
-      )}
     </div>
   )
 }
