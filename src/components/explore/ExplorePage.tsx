@@ -5,218 +5,104 @@ import { CtaButton } from '@/components/landing/CtaButton'
 import { MobileCta } from '@/components/landing/MobileSections'
 import { DESKTOP_ARTBOARD, DESKTOP_EXPLORE_OFFSET } from '@/lib/nav-config'
 
-/** Single destination card — photo bg, dark overlay, and name text. */
-function DestCard({
-  name,
-  slug,
-  img,
-  overlay,
-  children,
-}: {
-  name: string
-  slug: string
-  img: string
-  overlay: string
-  children?: React.ReactNode
-}) {
+const DESTS = [
+  { name: 'Sylhet',       slug: 'sylhet',       img: '/landing/destinations/sylhet-hq.png',     overlay: 'bg-[rgba(0,0,0,0.34)]' },
+  { name: 'Cox Bazar',    slug: 'coxs-bazar',   img: '/landing/destinations/coxs-bazar-hq.png', overlay: 'bg-[rgba(0,0,0,0.34)]' },
+  { name: 'Sundarban',    slug: 'sundarbans',   img: '/landing/destinations/sundarbans.png',    overlay: 'bg-gradient-to-b from-[34.333%] from-[rgba(0,0,0,0)] to-[rgba(0,0,0,0.89)]' },
+  { name: 'Sajek Vally',  slug: 'sajek',        img: '/landing/destinations/sajek-hq.png',      overlay: 'bg-[rgba(0,0,0,0.36)]' },
+  { name: 'Chittagong',   slug: 'chittagong',   img: '/landing/destinations/chittagong.webp',   overlay: 'bg-[rgba(0,0,0,0.36)]' },
+  { name: 'Saint Martin', slug: 'saint-martin', img: '/landing/destinations/saint-martin.png',  overlay: 'bg-[rgba(0,0,0,0.36)]' },
+  { name: 'Ratar Gul',    slug: 'ratargul',     img: '/landing/destinations/ratargul.png',      overlay: 'bg-[rgba(0,0,0,0.36)]' },
+  { name: 'Jafflong',     slug: 'jaflong',      img: '/landing/destinations/jaflong.png',       overlay: 'bg-[rgba(0,0,0,0.36)]' },
+] as const
+
+// ─── Desktop ─────────────────────────────────────────────────────────────────
+
+function DestCard({ name, slug, img, overlay }: (typeof DESTS)[number]) {
   return (
     <Link
       href={`/destinations/${slug}`}
-      className="group relative min-w-0 flex-1 h-[var(--dest-card-h,300px)] min-h-[200px] overflow-clip rounded-[24px] block"
+      className="group relative min-w-0 flex-1 h-[300px] overflow-clip rounded-[12px] block"
       aria-label={name}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={img}
         alt=""
-        className="absolute inset-0 size-full max-w-none object-cover rounded-[24px] transition-transform duration-300 group-hover:scale-[1.04]"
+        className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         draggable={false}
       />
-      <div className={`absolute inset-0 rounded-[24px] ${overlay}`} />
-      {children}
+      <div className={`absolute inset-0 ${overlay}`} />
+      {/*
+        Name — Figma: bottom-[107px] translate-y-full on 300px card.
+        80px * 1.4 lh = 112px element height.
+        After translate-y-full: top=193px, bottom=305px → 107px visible (5px clipped).
+      */}
+      <p
+        className="pointer-events-none absolute bottom-[107px] left-0 right-0 translate-y-full text-center
+          font-[family-name:var(--font-script)] text-[80px] leading-[1.4] tracking-[-2.4px]
+          whitespace-nowrap text-white"
+      >
+        {name}
+      </p>
     </Link>
   )
 }
 
-/** Content top offset below the fixed navbar (116px @ 1440, scales with viewport). */
 const EXPLORE_TOP = `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)`
 
-/** Destination category grid — Figma 466:731. */
 function ExploreCategories() {
   return (
     <section
-      className="bg-white flex flex-col gap-[48px] items-center pb-[40px] px-[40px] w-full"
-      style={{
-        paddingTop: EXPLORE_TOP,
-        // Row height so exactly 3 rows (6 cards) fill one viewport with 20px of
-        // whitespace under row 3. Must stay under the 24px row gap so row 4
-        // remains below the fold: (100svh − top offset − 2 row gaps − 20) / 3.
-        ['--dest-card-h' as string]: `calc((100svh - ${EXPLORE_TOP} - 68px) / 3)`,
-      }}
+      className="bg-white flex flex-col gap-[32px] pb-[40px] px-[40px] w-full"
+      style={{ paddingTop: EXPLORE_TOP }}
       data-node-id="466:731"
     >
-      <div className="flex gap-[48px] items-start w-full" data-node-id="466:733">
-        {/* Left column spans the full grid height; text and CTA stick
-            independently — text pins under the navbar for the whole grid
-            scroll, CTA pins to the viewport bottom left */}
-        <div
-          className="flex flex-col items-start justify-between self-stretch shrink-0 w-[346px]"
-          data-node-id="466:734"
+      {/* Hero copy — Figma 602:364 */}
+      <div className="flex flex-col gap-[16px] text-[#132110]" data-node-id="602:364">
+        <p
+          className="font-[family-name:var(--font-body)] text-[40px] font-medium leading-none
+            tracking-[-0.64px] capitalize"
+          data-node-id="602:365"
         >
-          {/* flex-1 wrapper bounds the sticky text so it stops 48px above the
-              CTA instead of sliding into it at the end of the scroll */}
-          <div className="w-full min-h-0 flex-1 pb-[48px]">
-            <div
-              className="sticky flex flex-col gap-[24px] items-start w-full"
-              style={{ top: EXPLORE_TOP }}
-              data-node-id="466:735"
-            >
-              <p
-                className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none tracking-[-1.28px] text-[#132110] capitalize w-full"
-                data-node-id="466:736"
-              >
-                Find your{' '}
-                <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-                  perfect
-                </span>{' '}
-                destination experience
-              </p>
-              <p
-                className="font-[family-name:var(--font-body)] text-[18px] leading-[1.4] text-[#132110] opacity-60 w-full"
-                data-node-id="466:737"
-              >
-                Experience Bangladesh like never before, go to places which is not less than heaven. Visit the Beautiful Bangladesh
-              </p>
-            </div>
-          </div>
+          Find your{' '}
+          <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+            perfect
+          </span>{' '}
+          destination experience
+        </p>
+        <p
+          className="font-[family-name:var(--font-body)] text-[18px] leading-[1.4] opacity-60"
+          data-node-id="603:412"
+        >
+          Where endless golden shores meet the Bay of Bengal. From sunrise walks and seafood feasts
+          to dramatic coastal drives and hidden beaches.
+        </p>
+      </div>
 
-          {/* Stamp CTA — Figma 466:738 */}
-          <div className="sticky bottom-[40px]">
-            <CtaButton size="sm" label="Check Out Reels" />
-          </div>
+      {/* 4 rows × 2 cols — Figma 603:387, gap 16px */}
+      <div className="flex flex-col gap-[16px]" data-node-id="603:387">
+        <div className="flex gap-[16px]" data-node-id="466:740">
+          <DestCard {...DESTS[0]} />
+          <DestCard {...DESTS[1]} />
         </div>
-
-        {/* Right: 4-row × 2-col destination grid */}
-        <div className="flex flex-1 flex-col gap-[24px] min-w-0 self-stretch" data-node-id="466:739">
-          {/* Row 1 */}
-          <div className="flex gap-[24px] shrink-0 w-full" data-node-id="466:740">
-            <DestCard
-              name="Sylhet"
-              slug="sylhet"
-              img="/landing/destinations/sylhet-hq.png"
-              overlay="bg-[rgba(0,0,0,0.34)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  Sylhet
-                </p>
-              </div>
-            </DestCard>
-            <DestCard
-              name="Cox's Bazar"
-              slug="coxs-bazar"
-              img="/landing/destinations/coxs-bazar-hq.png"
-              overlay="bg-[rgba(0,0,0,0.34)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  {"Cox's Bazar"}
-                </p>
-              </div>
-            </DestCard>
-          </div>
-
-          {/* Row 2 */}
-          <div className="flex gap-[24px] shrink-0 w-full" data-node-id="466:745">
-            <DestCard
-              name="Sundarbans"
-              slug="sundarbans"
-              img="/landing/destinations/sundarbans.png"
-              overlay="bg-gradient-to-b from-[34.333%] from-[rgba(0,0,0,0)] to-[rgba(0,0,0,0.89)]"
-            >
-              {/* Bottom-left text with description — Figma 466:747 */}
-              <div
-                className="absolute left-[20px] right-[20px] bottom-[20px] flex flex-col gap-[8px] text-white"
-                data-node-id="466:747"
-              >
-                <p className="font-[family-name:var(--font-body)] text-[24px] font-medium leading-none">
-                  Sundarbans
-                </p>
-                <p className="font-[family-name:var(--font-body)] text-[14px] leading-[1.4]">
-                  {"The Sundarbans, the world's largest mangrove forest, is a UNESCO World Heritage Site in southwest Bangladesh. Home to the Royal Bengal Tiger,"}
-                </p>
-              </div>
-            </DestCard>
-            <DestCard
-              name="Sajek Valley"
-              slug="sajek"
-              img="/landing/destinations/sajek-hq.png"
-              overlay="bg-[rgba(0,0,0,0.36)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  Sajek Valley
-                </p>
-              </div>
-            </DestCard>
-          </div>
-
-          {/* Row 3 */}
-          <div className="flex gap-[24px] shrink-0 w-full" data-node-id="466:752">
-            <DestCard
-              name="Rangamati"
-              slug="rangamati"
-              img="/landing/destinations/rangamati.png"
-              overlay="bg-[rgba(0,0,0,0.36)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  Rangamati
-                </p>
-              </div>
-            </DestCard>
-            <DestCard
-              name="Saint Martin"
-              slug="saint-martin"
-              img="/landing/destinations/saint-martin.png"
-              overlay="bg-[rgba(0,0,0,0.36)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  Saint Martin
-                </p>
-              </div>
-            </DestCard>
-          </div>
-
-          {/* Row 4 */}
-          <div className="flex gap-[24px] shrink-0 w-full" data-node-id="466:757">
-            <DestCard
-              name="Ratargul"
-              slug="ratargul"
-              img="/landing/destinations/ratargul.png"
-              overlay="bg-[rgba(0,0,0,0.36)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  Ratargul
-                </p>
-              </div>
-            </DestCard>
-            <DestCard
-              name="Jaflong"
-              slug="jaflong"
-              img="/landing/destinations/jaflong.png"
-              overlay="bg-[rgba(0,0,0,0.36)]"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[32px] font-medium leading-none text-white whitespace-nowrap">
-                  Jaflong
-                </p>
-              </div>
-            </DestCard>
-          </div>
+        <div className="flex gap-[16px]" data-node-id="466:745">
+          <DestCard {...DESTS[2]} />
+          <DestCard {...DESTS[3]} />
         </div>
+        <div className="flex gap-[16px]" data-node-id="466:752">
+          <DestCard {...DESTS[4]} />
+          <DestCard {...DESTS[5]} />
+        </div>
+        <div className="flex gap-[16px]" data-node-id="466:757">
+          <DestCard {...DESTS[6]} />
+          <DestCard {...DESTS[7]} />
+        </div>
+      </div>
+
+      {/* CTA — Figma 602:367 */}
+      <div className="flex justify-center" data-node-id="602:367">
+        <CtaButton size="sm" label="Check Out Reels" />
       </div>
     </section>
   )
@@ -231,16 +117,7 @@ function ExploreDesktop() {
   )
 }
 
-const MOBILE_DESTS = [
-  { name: 'Sylhet', slug: 'sylhet', img: '/landing/destinations/sylhet-hq.png' },
-  { name: "Cox's Bazar", slug: 'coxs-bazar', img: '/landing/destinations/coxs-bazar-hq.png' },
-  { name: 'Sundarbans', slug: 'sundarbans', img: '/landing/destinations/sundarbans.png' },
-  { name: 'Sajek Valley', slug: 'sajek', img: '/landing/destinations/sajek-hq.png' },
-  { name: 'Rangamati', slug: 'rangamati', img: '/landing/destinations/rangamati.png' },
-  { name: 'Saint Martin', slug: 'saint-martin', img: '/landing/destinations/saint-martin.png' },
-  { name: 'Ratargul', slug: 'ratargul', img: '/landing/destinations/ratargul.png' },
-  { name: 'Jaflong', slug: 'jaflong', img: '/landing/destinations/jaflong.png' },
-] as const
+// ─── Mobile ──────────────────────────────────────────────────────────────────
 
 function ExploreMobile() {
   return (
@@ -255,12 +132,13 @@ function ExploreMobile() {
             destination experience
           </h1>
           <p className="font-[family-name:var(--font-body)] text-[13px] leading-[1.4] text-[#132110] opacity-60">
-            Experience Bangladesh like never before, go to places which is not less than heaven.
-            Visit the Beautiful Bangladesh
+            Where endless golden shores meet the Bay of Bengal. From sunrise walks and seafood
+            feasts to dramatic coastal drives and hidden beaches.
           </p>
         </div>
+
         <div className="grid grid-cols-2 gap-[12px]">
-          {MOBILE_DESTS.map((d) => (
+          {DESTS.map((d) => (
             <Link
               key={d.slug}
               href={`/destinations/${d.slug}`}
@@ -271,24 +149,30 @@ function ExploreMobile() {
               <img
                 src={d.img}
                 alt=""
-                className="absolute inset-0 size-full max-w-none object-cover"
+                className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                 draggable={false}
               />
-              <div className="absolute inset-0 bg-[rgba(0,0,0,0.35)]" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="font-[family-name:var(--font-body)] text-[16px] font-medium leading-none text-white whitespace-nowrap">
-                  {d.name}
-                </p>
-              </div>
+              <div className={`absolute inset-0 ${d.overlay}`} />
+              {/* Name — same bottom-overflow style as desktop, scaled for mobile cards */}
+              <p
+                className="pointer-events-none absolute bottom-[35%] left-0 right-0 translate-y-full
+                  text-center font-[family-name:var(--font-script)] text-[28px] leading-[1.4]
+                  tracking-[-0.84px] whitespace-nowrap text-white"
+              >
+                {d.name}
+              </p>
             </Link>
           ))}
         </div>
+
         <CtaButton size="sm" label="Check Out Reels" className="mt-[8px] self-center" />
       </section>
       <MobileCta />
     </div>
   )
 }
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 /** Explore — Designs `466:730` / mobile `498:3222`. */
 export function ExplorePage() {
