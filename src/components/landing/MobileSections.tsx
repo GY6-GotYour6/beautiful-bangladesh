@@ -5,6 +5,7 @@ import { CtaButton } from './CtaButton'
 import { ScrollDownCue } from './ScrollDownCue'
 import { ROW1, ROW2 } from './CreatorReels'
 import { BlogCard, BLOG_CARDS } from './BlogsSection'
+import { ExperienceCarousel } from './ExperienceCarousel'
 
 /*
  * Real mobile sections — mobile Figma `498:2373` (390 artboard).
@@ -26,12 +27,15 @@ export function MobileHero() {
       data-node-id="498:2373-hero"
     >
       <div className="relative w-full overflow-hidden rounded-[24px]" style={{ height: 'calc(484 / 390 * 100vw)' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero/bg.webp"
-          alt="Beautiful Bangladesh — aerial landscape"
+        <video
           className="absolute inset-0 size-full object-cover"
-          draggable={false}
+          src="/hero/hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero/bg.webp"
+          aria-hidden="true"
         />
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-[55%]"
@@ -78,21 +82,35 @@ export function MobileLatestReels() {
 
 export function MobileExperience() {
   return (
-    <section className="flex w-full flex-col bg-[#f5de8f]">
-      <p className="px-[40px] py-[24px] text-center font-[family-name:var(--font-body)] text-[24px] font-medium tracking-[-0.72px] text-[#39260b]">
+    <section className="relative flex w-full flex-col overflow-hidden bg-[#f5de8f] py-[40px] gap-[24px] mt-[-1px]">
+      {/* Tiled texture overlay */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0 mix-blend-overlay opacity-30"
+          style={{
+            backgroundImage: 'url(/landing/experience/pattern.png)',
+            backgroundSize: '204.8px 204.8px',
+            backgroundPosition: 'top left',
+          }}
+        />
+      </div>
+
+      <p className="relative px-[24px] text-center font-[family-name:var(--font-body)] text-[22px] font-medium tracking-[-0.66px] text-[#39260b] leading-[normal]">
         Experience it{' '}
         <span className="font-[family-name:var(--font-script)] font-bold">once</span>
         {', and it will '}
         <span className="font-[family-name:var(--font-script)] font-bold">live in</span>
         {' you forever'}
       </p>
-      {/* Stamp strip — baked slice of the mobile design */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/landing/figma/designs/mobile/experience-stamps.webp"
-        alt="Shopping, activities, food, culture and history stamps"
-        className="block h-auto w-full"
-        draggable={false}
+
+      <ExperienceCarousel
+        cardW={148}
+        cardH={148}
+        scale1={0.907}
+        scale2={0.743}
+        gap={16}
+        labelSize={14}
+        fadeW={80}
       />
     </section>
   )
