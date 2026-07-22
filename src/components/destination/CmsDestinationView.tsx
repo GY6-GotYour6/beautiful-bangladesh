@@ -16,11 +16,13 @@ const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
 
 function youtubeId(url: string): string | null {
   if (!url) return null
+  // bare video ID (11 chars, alphanumeric + _ -)
+  if (/^[A-Za-z0-9_-]{11}$/.test(url.trim())) return url.trim()
   try {
     const u = new URL(url)
-    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1) || null
+    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0] || null
     if (u.searchParams.get('v')) return u.searchParams.get('v')
-    const m = u.pathname.match(/\/embed\/([^/]+)/)
+    const m = u.pathname.match(/\/(?:embed|shorts|v)\/([A-Za-z0-9_-]{11})/)
     return m?.[1] || null
   } catch {
     return null
@@ -28,23 +30,23 @@ function youtubeId(url: string): string | null {
 }
 
 const LEFT_HL_ICONS = [
-  '/icons/dest/fish.png',
-  '/icons/dest/villa.png',
-  '/icons/dest/sunset.png',
-  '/icons/dest/temple.png',
+  '/icons/dest/fish.svg',
+  '/icons/dest/villa.svg',
+  '/icons/dest/sunset.svg',
+  '/icons/dest/temple.svg',
 ]
 const RIGHT_HL_ICONS = [
-  '/icons/dest/beach.png',
-  '/icons/dest/boat.png',
-  '/icons/dest/island.png',
-  '/icons/dest/mountain.png',
+  '/icons/dest/beach.svg',
+  '/icons/dest/boat.svg',
+  '/icons/dest/island.svg',
+  '/icons/dest/mountain.svg',
 ]
 
 const QUICK_INFO_ICONS = [
-  '/icons/dest/location.png',
-  '/icons/dest/clock.png',
-  '/icons/dest/beach-02.png',
-  '/icons/dest/user-group.png',
+  '/icons/dest/location.svg',
+  '/icons/dest/clock.svg',
+  '/icons/dest/beach-02.svg',
+  '/icons/dest/user-group.svg',
 ]
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -137,7 +139,7 @@ function DesktopDetails({ record }: { record: CmsDestinationRecord }) {
         {/* Vertical divider */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/icons/dest/divider-v.png"
+          src="/icons/dest/divider-v.svg"
           alt=""
           className="h-auto shrink-0 self-stretch"
           style={{ width: '1px' }}
@@ -262,14 +264,14 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
               <div key={ri} className="relative">
                 <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-[80px] bg-gradient-to-r from-white to-transparent" />
                 <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-[80px] bg-gradient-to-l from-white to-transparent" />
-                <div className="no-scrollbar flex gap-[16px] overflow-x-auto pb-[4px]">
+                <div className="no-scrollbar flex gap-[32px] overflow-x-auto pb-[4px]">
                   {row.map((s, i) => {
                     const ytId = youtubeId(s.embedUrl || '')
                     const thumb = ytId
                       ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
                       : null
                     return (
-                      <div key={i} className="flex w-[240px] shrink-0 flex-col gap-[10px]">
+                      <div key={i} className="flex w-[240px] shrink-0 flex-col gap-[12px]">
                         <div className="relative h-[350px] w-[240px] overflow-hidden rounded-[12px] bg-[#1e3a1a]">
                           {thumb ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -278,6 +280,8 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                               alt=""
                               className="absolute inset-0 size-full object-cover"
                               draggable={false}
+                              referrerPolicy="no-referrer"
+                              crossOrigin="anonymous"
                             />
                           ) : (
                             <div className="flex size-full items-center justify-center bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]">
@@ -285,11 +289,11 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                             </div>
                           )}
                         </div>
-                        <div className="flex items-center gap-[8px]">
-                          <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-full bg-[#31542a] text-[11px] font-bold text-white">
+                        <div className="flex items-center gap-[8px] py-[1px]">
+                          <div className="flex size-[20px] shrink-0 items-center justify-center rounded-full bg-[#31542a] text-[10px] font-bold text-white">
                             {s.creator.charAt(0).toUpperCase()}
                           </div>
-                          <p className="truncate text-[14px] font-medium text-[#132110]">
+                          <p className="truncate text-[18px] opacity-80 text-[#132110]">
                             {s.creator}
                           </p>
                         </div>
@@ -305,53 +309,70 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
   )
 }
 
+function HlDivider() {
+  return (
+    <div className="relative h-0 w-full shrink-0">
+      <div className="absolute inset-x-0" style={{ top: '-1px', bottom: '-1px' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/dest/divider-h.svg" alt="" className="block size-full max-w-none" draggable={false} />
+      </div>
+    </div>
+  )
+}
+
+function HlColumn({
+  items,
+  icons,
+  flex,
+}: {
+  items: { title: string; description: string }[]
+  icons: string[]
+  flex?: boolean
+}) {
+  return (
+    <div
+      className={`flex h-[412px] flex-col gap-[24px] items-start justify-center ${flex ? 'flex-[1_0_0] min-w-0' : 'shrink-0'}`}
+    >
+      {items.flatMap((h, i) => {
+        const row = (
+          <div key={`item-${i}`} className="flex items-center gap-[12px] w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={icons[i % icons.length]}
+              alt=""
+              width={24}
+              height={24}
+              className="shrink-0"
+              draggable={false}
+            />
+            <p className="flex-1 text-[16px] leading-[1.4] text-[#39260b]">
+              {h.title}
+              {h.description ? `  ${h.description}` : ''}
+            </p>
+          </div>
+        )
+        return i < items.length - 1 ? [row, <HlDivider key={`div-${i}`} />] : [row]
+      })}
+    </div>
+  )
+}
+
 function DesktopHighlights({ record }: { record: CmsDestinationRecord }) {
   if (!record.highlights.length) return null
   const left = record.highlights.slice(0, 4)
   const right = record.highlights.slice(4, 8)
 
   return (
-    <section className="w-full bg-[#faf7f2] px-[80px] py-[80px]">
-      <div className="flex gap-[40px]">
+    <section className="w-full bg-[#faf7f2] p-[80px]">
+      <div className="flex flex-[1_0_0] items-end justify-center gap-[64px]">
         {/* Left highlights */}
-        <div className="flex w-[320px] shrink-0 flex-col">
-          {left.map((h, i) => (
-            <div key={i}>
-              <div className="flex flex-col gap-[8px]">
-                <div className="flex items-center gap-[10px]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={LEFT_HL_ICONS[i % LEFT_HL_ICONS.length]}
-                    alt=""
-                    width={24}
-                    height={24}
-                    className="shrink-0"
-                    draggable={false}
-                  />
-                  <p className="text-[15px] font-semibold text-[#132110]">{h.title}</p>
-                </div>
-                <p className="pl-[34px] text-[13px] leading-[1.55] text-[#132110]/70">
-                  {h.description}
-                </p>
-              </div>
-              {i < left.length - 1 && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src="/icons/dest/divider-h.png"
-                  alt=""
-                  className="my-[20px] w-full"
-                  draggable={false}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        <HlColumn items={left} icons={LEFT_HL_ICONS} />
 
         {/* Center — title + highlight image */}
-        <div className="flex flex-1 flex-col items-center gap-[24px]">
-          <h2 className="text-center text-[32px] font-medium tracking-[-0.6px] text-[#132110]">
-            Highlights of{' '}
-            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+        <div className="flex w-[500px] shrink-0 flex-col gap-[32px] items-center">
+          <h2 className="text-center text-[32px] leading-none tracking-[-0.96px] text-[#39260b] whitespace-nowrap">
+            <span className="font-medium">Highlights of</span>{' '}
+            <span className="font-[family-name:var(--font-script)] font-bold">
               {record.name}
             </span>
           </h2>
@@ -360,52 +381,22 @@ function DesktopHighlights({ record }: { record: CmsDestinationRecord }) {
             <img
               src={record.highlightImage}
               alt={record.name}
-              className="w-full max-w-[500px] rounded-[16px] object-cover"
-              style={{ height: '412px' }}
+              className="h-[412px] w-full rounded-[12px] object-cover"
               draggable={false}
             />
           ) : (
-            <div className="h-[412px] w-full max-w-[500px] rounded-[16px] bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
+            <div className="h-[412px] w-full rounded-[12px] bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
           )}
         </div>
 
         {/* Right highlights */}
-        <div className="flex w-[320px] shrink-0 flex-col">
-          {right.map((h, i) => (
-            <div key={i}>
-              <div className="flex flex-col gap-[8px]">
-                <div className="flex items-center gap-[10px]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={RIGHT_HL_ICONS[i % RIGHT_HL_ICONS.length]}
-                    alt=""
-                    width={24}
-                    height={24}
-                    className="shrink-0"
-                    draggable={false}
-                  />
-                  <p className="text-[15px] font-semibold text-[#132110]">{h.title}</p>
-                </div>
-                <p className="pl-[34px] text-[13px] leading-[1.55] text-[#132110]/70">
-                  {h.description}
-                </p>
-              </div>
-              {i < right.length - 1 && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src="/icons/dest/divider-h.png"
-                  alt=""
-                  className="my-[20px] w-full"
-                  draggable={false}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        {right.length > 0 && <HlColumn items={right} icons={RIGHT_HL_ICONS} flex />}
+        {right.length === 0 && <div className="flex-[1_0_0]" />}
       </div>
     </section>
   )
 }
+
 
 function DesktopRelated({ record }: { record: CmsDestinationRecord }) {
   if (!record.related.length) return null
@@ -442,49 +433,57 @@ function DesktopRelated({ record }: { record: CmsDestinationRecord }) {
 function DesktopFaq({ record }: { record: CmsDestinationRecord }) {
   if (!record.faqs.length) return null
   return (
-    <section className="w-full bg-white px-[80px] py-[80px]">
-      <div className="flex gap-[80px]">
+    <section className="w-full bg-white p-[80px]">
+      <div className="flex items-end gap-[120px] w-full">
         {/* Left side */}
-        <div className="flex w-[454px] shrink-0 flex-col gap-[24px]">
-          <h2 className="font-[family-name:var(--font-body)] text-[40px] font-medium leading-[1.1] tracking-[-0.8px] text-[#132110]">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-[16px] leading-[1.65] text-[#132110]/70">
-            Everything you need to know before you go.
-          </p>
-          {record.highlightImage && (
+        <div className="flex w-[454px] shrink-0 flex-col gap-[32px]">
+          <div className="flex flex-col gap-[12px]">
+            <p className="text-[32px] leading-none tracking-[-0.96px] text-[#132110] whitespace-nowrap">
+              <span>Frequently </span>
+              <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">Asked</span>
+              <span> Questions</span>
+            </p>
+            <p className="text-[16px] leading-[1.4] text-[#132110]/70">
+              Everything you need to know before you go.
+            </p>
+          </div>
+          {record.highlightImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={record.highlightImage}
               alt=""
-              className="mt-[8px] h-[400px] w-full rounded-[16px] object-cover"
+              className="h-[400px] w-full rounded-[12px] object-cover"
               draggable={false}
             />
+          ) : (
+            <div className="h-[400px] w-full rounded-[12px] bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
           )}
         </div>
 
-        {/* FAQ accordion */}
-        <div className="flex flex-1 flex-col gap-[8px]">
+        {/* FAQ items */}
+        <div className="flex flex-[1_0_0] flex-col gap-[32px] min-w-0">
           {record.faqs.map((f, i) => (
             <details
               key={i}
-              className="group rounded-[12px] border border-[#e8e4de] bg-white open:shadow-sm"
+              open={i === 0}
+              className={`group w-full ${i > 0 ? 'border-t-2 border-[#31542a] pt-[12px]' : ''}`}
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-[16px] px-[20px] py-[18px] marker:content-none">
-                <span className="text-[16px] font-semibold text-[#132110]">{f.question}</span>
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-[12px] marker:content-none">
+                <div className="flex flex-[1_0_0] flex-col gap-[8px] min-w-0 not-italic text-[#132110]">
+                  <p className="text-[20px] font-medium leading-normal w-full">{f.question}</p>
+                  {/* Answer — only visible when open (first item default-open) */}
+                  <p className="hidden group-open:block text-[16px] leading-[1.4] opacity-60">{f.answer}</p>
+                </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/icons/dest/chevron-right.png"
+                  src="/icons/dest/chevron-right.svg"
                   alt=""
-                  width={20}
-                  height={20}
-                  className="shrink-0 rotate-90 transition-transform duration-200 group-open:-rotate-90"
+                  width={i === 0 ? 24 : 20}
+                  height={i === 0 ? 24 : 20}
+                  className="mt-[2px] shrink-0 rotate-90 transition-transform duration-200 group-open:-rotate-90"
                   draggable={false}
                 />
               </summary>
-              <div className="border-t border-[#e8e4de] px-[20px] py-[16px]">
-                <p className="text-[14px] leading-[1.65] text-[#132110]/75">{f.answer}</p>
-              </div>
             </details>
           ))}
         </div>
@@ -785,7 +784,7 @@ function MobileFaq({ record }: { record: CmsDestinationRecord }) {
               <span className="text-[14px] font-semibold text-[#132110]">{f.question}</span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/icons/dest/chevron-right.png"
+                src="/icons/dest/chevron-right.svg"
                 alt=""
                 width={18}
                 height={18}
