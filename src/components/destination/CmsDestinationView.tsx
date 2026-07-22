@@ -313,7 +313,7 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                         rel="noopener noreferrer"
                         className="flex w-[240px] shrink-0 flex-col gap-[12px] no-underline"
                       >
-                        <div className="relative h-[350px] w-[240px] overflow-hidden rounded-[12px] bg-[#1e3a1a]">
+                        <div className="relative h-[350px] w-[240px] overflow-hidden rounded-[12px] bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]">
                           {thumb ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -322,24 +322,20 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                               className="absolute inset-0 size-full object-cover"
                               draggable={false}
                             />
+                          ) : avatarUrl ? (
+                            <div className="flex size-full items-center justify-center">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={avatarUrl} alt={s.creator} className="size-[100px] rounded-full object-cover" draggable={false} />
+                            </div>
                           ) : (
-                            <div className="flex size-full items-center justify-center bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]">
+                            <div className="flex size-full items-center justify-center">
                               <span className="text-[12px] text-white/40">{s.platform}</span>
                             </div>
                           )}
                         </div>
-                        <div className="flex items-center gap-[8px] py-[1px]">
-                          <div className="relative flex size-[28px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#31542a] text-[11px] font-bold text-white">
-                            <span className="absolute select-none">{s.creator.charAt(0).toUpperCase()}</span>
-                            {avatarUrl && (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={avatarUrl} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
-                            )}
-                          </div>
-                          <p className="truncate text-[18px] opacity-80 text-[#132110]">
-                            {s.creator}
-                          </p>
-                        </div>
+                        <p className="truncate text-[18px] opacity-80 text-[#132110]">
+                          {s.creator}
+                        </p>
                       </a>
                     )
                   })}
@@ -741,7 +737,7 @@ function MobileReels({ record }: { record: CmsDestinationRecord }) {
               rel="noopener noreferrer"
               className="flex w-[140px] shrink-0 flex-col gap-[8px] no-underline"
             >
-              <div className="relative h-[200px] w-[140px] overflow-hidden rounded-[10px] bg-[#1e3a1a]">
+              <div className="relative h-[200px] w-[140px] overflow-hidden rounded-[10px] bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]">
                 {thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -750,22 +746,18 @@ function MobileReels({ record }: { record: CmsDestinationRecord }) {
                     className="absolute inset-0 size-full object-cover"
                     draggable={false}
                   />
+                ) : avatarUrl ? (
+                  <div className="flex size-full items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={avatarUrl} alt={s.creator} className="size-[60px] rounded-full object-cover" draggable={false} />
+                  </div>
                 ) : (
-                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]">
+                  <div className="flex size-full items-center justify-center">
                     <span className="text-[11px] text-white/40">{s.platform}</span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-[6px]">
-                <div className="relative flex size-[20px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#31542a] text-[9px] font-bold text-white">
-                  <span className="absolute select-none">{s.creator.charAt(0).toUpperCase()}</span>
-                  {avatarUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
-                  )}
-                </div>
-                <p className="truncate text-[12px] font-medium text-[#132110]">{s.creator}</p>
-              </div>
+              <p className="truncate text-[12px] font-medium text-[#132110]">{s.creator}</p>
             </a>
           )
         })}
