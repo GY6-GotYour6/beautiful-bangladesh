@@ -27,11 +27,12 @@ function mediaId(m: MediaLike): number | string | null {
   return null
 }
 
-function toCardItem(f: { title?: string; description?: string; embedUrl?: string }) {
+function toCardItem(f: { title?: string; description?: string; embedUrl?: string; image?: MediaLike }) {
   return {
     title: String(f.title || ''),
     description: String(f.description || ''),
     embedUrl: String(f.embedUrl || ''),
+    image: mediaUrl(f.image, 'card'),
   }
 }
 

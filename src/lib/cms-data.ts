@@ -11,7 +11,7 @@ export type CmsDestinationListItem = {
   thumb: string
 }
 
-export type CmsCardItem = { title: string; description: string; embedUrl?: string }
+export type CmsCardItem = { title: string; description: string; embedUrl?: string; image?: string }
 
 export type CmsDestinationRecord = {
   id?: number | string
