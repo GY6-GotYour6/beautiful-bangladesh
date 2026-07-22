@@ -30,6 +30,21 @@ function youtubeWatchUrl(embedUrl: string): string | null {
   return id ? `https://www.youtube.com/watch?v=${id}` : null
 }
 
+// Extract @handle from youtube.com/@handle or youtube.com/c/handle etc.
+function youtubeChannelHandle(url: string): string | null {
+  if (!url) return null
+  const m = url.match(/youtube\.com\/@([A-Za-z0-9_.-]+)/) ||
+             url.match(/youtube\.com\/c\/([A-Za-z0-9_.-]+)/) ||
+             url.match(/youtube\.com\/user\/([A-Za-z0-9_.-]+)/)
+  return m?.[1] ?? null
+}
+
+// unavatar.io resolves YouTube channel avatars from a handle (no API key needed)
+function ytAvatarUrl(embedUrl: string): string | null {
+  const handle = youtubeChannelHandle(embedUrl)
+  return handle ? `https://unavatar.io/youtube/@${handle}` : null
+}
+
 const LEFT_HL_ICONS = [
   '/icons/dest/fish.svg',
   '/icons/dest/villa.svg',
@@ -289,6 +304,7 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                       s.thumbnail ||
                       (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null)
                     const href = youtubeWatchUrl(s.embedUrl || '') ?? s.embedUrl ?? undefined
+                    const avatarUrl = ytAvatarUrl(s.embedUrl || '')
                     return (
                       <a
                         key={i}
@@ -313,8 +329,12 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                           )}
                         </div>
                         <div className="flex items-center gap-[8px] py-[1px]">
-                          <div className="flex size-[20px] shrink-0 items-center justify-center rounded-full bg-[#31542a] text-[10px] font-bold text-white">
-                            {s.creator.charAt(0).toUpperCase()}
+                          <div className="relative flex size-[28px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#31542a] text-[11px] font-bold text-white">
+                            <span className="absolute select-none">{s.creator.charAt(0).toUpperCase()}</span>
+                            {avatarUrl && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={avatarUrl} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
+                            )}
                           </div>
                           <p className="truncate text-[18px] opacity-80 text-[#132110]">
                             {s.creator}
@@ -712,6 +732,7 @@ function MobileReels({ record }: { record: CmsDestinationRecord }) {
             s.thumbnail ||
             (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null)
           const href = youtubeWatchUrl(s.embedUrl || '') ?? s.embedUrl ?? undefined
+          const avatarUrl = ytAvatarUrl(s.embedUrl || '')
           return (
             <a
               key={i}
@@ -735,7 +756,16 @@ function MobileReels({ record }: { record: CmsDestinationRecord }) {
                   </div>
                 )}
               </div>
-              <p className="truncate text-[12px] font-medium text-[#132110]">{s.creator}</p>
+              <div className="flex items-center gap-[6px]">
+                <div className="relative flex size-[20px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#31542a] text-[9px] font-bold text-white">
+                  <span className="absolute select-none">{s.creator.charAt(0).toUpperCase()}</span>
+                  {avatarUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
+                  )}
+                </div>
+                <p className="truncate text-[12px] font-medium text-[#132110]">{s.creator}</p>
+              </div>
             </a>
           )
         })}
