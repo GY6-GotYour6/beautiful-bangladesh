@@ -186,6 +186,46 @@ function DesktopGallery({ record }: { record: CmsDestinationRecord }) {
   )
 }
 
+function CardThumb({ item }: { item: CmsCardItem }) {
+  const ytId = youtubeId(item.embedUrl || '')
+  const thumb = item.image || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null)
+  const href = youtubeWatchUrl(item.embedUrl || '') ?? (item.embedUrl || undefined)
+  const inner = (
+    <>
+      {thumb ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={thumb} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
+      )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-[20px]">
+        <p className="text-[17px] font-semibold text-white">{item.title}</p>
+        {item.description && (
+          <p className="mt-[4px] text-[13px] leading-[1.4] text-white/80">{item.description}</p>
+        )}
+      </div>
+    </>
+  )
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative block h-[300px] w-[442px] shrink-0 overflow-hidden rounded-[12px] no-underline"
+      >
+        {inner}
+      </a>
+    )
+  }
+  return (
+    <div className="relative h-[300px] w-[442px] shrink-0 overflow-hidden rounded-[12px]">
+      {inner}
+    </div>
+  )
+}
+
 function DesktopCardRow({ title, items }: { title: string; items: CmsCardItem[] }) {
   if (!items.length) return null
   return (
@@ -194,31 +234,7 @@ function DesktopCardRow({ title, items }: { title: string; items: CmsCardItem[] 
         {title}
       </h2>
       <div className="no-scrollbar flex gap-[16px] overflow-x-auto pb-[4px]">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="relative h-[300px] w-[442px] shrink-0 overflow-hidden rounded-[12px]"
-          >
-            {item.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={item.image}
-                alt=""
-                className="absolute inset-0 size-full object-cover"
-                draggable={false}
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
-            )}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-[20px]">
-              <p className="text-[17px] font-semibold text-white">{item.title}</p>
-              {item.description && (
-                <p className="mt-[4px] text-[13px] leading-[1.4] text-white/80">{item.description}</p>
-              )}
-            </div>
-          </div>
-        ))}
+        {items.map((item, i) => <CardThumb key={i} item={item} />)}
       </div>
     </div>
   )
@@ -620,31 +636,41 @@ function MobileCardRow({ title, items }: { title: string; items: CmsCardItem[] }
     <div className="flex flex-col gap-[14px]">
       <h2 className="px-[20px] text-[18px] font-medium tracking-[-0.3px] text-[#132110]">{title}</h2>
       <div className="no-scrollbar flex gap-[12px] overflow-x-auto px-[20px] pb-[4px]">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="relative h-[200px] w-[260px] shrink-0 overflow-hidden rounded-[10px]"
-          >
-            {item.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={item.image}
-                alt=""
-                className="absolute inset-0 size-full object-cover"
-                draggable={false}
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
-            )}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-[14px]">
-              <p className="text-[15px] font-semibold text-white">{item.title}</p>
-              {item.description && (
-                <p className="mt-[2px] text-[12px] leading-[1.4] text-white/80">{item.description}</p>
+        {items.map((item, i) => {
+          const ytId = youtubeId(item.embedUrl || '')
+          const thumb = item.image || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null)
+          const href = youtubeWatchUrl(item.embedUrl || '') ?? (item.embedUrl || undefined)
+          const inner = (
+            <>
+              {thumb ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={thumb} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]" />
               )}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-[14px]">
+                <p className="text-[15px] font-semibold text-white">{item.title}</p>
+                {item.description && (
+                  <p className="mt-[2px] text-[12px] leading-[1.4] text-white/80">{item.description}</p>
+                )}
+              </div>
+            </>
+          )
+          if (href) {
+            return (
+              <a key={i} href={href} target="_blank" rel="noopener noreferrer"
+                className="relative block h-[200px] w-[260px] shrink-0 overflow-hidden rounded-[10px] no-underline">
+                {inner}
+              </a>
+            )
+          }
+          return (
+            <div key={i} className="relative h-[200px] w-[260px] shrink-0 overflow-hidden rounded-[10px]">
+              {inner}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
