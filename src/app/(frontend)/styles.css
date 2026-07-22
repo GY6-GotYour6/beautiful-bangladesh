@@ -114,3 +114,18 @@ img {
   outline-offset: 3px;
 }
 
+/* Experience stamps — infinite horizontal marquee */
+@keyframes bb-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.bb-marquee-track {
+  will-change: transform;
+  animation: bb-marquee 32s linear infinite;
+}
+
+.bb-marquee-track:hover {
+  animation-play-state: paused;
+}
+
