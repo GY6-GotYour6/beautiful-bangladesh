@@ -4,40 +4,33 @@ import { CtaSection } from '@/components/landing/CtaSection'
 import { CtaButton } from '@/components/landing/CtaButton'
 import { MobileCta } from '@/components/landing/MobileSections'
 import { DESKTOP_ARTBOARD, DESKTOP_EXPLORE_OFFSET } from '@/lib/nav-config'
+import type { CmsDestinationListItem } from '@/lib/cms-data'
 
-const DESTS = [
-  { name: 'Sylhet',       slug: 'sylhet',       img: '/landing/destinations/sylhet-hq.png',     overlay: 'bg-[rgba(0,0,0,0.34)]' },
-  { name: 'Cox Bazar',    slug: 'coxs-bazar',   img: '/landing/destinations/coxs-bazar-hq.png', overlay: 'bg-[rgba(0,0,0,0.34)]' },
-  { name: 'Sundarban',    slug: 'sundarbans',   img: '/landing/destinations/sundarbans.png',    overlay: 'bg-gradient-to-b from-[34.333%] from-[rgba(0,0,0,0)] to-[rgba(0,0,0,0.89)]' },
-  { name: 'Sajek Vally',  slug: 'sajek',        img: '/landing/destinations/sajek-hq.png',      overlay: 'bg-[rgba(0,0,0,0.36)]' },
-  { name: 'Chittagong',   slug: 'chittagong',   img: '/landing/destinations/chittagong.webp',   overlay: 'bg-[rgba(0,0,0,0.36)]' },
-  { name: 'Saint Martin', slug: 'saint-martin', img: '/landing/destinations/saint-martin.png',  overlay: 'bg-[rgba(0,0,0,0.36)]' },
-  { name: 'Ratar Gul',    slug: 'ratargul',     img: '/landing/destinations/ratargul.png',      overlay: 'bg-[rgba(0,0,0,0.36)]' },
-  { name: 'Jafflong',     slug: 'jaflong',      img: '/landing/destinations/jaflong.png',       overlay: 'bg-[rgba(0,0,0,0.36)]' },
-] as const
+type DestCardProps = {
+  name: string
+  slug: string
+  img: string
+}
 
-// ─── Desktop ─────────────────────────────────────────────────────────────────
-
-function DestCard({ name, slug, img, overlay }: (typeof DESTS)[number]) {
+function DestCard({ name, slug, img }: DestCardProps) {
   return (
     <Link
       href={`/destinations/${slug}`}
       className="group relative min-w-0 flex-1 h-[300px] overflow-clip rounded-[12px] block"
       aria-label={name}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={img}
-        alt=""
-        className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-        draggable={false}
-      />
-      <div className={`absolute inset-0 ${overlay}`} />
-      {/*
-        Name — Figma: bottom-[107px] translate-y-full on 300px card.
-        80px * 1.4 lh = 112px element height.
-        After translate-y-full: top=193px, bottom=305px → 107px visible (5px clipped).
-      */}
+      {img ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={img}
+          alt=""
+          className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          draggable={false}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#2a4a24]" />
+      )}
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.34)]" />
       <p
         className="pointer-events-none absolute bottom-[107px] left-0 right-0 translate-y-full text-center
           font-[family-name:var(--font-script)] text-[80px] leading-[1.4] tracking-[-2.4px]
@@ -51,14 +44,13 @@ function DestCard({ name, slug, img, overlay }: (typeof DESTS)[number]) {
 
 const EXPLORE_TOP = `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)`
 
-function ExploreCategories() {
+function ExploreCategories({ destinations }: { destinations: CmsDestinationListItem[] }) {
   return (
     <section
       className="bg-white flex flex-col gap-[32px] pb-[40px] px-[40px] w-full"
       style={{ paddingTop: EXPLORE_TOP }}
       data-node-id="466:731"
     >
-      {/* Hero copy — Figma 602:364 */}
       <div className="flex flex-col gap-[16px] text-[#132110]" data-node-id="602:364">
         <p
           className="font-[family-name:var(--font-body)] text-[40px] font-medium leading-none
@@ -81,27 +73,16 @@ function ExploreCategories() {
         </p>
       </div>
 
-      {/* 4 rows × 2 cols — Figma 603:387, gap 16px */}
-      <div className="flex flex-col gap-[16px]" data-node-id="603:387">
-        <div className="flex gap-[16px]" data-node-id="466:740">
-          <DestCard {...DESTS[0]} />
-          <DestCard {...DESTS[1]} />
+      {destinations.length === 0 ? (
+        <p className="text-[#132110] opacity-40 text-[18px]">No destinations published yet.</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-[16px]">
+          {destinations.map((d) => (
+            <DestCard key={d.slug} name={d.name} slug={d.slug} img={d.thumb} />
+          ))}
         </div>
-        <div className="flex gap-[16px]" data-node-id="466:745">
-          <DestCard {...DESTS[2]} />
-          <DestCard {...DESTS[3]} />
-        </div>
-        <div className="flex gap-[16px]" data-node-id="466:752">
-          <DestCard {...DESTS[4]} />
-          <DestCard {...DESTS[5]} />
-        </div>
-        <div className="flex gap-[16px]" data-node-id="466:757">
-          <DestCard {...DESTS[6]} />
-          <DestCard {...DESTS[7]} />
-        </div>
-      </div>
+      )}
 
-      {/* CTA — Figma 602:367 */}
       <div className="flex justify-center" data-node-id="602:367">
         <CtaButton size="sm" label="Check Out Reels" />
       </div>
@@ -109,18 +90,16 @@ function ExploreCategories() {
   )
 }
 
-function ExploreDesktop() {
+function ExploreDesktop({ destinations }: { destinations: CmsDestinationListItem[] }) {
   return (
     <div className="relative w-full overflow-x-clip bg-white" data-node-id="466:730">
-      <ExploreCategories />
+      <ExploreCategories destinations={destinations} />
       <CtaSection />
     </div>
   )
 }
 
-// ─── Mobile ──────────────────────────────────────────────────────────────────
-
-function ExploreMobile() {
+function ExploreMobile({ destinations }: { destinations: CmsDestinationListItem[] }) {
   return (
     <div className="relative w-full overflow-x-clip bg-white" data-node-id="498:3222">
       <section className="flex w-full flex-col gap-[24px] px-[16px] pt-[78px] pb-[40px]">
@@ -138,33 +117,40 @@ function ExploreMobile() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-[12px]">
-          {DESTS.map((d) => (
-            <Link
-              key={d.slug}
-              href={`/destinations/${d.slug}`}
-              className="group relative aspect-[171/120] overflow-clip rounded-[12px] block"
-              aria-label={d.name}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={d.img}
-                alt=""
-                className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                draggable={false}
-              />
-              <div className={`absolute inset-0 ${d.overlay}`} />
-              {/* Name — same bottom-overflow style as desktop, scaled for mobile cards */}
-              <p
-                className="pointer-events-none absolute bottom-[35%] left-0 right-0 translate-y-full
-                  text-center font-[family-name:var(--font-script)] text-[28px] leading-[1.4]
-                  tracking-[-0.84px] whitespace-nowrap text-white"
+        {destinations.length === 0 ? (
+          <p className="text-[#132110] opacity-40 text-[13px]">No destinations published yet.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-[12px]">
+            {destinations.map((d) => (
+              <Link
+                key={d.slug}
+                href={`/destinations/${d.slug}`}
+                className="group relative aspect-[171/120] overflow-clip rounded-[12px] block"
+                aria-label={d.name}
               >
-                {d.name}
-              </p>
-            </Link>
-          ))}
-        </div>
+                {d.thumb ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={d.thumb}
+                    alt=""
+                    className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[#2a4a24]" />
+                )}
+                <div className="absolute inset-0 bg-[rgba(0,0,0,0.34)]" />
+                <p
+                  className="pointer-events-none absolute bottom-[35%] left-0 right-0 translate-y-full
+                    text-center font-[family-name:var(--font-script)] text-[28px] leading-[1.4]
+                    tracking-[-0.84px] whitespace-nowrap text-white"
+                >
+                  {d.name}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
 
         <CtaButton size="sm" label="Check Out Reels" className="mt-[8px] self-center" />
       </section>
@@ -173,9 +159,15 @@ function ExploreMobile() {
   )
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+type ExplorePageProps = {
+  destinations: CmsDestinationListItem[]
+}
 
-/** Explore — Designs `466:730` / mobile `498:3222`. */
-export function ExplorePage() {
-  return <ResponsiveFigmaPage desktop={<ExploreDesktop />} mobile={<ExploreMobile />} />
+export function ExplorePage({ destinations }: ExplorePageProps) {
+  return (
+    <ResponsiveFigmaPage
+      desktop={<ExploreDesktop destinations={destinations} />}
+      mobile={<ExploreMobile destinations={destinations} />}
+    />
+  )
 }
