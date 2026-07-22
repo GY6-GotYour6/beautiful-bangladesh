@@ -127,10 +127,11 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
       title: String(f.title || ''),
       description: String(f.description || ''),
     })),
-    social: reels.map((f: { creator?: string; platform?: string; embedUrl?: string }) => ({
+    social: reels.map((f: { creator?: string; platform?: string; embedUrl?: string; thumbnail?: MediaLike }) => ({
       creator: String(f.creator || ''),
       platform: String(f.platform || 'YouTube'),
       embedUrl: String(f.embedUrl || ''),
+      thumbnail: mediaUrl(f.thumbnail, 'card'),
     })),
     related: related.map((r: { name?: string; slug?: string } | number | string) => {
       if (typeof r === 'object' && r !== null) return String(r.name || r.slug || '')

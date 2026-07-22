@@ -14,19 +14,20 @@ import {
 const A = DESKTOP_ARTBOARD
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
 
+// Handles: watch?v=, youtu.be/, /embed/, /shorts/, /v/
+const YT_REGEX =
+  /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+
 function youtubeId(url: string): string | null {
   if (!url) return null
-  // bare video ID (11 chars, alphanumeric + _ -)
   if (/^[A-Za-z0-9_-]{11}$/.test(url.trim())) return url.trim()
-  try {
-    const u = new URL(url)
-    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0] || null
-    if (u.searchParams.get('v')) return u.searchParams.get('v')
-    const m = u.pathname.match(/\/(?:embed|shorts|v)\/([A-Za-z0-9_-]{11})/)
-    return m?.[1] || null
-  } catch {
-    return null
-  }
+  const m = url.match(YT_REGEX)
+  return m?.[1] ?? null
+}
+
+function youtubeWatchUrl(embedUrl: string): string | null {
+  const id = youtubeId(embedUrl)
+  return id ? `https://www.youtube.com/watch?v=${id}` : null
 }
 
 const LEFT_HL_ICONS = [
@@ -267,21 +268,27 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                 <div className="no-scrollbar flex gap-[32px] overflow-x-auto pb-[4px]">
                   {row.map((s, i) => {
                     const ytId = youtubeId(s.embedUrl || '')
-                    const thumb = ytId
-                      ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
-                      : null
+                    // Prefer CMS-uploaded thumbnail, fall back to YouTube auto-thumb
+                    const thumb =
+                      s.thumbnail ||
+                      (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null)
+                    const href = youtubeWatchUrl(s.embedUrl || '') ?? s.embedUrl ?? undefined
                     return (
-                      <div key={i} className="flex w-[240px] shrink-0 flex-col gap-[12px]">
+                      <a
+                        key={i}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex w-[240px] shrink-0 flex-col gap-[12px] no-underline"
+                      >
                         <div className="relative h-[350px] w-[240px] overflow-hidden rounded-[12px] bg-[#1e3a1a]">
                           {thumb ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={thumb}
-                              alt=""
+                              alt={s.creator}
                               className="absolute inset-0 size-full object-cover"
                               draggable={false}
-                              referrerPolicy="no-referrer"
-                              crossOrigin="anonymous"
                             />
                           ) : (
                             <div className="flex size-full items-center justify-center bg-gradient-to-br from-[#1e3a1a] to-[#2d5a27]">
@@ -297,7 +304,7 @@ function DesktopReels({ record }: { record: CmsDestinationRecord }) {
                             {s.creator}
                           </p>
                         </div>
-                      </div>
+                      </a>
                     )
                   })}
                 </div>
@@ -675,15 +682,24 @@ function MobileReels({ record }: { record: CmsDestinationRecord }) {
       <div className="no-scrollbar flex gap-[12px] overflow-x-auto px-[20px] pb-[4px]">
         {record.social.map((s, i) => {
           const ytId = youtubeId(s.embedUrl || '')
-          const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null
+          const thumb =
+            s.thumbnail ||
+            (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null)
+          const href = youtubeWatchUrl(s.embedUrl || '') ?? s.embedUrl ?? undefined
           return (
-            <div key={i} className="flex w-[140px] shrink-0 flex-col gap-[8px]">
+            <a
+              key={i}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-[140px] shrink-0 flex-col gap-[8px] no-underline"
+            >
               <div className="relative h-[200px] w-[140px] overflow-hidden rounded-[10px] bg-[#1e3a1a]">
                 {thumb ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={thumb}
-                    alt=""
+                    alt={s.creator}
                     className="absolute inset-0 size-full object-cover"
                     draggable={false}
                   />
@@ -694,7 +710,7 @@ function MobileReels({ record }: { record: CmsDestinationRecord }) {
                 )}
               </div>
               <p className="truncate text-[12px] font-medium text-[#132110]">{s.creator}</p>
-            </div>
+            </a>
           )
         })}
       </div>

@@ -41,7 +41,7 @@ export type CmsDestinationRecord = {
   highlightImage?: string
   highlightImageId?: number | string | null
   highlights: { title: string; description: string }[]
-  social: { creator: string; platform: string; embedUrl?: string }[]
+  social: { creator: string; platform: string; embedUrl?: string; thumbnail?: string }[]
   related: string[]
   relatedIds?: (number | string)[]
   faqs: { question: string; answer: string }[]
