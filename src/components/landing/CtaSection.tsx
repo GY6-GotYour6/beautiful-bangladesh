@@ -1,21 +1,12 @@
 import { FigmaFrame } from './FigmaFrame'
 
-/**
- * Final CTA — Figma 701:1944.
- * "BANGLADESH" and "BEAUTIFUL" use photo bg-clip-text.
- * cta-wave.png is the full 1440×800 rendered export of node 701:1948
- * (mountain + halftone dot pattern), laid on top as an RGBA overlay.
- */
 export function CtaSection() {
   return (
-    <div
-      className="flex w-full items-center justify-center bg-[#fffae7]"
-      style={{ height: '100dvh', scrollSnapAlign: 'start' }}
-    >
     <FigmaFrame
       width={1440}
       height={800}
       className="bg-[#fffae7]"
+      style={{ height: '100dvh', scrollSnapAlign: 'start' }}
       data-node-id="701:1944"
       aria-label="Beautiful Bangladesh CTA"
     >
@@ -74,6 +65,5 @@ export function CtaSection() {
         />
       </div>
     </FigmaFrame>
-    </div>
   )
 }

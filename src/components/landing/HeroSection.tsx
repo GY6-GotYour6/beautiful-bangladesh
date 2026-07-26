@@ -178,7 +178,7 @@ export function HeroSection() {
     <div
       ref={wrapperRef}
       className="relative hidden md:block"
-      style={{ height: `calc(${vw(840)} + ${EXTRA_SCROLL}px)`, scrollSnapAlign: 'start' }}
+      style={{ height: `calc(${vw(840)} + ${EXTRA_SCROLL}px)` }}
       data-node-id="701:1861"
     >
       <section
