@@ -1,5 +1,6 @@
-import { FigmaSection } from './FigmaSection'
-import { HeroSection } from './HeroSection'
+'use client'
+
+import { useEffect } from 'react'
 import {
   MobileHero,
   MobileLatestReels,
@@ -9,42 +10,31 @@ import {
   MobileBlogs,
   MobileCta,
 } from './MobileSections'
-import { ExperienceSection } from './ExperienceSection'
-import { CreatorReels } from './CreatorReels'
-import { YoutubeLineup } from './YoutubeLineup'
-import { BlogsSection } from './BlogsSection'
+import { HeroSection } from './HeroSection'
+import { TopDestinations } from './TopDestinations'
+import { CreatorsSection } from './CreatorsSection'
 import { CtaSection } from './CtaSection'
 import { ResponsiveFigmaPage } from './ResponsiveFigmaPage'
-import { TopDestinations } from './TopDestinations'
+import { FigmaSection } from './FigmaSection'
 
-const BASE = '/landing/figma/designs/landing'
-
+const MOBILE_BASE = '/landing/figma/designs/mobile'
 
 function LandingDesktop() {
+  useEffect(() => {
+    // Scroll snap only on desktop — mobile sections have their own layout
+    if (window.innerWidth < 768) return
+    const html = document.documentElement
+    html.style.scrollSnapType = 'y mandatory'
+    return () => {
+      html.style.scrollSnapType = ''
+    }
+  }, [])
+
   return (
-    <div className="relative w-full overflow-x-clip bg-[#f9f6f1]" data-node-id="466:882">
+    <div className="relative w-full overflow-x-clip bg-[#fffae7]">
       <HeroSection />
-
-      {/* 02-intro still baked — complex vector illustrations */}
-      <FigmaSection
-        id="about"
-        src={`${BASE}/02-intro.webp`}
-        width={1440}
-        height={2002}
-        nodeId="466:908"
-        label="Nature culture cuisine"
-      />
-
-      <ExperienceSection />
-
       <TopDestinations />
-
-      <CreatorReels />
-
-      <BlogsSection />
-
-      <YoutubeLineup />
-
+      <CreatorsSection />
       <CtaSection />
     </div>
   )
@@ -52,13 +42,12 @@ function LandingDesktop() {
 
 function LandingMobile() {
   return (
-    <div className="relative w-full overflow-x-clip bg-[#faf7f2]" data-node-id="498:2373">
+    <div className="relative w-full overflow-x-clip bg-[#faf7f2]">
       <MobileHero />
       <MobileLatestReels />
-      {/* Intro illustrations still baked — complex vectors (same as desktop) */}
       <FigmaSection
         id="about"
-        src="/landing/figma/designs/mobile/landing-intro.webp"
+        src={`${MOBILE_BASE}/landing-intro.webp`}
         width={390}
         height={1529}
         nodeId="498:2373-intro"
@@ -68,13 +57,11 @@ function LandingMobile() {
       <MobileTopDestinations />
       <MobileCreatorReels />
       <MobileBlogs />
-      <YoutubeLineup />
       <MobileCta />
     </div>
   )
 }
 
-/** Landing — Designs `466:882` / mobile `498:2373`. */
 export function LandingPage() {
   return <ResponsiveFigmaPage desktop={<LandingDesktop />} mobile={<LandingMobile />} />
 }

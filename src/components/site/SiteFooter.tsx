@@ -77,11 +77,14 @@ export function SiteFooter() {
       {/* Desktop layout */}
       <div className="hidden md:flex flex-col items-center gap-16 px-40 pt-20 pb-[52px]">
         {/* Wordmark + tagline */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <span className="font-[family-name:var(--font-display)] text-[32px] font-bold leading-[1.1] tracking-[-0.64px] text-[#f8ff98] uppercase">
-            beautiful Bangladesh
-          </span>
-          <p className="max-w-[460px] font-[family-name:var(--font-ui)] text-[20px] leading-[1.4] tracking-[-0.6px] text-[#f8ff98]/60">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/footer/emblem.svg" alt="" width={32} height={32} draggable={false} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/footer/wordmark.svg" alt="Beautiful Bangladesh" height={30} style={{ width: 'auto' }} draggable={false} />
+          </div>
+          <p className="max-w-[460px] font-[family-name:var(--font-ui)] text-[20px] leading-[1.4] text-[#f8ff98] text-center w-[460px]">
             From mangrove forests and rolling hills to waterfalls, tea estates, and endless coastlines
           </p>
         </div>

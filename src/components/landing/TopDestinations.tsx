@@ -1,162 +1,276 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { destinations } from '@/lib/landing-content'
-import { FigmaFrame } from './FigmaFrame'
 
-const THUMB = 0.28
+const A = 1440
+const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
 
-/** Interactive Top Destinations — Designs `466:1260`. */
-export function TopDestinations() {
-  const scrollerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [offset, setOffset] = useState(0)
-
-  const sync = useCallback(() => {
-    const el = scrollerRef.current
-    if (!el) return
-    const max = el.scrollWidth - el.clientWidth
-    const ratio = max > 0 ? el.scrollLeft / max : 0
-    setOffset(ratio * (1 - THUMB))
-  }, [])
-
-  useEffect(() => {
-    const el = scrollerRef.current
-    if (!el) return
-    sync()
-    el.addEventListener('scroll', sync, { passive: true })
-    const ro = new ResizeObserver(sync)
-    ro.observe(el)
-    return () => {
-      el.removeEventListener('scroll', sync)
-      ro.disconnect()
-    }
-  }, [sync])
-
-  // Drag the progress scrubber (large hit target).
-  useEffect(() => {
-    const track = trackRef.current
-    const el = scrollerRef.current
-    if (!track || !el) return
-    let active = false
-
-    const scrub = (clientX: number) => {
-      const rect = track.getBoundingClientRect()
-      if (rect.width <= 0) return
-      let ratio = (clientX - rect.left) / rect.width - THUMB / 2
-      ratio = Math.min(1 - THUMB, Math.max(0, ratio)) / (1 - THUMB)
-      const max = el.scrollWidth - el.clientWidth
-      el.scrollLeft = ratio * Math.max(0, max)
-    }
-
-    const onDown = (e: PointerEvent) => {
-      if (e.button !== 0) return
-      active = true
-      track.setPointerCapture(e.pointerId)
-      scrub(e.clientX)
-      e.preventDefault()
-    }
-    const onMove = (e: PointerEvent) => {
-      if (!active) return
-      scrub(e.clientX)
-    }
-    const onUp = (e: PointerEvent) => {
-      if (!active) return
-      active = false
-      if (track.hasPointerCapture(e.pointerId)) track.releasePointerCapture(e.pointerId)
-    }
-
-    track.addEventListener('pointerdown', onDown)
-    track.addEventListener('pointermove', onMove)
-    track.addEventListener('pointerup', onUp)
-    track.addEventListener('pointercancel', onUp)
-    return () => {
-      track.removeEventListener('pointerdown', onDown)
-      track.removeEventListener('pointermove', onMove)
-      track.removeEventListener('pointerup', onUp)
-      track.removeEventListener('pointercancel', onUp)
-    }
-  }, [])
-
+/** ep:right icon at -45deg = diagonal top-right arrow */
+function ArrowButton({
+  variant,
+  top,
+  right,
+}: {
+  variant: 'green' | 'white'
+  top: number
+  right: number
+}) {
+  const bg = variant === 'green' ? '#31542a' : 'white'
+  const stroke = variant === 'green' ? 'white' : '#31542a'
+  const border = variant === 'white' ? '1.5px solid white' : 'none'
   return (
-    <FigmaFrame
-      id="destinations"
-      width={1440}
-      height={566}
-      data-node-id="466:1260"
-      aria-label="Top destinations"
-      className="bg-white"
+    <div
+      className="absolute flex items-center justify-center overflow-hidden rounded-full"
+      style={{
+        top: vw(top),
+        right: vw(right),
+        width: vw(32),
+        height: vw(32),
+        background: bg,
+        border,
+      }}
+      aria-hidden="true"
     >
-      <div className="relative flex h-full w-[1440px] flex-col justify-center gap-12 bg-white px-20 py-20">
-        <div className="flex w-full items-center justify-between">
-          <h2 className="text-[32px] tracking-[-0.96px] text-[#132110]">
-            Top{' '}
-            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-              Destinations
-            </span>
-          </h2>
-          <Link
-            href="/explore"
-            className="text-[14px] font-medium text-[#31542a] transition-opacity hover:opacity-70"
-          >
-            View All
-          </Link>
+      <div style={{ transform: 'rotate(-45deg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
+          <path d="M4 10h12M12 4l6 6-6 6" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    </div>
+  )
+}
+
+/** Figma 701:1900 — Cox Bazar: name+desc together at top-219px, NO dark overlay */
+function CoxBazarCard() {
+  return (
+    <Link
+      href="/destinations/coxs-bazar"
+      className="relative shrink-0 overflow-hidden rounded-[20px]"
+      style={{ width: vw(808), height: `min(${vw(400)}, 33dvh)` }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/landing/destinations/coxs-bazar.webp"
+        alt="Cox Bazar"
+        className="absolute inset-0 size-full max-w-none object-cover"
+        draggable={false}
+      />
+
+      <ArrowButton variant="green" top={24} right={24} />
+
+      {/* Text block: name then description, together at top-219px */}
+      <div
+        className="absolute flex flex-col items-start text-white"
+        style={{
+          top: vw(219),
+          left: vw(24),
+          height: vw(157),
+          width: vw(760),
+        }}
+      >
+        <p
+          className="relative shrink-0 w-full font-medium leading-none"
+          style={{
+            fontSize: vw(88),
+            letterSpacing: vw(-2.64),
+            lineHeight: 'normal',
+          }}
+        >
+          Cox Bazar
+        </p>
+        <p
+          className="flex-1 min-h-0 w-full"
+          style={{ fontSize: vw(21.373), lineHeight: 1.4 }}
+        >
+          Beautiful mangrove with a vast where life where beautiful sea where both jungle &amp; meets with eachother.
+        </p>
+      </div>
+    </Link>
+  )
+}
+
+/** Figma 701:1908 — Sylhet: flex-1, name at bottom-96px + translate-y-full, dark overlay */
+function SylhetCard() {
+  return (
+    <Link
+      href="/destinations/sylhet"
+      className="relative min-w-0 overflow-hidden rounded-[20px]"
+      style={{ flex: '1 0 0', height: `min(${vw(400)}, 33dvh)` }}
+    >
+      <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/landing/destinations/sylhet.webp"
+          alt=""
+          className="absolute max-w-none size-full rounded-[20px] object-cover"
+          draggable={false}
+        />
+        <div className="absolute inset-0 rounded-[20px] bg-[rgba(0,0,0,0.3)]" />
+      </div>
+
+      <ArrowButton variant="white" top={20} right={20} />
+
+      {/* Name: bottom-96px + translate-y-full → overflows card bottom */}
+      <p
+        className="absolute left-0 whitespace-nowrap font-medium text-white"
+        style={{
+          bottom: vw(96),
+          fontSize: vw(88),
+          letterSpacing: vw(-2.64),
+          lineHeight: 'normal',
+          transform: 'translateY(100%)',
+        }}
+      >
+        Sylhet
+      </p>
+    </Link>
+  )
+}
+
+/** Figma 701:1914 — Sundarban: fixed width 548px, name at bottom-0 left-0, dark overlay */
+function SundarbanCard() {
+  return (
+    <Link
+      href="/destinations/sundarbans"
+      className="relative shrink-0 overflow-hidden rounded-[20px]"
+      style={{ width: vw(548), height: `min(${vw(400)}, 33dvh)` }}
+    >
+      <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/landing/destinations/sundarbans.png"
+          alt=""
+          className="absolute max-w-none size-full rounded-[20px] object-cover"
+          draggable={false}
+        />
+        <div className="absolute inset-0 rounded-[20px] bg-[rgba(0,0,0,0.3)]" />
+      </div>
+
+      <ArrowButton variant="white" top={20} right={20} />
+
+      {/* Name: absolute bottom-0 left-0 */}
+      <div className="absolute bottom-0 left-0 flex flex-col items-start">
+        <p
+          className="relative shrink-0 whitespace-nowrap font-medium text-white"
+          style={{
+            fontSize: vw(88),
+            letterSpacing: vw(-2.64),
+            lineHeight: 'normal',
+          }}
+        >
+          Sundarban
+        </p>
+      </div>
+    </Link>
+  )
+}
+
+/** Figma 701:1920 — Rangamati: fixed width 808px, name at bottom-0 left-0, dark overlay */
+function RangamatiCard() {
+  return (
+    <Link
+      href="/destinations/rangamati"
+      className="relative shrink-0 overflow-hidden rounded-[20px]"
+      style={{ width: vw(808), height: `min(${vw(400)}, 33dvh)` }}
+    >
+      <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/landing/destinations/rangamati.png"
+          alt=""
+          className="absolute max-w-none size-full rounded-[20px] object-cover"
+          draggable={false}
+        />
+        <div className="absolute inset-0 rounded-[20px] bg-[rgba(0,0,0,0.3)]" />
+      </div>
+
+      <ArrowButton variant="white" top={20} right={20} />
+
+      {/* Name: absolute bottom-0 left-0 */}
+      <div className="absolute bottom-0 left-0 flex flex-col items-start">
+        <p
+          className="relative shrink-0 whitespace-nowrap font-medium text-white"
+          style={{
+            fontSize: vw(88),
+            letterSpacing: vw(-2.64),
+            lineHeight: 'normal',
+          }}
+        >
+          Rangamati
+        </p>
+      </div>
+    </Link>
+  )
+}
+
+function ViewAllArrow() {
+  return (
+    <svg width={28} height={28} viewBox="0 0 28 28" fill="none" aria-hidden>
+      <path d="M11 6l8 8-8 8" stroke="#132110" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/** Top Destinations — Figma 701:1891 */
+export function TopDestinations() {
+  return (
+    <section
+      className="flex w-full flex-col items-center overflow-hidden bg-[#fffae7]"
+      style={{
+        height: '100dvh',
+        scrollSnapAlign: 'start',
+        paddingTop: `min(${vw(80)}, 4dvh)`,
+        paddingBottom: `min(${vw(80)}, 4dvh)`,
+        paddingLeft: vw(80),
+        paddingRight: vw(80),
+        gap: vw(48),
+      }}
+      data-node-id="701:1891"
+    >
+      {/* Header row — 1280px wide */}
+      <div
+        className="flex shrink-0 items-center justify-between"
+        style={{ width: vw(1280) }}
+      >
+        <h2
+          className="shrink-0 font-medium text-[#132110]"
+          style={{
+            fontSize: vw(40),
+            letterSpacing: vw(-1.2),
+            lineHeight: 'normal',
+            width: vw(303),
+          }}
+        >
+          Top Destinations
+        </h2>
+
+        <Link
+          href="/explore"
+          className="flex shrink-0 items-center text-[#132110] transition-opacity hover:opacity-70"
+          style={{ gap: vw(12) }}
+        >
+          <span style={{ fontSize: vw(24), lineHeight: 1.4 }}>View All</span>
+          <ViewAllArrow />
+        </Link>
+      </div>
+
+      {/* Cards grid — 1368px wide */}
+      <div
+        className="flex shrink-0 flex-col items-start"
+        style={{ width: vw(1368), gap: vw(12) }}
+      >
+        {/* Row 1: Cox Bazar + Sylhet */}
+        <div className="flex w-full items-start" style={{ gap: vw(12) }}>
+          <CoxBazarCard />
+          <SylhetCard />
         </div>
 
-        <div
-          ref={scrollerRef}
-          className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ touchAction: 'pan-x' }}
-          role="list"
-          aria-label="Destination cards"
-        >
-          {destinations.map((d) => (
-            <Link
-              key={d.slug}
-              href={`/destinations/${d.slug}`}
-              role="listitem"
-              className="group flex w-[260px] shrink-0 snap-start flex-col gap-2.5 outline-none"
-            >
-              <div className="relative h-[149px] w-full overflow-hidden bg-[#f2f2f2]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/landing/destinations/${d.slug}.webp`}
-                  alt=""
-                  className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  draggable={false}
-                />
-              </div>
-              <div className="flex flex-col gap-3 text-[#132110]">
-                <h3 className="text-[24px] font-medium leading-none transition-colors group-hover:text-[#31542a]">
-                  {d.title}
-                </h3>
-                <p className="text-[16px] leading-[1.4] text-[#132110]/70">{d.blurb}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Visual bar is 2px; hit target is ~28px tall so it’s easy to grab */}
-        <div
-          ref={trackRef}
-          className="relative -mt-2 flex h-7 w-full cursor-pointer items-center touch-none"
-          role="scrollbar"
-          aria-controls="destinations"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round((offset / (1 - THUMB)) * 100)}
-          aria-orientation="horizontal"
-          aria-label="Scroll destinations"
-        >
-          <div className="relative h-0.5 w-full bg-[#d9d9d9]">
-            <div
-              className="absolute top-0 h-full bg-[#132110]"
-              style={{ width: `${THUMB * 100}%`, left: `${offset * 100}%` }}
-            />
-          </div>
+        {/* Row 2: Sundarban + Rangamati */}
+        <div className="flex w-full items-start" style={{ gap: vw(12) }}>
+          <SundarbanCard />
+          <RangamatiCard />
         </div>
       </div>
-    </FigmaFrame>
+    </section>
   )
 }

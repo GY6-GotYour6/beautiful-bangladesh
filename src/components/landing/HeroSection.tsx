@@ -1,151 +1,246 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
-import {
-  DESKTOP_ARTBOARD,
-  DESKTOP_HERO_OFFSET,
-  DESKTOP_PAGE_INSET,
-} from '@/lib/nav-config'
-import { CtaButton } from './CtaButton'
-import { ScrollDownCue } from './ScrollDownCue'
+import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { navLinks, getActiveNavLabel } from '@/lib/nav-config'
 
-const reels = [
-  { src: '/hero/reel1.webp',          alt: "Cox's Bazar reel",    href: '/#creator-reels' },
-  { src: '/hero/reel2.webp',          alt: 'Sunset reel',         href: '/#creator-reels' },
-  { src: '/hero/reel3.webp',          alt: 'Scenic reel',         href: '/#creator-reels' },
-  { src: '/landing/reels/rafsan.png', alt: 'Bangladesh reel',     href: '/#creator-reels' },
-]
+const A = 1440
+const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
 
-const vw = (px: number) => `calc(${px} / ${DESKTOP_ARTBOARD} * 100vw)`
+/**
+ * Extra px the user scrolls while the hero is sticky.
+ * Divided into 3 phases (~165px each): nav → BB title → reels card.
+ */
+const EXTRA_SCROLL = 500
+const T_NAV = 0.1    // ~50px
+const T_TITLE = 0.4  // ~200px
+const T_REELS = 0.7  // ~350px
 
-/** Desktop hero — Figma `466:883`: frame is one 1080px viewport, hero image
-    fills from y=92 to the frame bottom. Height derives from the real viewport
-    (100svh − scaled 92px offset) so the whole hero fits on screen unscrolled. */
-export function HeroSection() {
+function ChevronRight({ color = 'currentColor' }: { color?: string }) {
+  return (
+    <svg width={16} height={16} viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path d="M6 3l5 5-5 5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function HeroNav({ visible }: { visible: boolean }) {
+  const pathname = usePathname()
+  const active = getActiveNavLabel(pathname)
+
   return (
     <div
-      className="hidden w-full bg-[#faf7f2] md:block"
+      className="absolute flex items-center justify-between overflow-hidden rounded-[200px] bg-white"
       style={{
-        paddingTop: vw(DESKTOP_HERO_OFFSET),
-        paddingLeft: vw(DESKTOP_PAGE_INSET),
-        paddingRight: vw(DESKTOP_PAGE_INSET),
+        top: vw(40),
+        left: vw(270),
+        width: vw(900),
+        height: vw(60),
+        paddingLeft: vw(20),
+        paddingRight: vw(20),
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(-14px)',
+        transition: 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.22,1,0.36,1)',
+        pointerEvents: visible ? 'auto' : 'none',
       }}
-      data-node-id="466:883"
     >
-      <div
-        className="relative w-full overflow-hidden rounded-tl-[40px] rounded-tr-[40px]"
-        style={{ height: `calc(100svh - ${vw(DESKTOP_HERO_OFFSET)})`, minHeight: 720 }}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/nav/logo.svg"
+        alt="Beautiful Bangladesh"
+        style={{ height: vw(30), width: vw(173.472) }}
+        draggable={false}
+      />
+
+      <Link
+        href="/explore"
+        className="flex shrink-0 items-center gap-[8px] border-2 border-[#31542a] bg-[#f8ff98] font-medium text-[#31542a] transition-opacity hover:opacity-80"
+        style={{
+          height: vw(40),
+          borderRadius: vw(20),
+          paddingLeft: vw(12),
+          paddingRight: vw(12),
+          fontSize: vw(16),
+          lineHeight: 1.4,
+        }}
       >
-        {/* Background video */}
-        <video
-          className="absolute inset-0 size-full object-cover pointer-events-none"
-          src="/hero/hero.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/hero/bg.webp"
-          aria-hidden="true"
-        />
+        Contact Us
+        <ChevronRight color="#31542a" />
+      </Link>
 
-        {/* Top-down gradient */}
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-[400px]"
-          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.03))' }}
-          aria-hidden="true"
-        />
+      <div
+        className="absolute left-1/2 top-1/2 flex items-center"
+        style={{ transform: 'translate(-50%,-50%)', gap: vw(36) }}
+      >
+        {navLinks.slice(0, 3).map((link) => {
+          const isActive = active === link.label
+          return (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="whitespace-nowrap text-[#31542a] transition-opacity hover:opacity-70"
+              style={{ fontSize: vw(16), lineHeight: 1.4, fontWeight: isActive ? 500 : 400 }}
+            >
+              {link.label}
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
-        {/* Headline — Figma: absolute 60/60, w 720, 80px medium, lh 100%, ls −3.2 */}
-        <div className="absolute" style={{ left: vw(60), top: vw(60) }} data-node-id="466:887">
-          <h1
-            className="font-[family-name:var(--font-display)] font-medium text-white"
-            style={{ fontSize: vw(80), letterSpacing: vw(-3.2), lineHeight: 1 }}
-          >
-            Beautiful<br />Bangladesh
-          </h1>
+/**
+ * Animation applied directly on the card's own positioned div to avoid the
+ * CSS bug where transform on a wrapper creates a new containing block,
+ * causing position:absolute children to mis-position.
+ */
+function LatestReelsCard({ visible }: { visible: boolean }) {
+  return (
+    <div
+      className="absolute overflow-hidden rounded-[12px] bg-white"
+      style={{
+        bottom: vw(40),
+        right: vw(40),
+        width: vw(400),
+        height: vw(182),
+        padding: vw(8),
+        display: 'flex',
+        gap: vw(12),
+        // Slide from right — applied directly here (no wrapper div)
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateX(0)' : 'translateX(80px)',
+        transition: 'opacity 0.65s ease, transform 0.65s cubic-bezier(0.22,1,0.36,1)',
+      }}
+    >
+      <div className="shrink-0 overflow-hidden rounded-[8px]" style={{ width: vw(128) }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/landing/assets/hero/latest-reels-thumb.jpg"
+          alt=""
+          className="size-full object-cover"
+          draggable={false}
+        />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col justify-between">
+        <div className="flex flex-col" style={{ gap: vw(6) }}>
+          <p className="font-medium text-[#132110]" style={{ fontSize: vw(16), lineHeight: 1.4 }}>
+            Latest Reels
+          </p>
+          <p className="text-[#132110] opacity-60" style={{ fontSize: vw(14), lineHeight: 1.2 }}>
+            From mangrove forests and{' '}rolling hills to waterfalls,{' '}tea estates, and endless coastlines
+          </p>
         </div>
 
-        {/* Tagline — upper right; Figma 16px @ 1440, scales with viewport */}
-        <p
-          className="absolute text-right font-[family-name:var(--font-ui)] text-white/80"
+        <Link
+          href="/#creator-reels"
+          className="flex shrink-0 items-center justify-center gap-[8px] border-2 border-[#31542a] bg-[#f8ff98] text-[#31542a] transition-opacity hover:opacity-80"
           style={{
-            right: vw(60),
-            top: vw(107),
-            width: vw(239),
+            height: vw(36),
+            borderRadius: vw(200),
+            paddingLeft: vw(12),
+            paddingRight: vw(12),
             fontSize: vw(16),
             lineHeight: 1.4,
           }}
-          data-node-id="466:900"
         >
-          From mangrove forests and rolling hills to waterfalls, tea estates, and endless coastlines
-        </p>
-
-        {/* Reel thumbnails + CTA — bottom right */}
-        <div
-          className="absolute bottom-[100px] right-[60px] flex w-[630px] flex-col gap-3"
-          data-node-id="466:888"
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-[family-name:var(--font-ui)] text-[16px] font-medium text-[#faf7f2]">
-              Latest Reels
-            </span>
-
-            {/* Stamp button — Figma 466:891 */}
-            <CtaButton size="sm" label="Check Out Reels" />
-          </div>
-
-          {/* Thumbnails strip */}
-          <div className="relative overflow-hidden rounded-[5px] bg-[#faf7f2]" style={{ height: 312 }}>
-            <div className="absolute inset-y-0 left-4 flex gap-3">
-              {reels.map((r) => (
-                <Link
-                  key={r.src}
-                  href={r.href}
-                  className="relative h-[280px] w-[160px] shrink-0 overflow-hidden rounded-sm self-center"
-                  aria-label={r.alt}
-                >
-                  <Image
-                    src={r.src}
-                    alt={r.alt}
-                    fill
-                    className="object-cover"
-                    sizes="160px"
-                  />
-                </Link>
-              ))}
-            </div>
-            {/* Fade right edge */}
-            <div
-              className="pointer-events-none absolute inset-y-0 right-0 w-[140px]"
-              style={{ background: 'linear-gradient(to right, transparent, #f3f3ed)' }}
-              aria-hidden="true"
-            />
-          </div>
-        </div>
-
-        {/* Cloud mist at bottom — Figma 466:899.
-            30px container at bottom-[-26px]; inner image expands via percentage insets
-            so only ~121px of the 264px image is visible inside the hero (rest clipped). */}
-        <div
-          className="pointer-events-none absolute bottom-[-26px] left-[-36px] h-[30px] w-[calc(100%+100px)]"
-          aria-hidden="true"
-        >
-          <div className="absolute" style={{ inset: '-390% -4.37% -390% -3.49%' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/hero/cloud.png"
-              alt=""
-              className="block h-full w-full max-w-none"
-              draggable={false}
-            />
-          </div>
-        </div>
-
-        {/* Same scaled left inset as the headline so both start on one line */}
-        <ScrollDownCue position={{ left: vw(60), bottom: vw(100) }} />
-
+          Checkout Reels
+          <ChevronRight color="#31542a" />
+        </Link>
       </div>
+    </div>
+  )
+}
+
+export function HeroSection() {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const onScroll = () => {
+      const wrapper = wrapperRef.current
+      if (!wrapper) return
+      const scrolled = -wrapper.getBoundingClientRect().top
+      setProgress(Math.max(0, Math.min(1, scrolled / EXTRA_SCROLL)))
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const navVisible = progress >= T_NAV
+  const titleVisible = progress >= T_TITLE
+  const reelsVisible = progress >= T_REELS
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="relative hidden md:block"
+      style={{ height: `calc(${vw(840)} + ${EXTRA_SCROLL}px)`, scrollSnapAlign: 'start' }}
+      data-node-id="701:1861"
+    >
+      <section
+        className="sticky top-0 w-full bg-[#fffae7]"
+        style={{ padding: vw(20) }}
+      >
+        <div
+          className="relative w-full overflow-hidden rounded-[20px]"
+          style={{ height: vw(800), minHeight: 560 }}
+        >
+          <video
+            className="pointer-events-none absolute inset-0 size-full object-cover"
+            src="/hero/hero.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/hero/bg.webp"
+            aria-hidden="true"
+          />
+
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 9%, rgba(0,0,0,0.03))' }}
+            aria-hidden="true"
+          />
+
+          <HeroNav visible={navVisible} />
+
+          {/* "Beautiful Bangladesh" — slides in from the left.
+              position:absolute on this div is fine because the <p> children
+              are NOT absolutely positioned, so transform here doesn't
+              mis-anchor any absolute children. */}
+          <div
+            className="absolute"
+            style={{
+              bottom: vw(40),
+              left: vw(40),
+              opacity: titleVisible ? 1 : 0,
+              transform: titleVisible ? 'translateX(0)' : 'translateX(-80px)',
+              transition: 'opacity 0.65s ease, transform 0.65s cubic-bezier(0.22,1,0.36,1)',
+            }}
+            data-node-id="701:1890"
+          >
+            <p
+              className="font-medium leading-none whitespace-nowrap text-white"
+              style={{ fontSize: vw(112), letterSpacing: vw(-3.36) }}
+            >
+              Beautiful
+            </p>
+            <p
+              className="font-medium leading-none whitespace-nowrap text-white"
+              style={{ fontSize: vw(112), letterSpacing: vw(-3.36) }}
+            >
+              Bangladesh
+            </p>
+          </div>
+
+          {/* Reels card — animation on the card's own div, no wrapper */}
+          <LatestReelsCard visible={reelsVisible} />
+        </div>
+      </section>
     </div>
   )
 }
