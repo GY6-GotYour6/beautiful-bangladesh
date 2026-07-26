@@ -24,7 +24,7 @@ function LandingDesktop() {
     // Scroll snap only on desktop — mobile sections have their own layout
     if (window.innerWidth < 768) return
     const html = document.documentElement
-    html.style.scrollSnapType = 'y mandatory'
+    html.style.scrollSnapType = 'y proximity'
     return () => {
       html.style.scrollSnapType = ''
     }
