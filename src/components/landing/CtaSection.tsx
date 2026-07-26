@@ -6,7 +6,7 @@ export function CtaSection() {
       width={1440}
       height={800}
       className="bg-[#fffae7]"
-      style={{ height: '100dvh', scrollSnapAlign: 'start' }}
+      style={{ scrollSnapAlign: 'start' }}
       data-node-id="701:1944"
       aria-label="Beautiful Bangladesh CTA"
     >
