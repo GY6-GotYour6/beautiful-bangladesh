@@ -24,9 +24,10 @@ function InstagramIcon() {
 export function CreatorsSection() {
   return (
     <section
-      className="flex w-full flex-col items-center overflow-hidden bg-[#fffae7]"
+      className="flex w-full flex-col items-center bg-[#fffae7]"
       style={{
         height: '100dvh',
+        overflow: 'clip',
         scrollSnapAlign: 'start',
         padding: vw(80),
         gap: vw(48),

@@ -45,12 +45,12 @@ function ArrowButton({
   )
 }
 
-/** Figma 701:1900 — Cox Bazar: name+desc together at top-219px, NO dark overlay */
+/** Figma 701:1900 — Cox Bazar */
 function CoxBazarCard() {
   return (
     <Link
       href="/destinations/coxs-bazar"
-      className="relative shrink-0 overflow-hidden rounded-[20px]"
+      className="relative shrink-0 overflow-clip rounded-[20px]"
       style={{ width: vw(808), height: vw(400) }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -59,6 +59,12 @@ function CoxBazarCard() {
         alt="Cox Bazar"
         className="absolute inset-0 size-full max-w-none object-cover"
         draggable={false}
+      />
+      {/* gradient behind text — Figma node 701:1901 gradient blob */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ background: 'linear-gradient(to bottom, transparent 35%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.70) 100%)' }}
+        aria-hidden="true"
       />
 
       <ArrowButton variant="green" top={24} right={24} />
@@ -99,7 +105,7 @@ function SylhetCard() {
   return (
     <Link
       href="/destinations/sylhet"
-      className="relative min-w-0 overflow-hidden rounded-[20px]"
+      className="relative min-w-0 overflow-clip rounded-[20px]"
       style={{ flex: '1 0 0', height: vw(400) }}
     >
       <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
@@ -137,7 +143,7 @@ function SundarbanCard() {
   return (
     <Link
       href="/destinations/sundarbans"
-      className="relative shrink-0 overflow-hidden rounded-[20px]"
+      className="relative shrink-0 overflow-clip rounded-[20px]"
       style={{ width: vw(548), height: vw(400) }}
     >
       <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
@@ -174,7 +180,7 @@ function RangamatiCard() {
   return (
     <Link
       href="/destinations/rangamati"
-      className="relative shrink-0 overflow-hidden rounded-[20px]"
+      className="relative shrink-0 overflow-clip rounded-[20px]"
       style={{ width: vw(808), height: vw(400) }}
     >
       <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
@@ -237,8 +243,8 @@ export function TopDestinations() {
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-[#fffae7]"
-      style={{ height: '100dvh', scrollSnapAlign: 'start' }}
+      className="relative w-full bg-[#fffae7]"
+      style={{ overflow: 'clip', height: '100dvh', scrollSnapAlign: 'start' }}
       data-node-id="701:1891"
     >
       {/* Scale the entire content uniformly so everything fits in the viewport */}
