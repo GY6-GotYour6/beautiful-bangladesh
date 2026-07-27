@@ -16,10 +16,11 @@ import { CreatorsSection } from './CreatorsSection'
 import { CtaSection } from './CtaSection'
 import { ResponsiveFigmaPage } from './ResponsiveFigmaPage'
 import { FigmaSection } from './FigmaSection'
+import type { LandingPageData } from '@/lib/landing-global'
 
 const MOBILE_BASE = '/landing/figma/designs/mobile'
 
-function LandingDesktop() {
+function LandingDesktop({ data }: { data?: LandingPageData }) {
   useEffect(() => {
     // Scroll snap only on desktop — mobile sections have their own layout
     if (window.innerWidth < 768) return
@@ -33,8 +34,8 @@ function LandingDesktop() {
   return (
     <div className="relative w-full overflow-x-clip bg-[#fffae7]">
       <HeroSection />
-      <TopDestinations />
-      <CreatorsSection />
+      <TopDestinations destinations={data?.featuredDestinations} />
+      <CreatorsSection creators={data?.featuredCreators} />
       <CtaSection />
     </div>
   )
@@ -62,6 +63,11 @@ function LandingMobile() {
   )
 }
 
-export function LandingPage() {
-  return <ResponsiveFigmaPage desktop={<LandingDesktop />} mobile={<LandingMobile />} />
+export function LandingPage({ data }: { data?: LandingPageData }) {
+  return (
+    <ResponsiveFigmaPage
+      desktop={<LandingDesktop data={data} />}
+      mobile={<LandingMobile />}
+    />
+  )
 }

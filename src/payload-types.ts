@@ -89,8 +89,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'landing-page': LandingPage;
+  };
+  globalsSelect: {
+    'landing-page': LandingPageSelect<true> | LandingPageSelect<false>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -613,6 +617,36 @@ export interface Auth {
   [k: string]: unknown;
 }
 
+
+export interface LandingPage {
+  id: number;
+  featuredDestinations?:
+    | {
+        name: string;
+        slug: string;
+        imagePath: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  featuredCreators?:
+    | {
+        name: string;
+        imagePath: string;
+        instagramUrl?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+
+export interface LandingPageSelect<T extends boolean = true> {
+  featuredDestinations?: T | { name?: T; slug?: T; imagePath?: T; description?: T; id?: T };
+  featuredCreators?: T | { name?: T; imagePath?: T; instagramUrl?: T; id?: T };
+  updatedAt?: T;
+  createdAt?: T;
+}
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

@@ -121,6 +121,26 @@ export function DestinationsList({ initial }: { initial: CmsDestinationListItem[
       />
 
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-8 md:gap-8 md:px-20 md:py-10">
+        {/* Pages quick-access */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9ca3af]">Pages</p>
+          <Link
+            href="/cms/landing"
+            className="flex items-center justify-between rounded-xl border border-[#e5e7eb] bg-white px-5 py-4 transition-colors hover:border-[#31542a] hover:bg-[#f9fafb]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-[#f0fdf4] text-[16px]">🏠</span>
+              <div>
+                <p className="text-[14px] font-semibold text-[#132110]">Landing Page</p>
+                <p className="text-[12px] text-[#9ca3af]">Featured destinations &amp; creators</p>
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#9ca3af]" aria-hidden>
+              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+
         <div className="flex flex-col gap-6 md:gap-8">
           <div className="flex items-end justify-between gap-4">
             <div>

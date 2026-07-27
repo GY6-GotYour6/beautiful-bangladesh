@@ -1,15 +1,26 @@
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
 
-const creators = [
-  { src: '/landing/creators/creator-1.jpg', h: 250 },
-  { src: '/landing/creators/creator-2.jpg', h: 280 },
-  { src: '/landing/creators/creator-3.jpg', h: 300 },
-  { src: '/landing/creators/creator-4.jpg', h: 340, highlight: true },
-  { src: '/landing/creators/creator-5.jpg', h: 300 },
-  { src: '/landing/creators/creator-6.jpg', h: 280 },
-  { src: '/landing/creators/creator-7.jpg', h: 250 },
+const DEFAULT_CREATOR_HEIGHTS = [250, 280, 300, 340, 300, 280, 250]
+
+const DEFAULT_CREATORS = [
+  { src: '/landing/creators/creator-1.jpg', h: 250, name: '', instagramUrl: '' },
+  { src: '/landing/creators/creator-2.jpg', h: 280, name: '', instagramUrl: '' },
+  { src: '/landing/creators/creator-3.jpg', h: 300, name: '', instagramUrl: '' },
+  { src: '/landing/creators/creator-4.jpg', h: 340, highlight: true, name: 'Rafsan the chotobhai', instagramUrl: 'https://www.instagram.com/rafsanthechotobhai' },
+  { src: '/landing/creators/creator-5.jpg', h: 300, name: '', instagramUrl: '' },
+  { src: '/landing/creators/creator-6.jpg', h: 280, name: '', instagramUrl: '' },
+  { src: '/landing/creators/creator-7.jpg', h: 250, name: '', instagramUrl: '' },
 ]
+
+function getHeight(index: number, total: number): number {
+  const center = Math.floor(total / 2)
+  const dist = Math.abs(index - center)
+  const heights = DEFAULT_CREATOR_HEIGHTS
+  const maxDist = Math.floor(heights.length / 2)
+  const heightIdx = Math.min(dist, maxDist)
+  return heights[maxDist - heightIdx] ?? 250
+}
 
 function InstagramIcon() {
   return (
@@ -21,7 +32,24 @@ function InstagramIcon() {
   )
 }
 
-export function CreatorsSection() {
+export function CreatorsSection({
+  creators: cmsCreators,
+}: {
+  creators?: { name: string; imagePath: string; instagramUrl: string }[]
+}) {
+  const creators =
+    cmsCreators && cmsCreators.length > 0
+      ? cmsCreators.map((c, i, arr) => ({
+          src: c.imagePath,
+          h: getHeight(i, arr.length),
+          highlight: i === Math.floor(arr.length / 2),
+          name: c.name,
+          instagramUrl: c.instagramUrl,
+        }))
+      : DEFAULT_CREATORS
+
+  const highlighted = creators.find((c) => c.highlight)
+
   return (
     <section
       className="flex w-full flex-col items-center bg-[#fffae7]"
@@ -68,24 +96,30 @@ export function CreatorsSection() {
           ))}
         </div>
 
-        {/* Highlighted creator label (center = creator-4 = Rafsan) */}
-        <div className="flex flex-col items-center" style={{ gap: vw(4) }}>
-          <p
-            className="font-medium capitalize text-[#132110]"
-            style={{ fontSize: vw(18), letterSpacing: vw(-0.54), lineHeight: 'normal' }}
-          >
-            Rafsan the chotobhai
-          </p>
-          <div className="flex items-center justify-center" style={{ gap: vw(4) }}>
-            <InstagramIcon />
-            <p
-              className="text-[#132110] opacity-60"
-              style={{ fontSize: vw(14), lineHeight: 'normal' }}
-            >
-              @rafsanthechotobhai
-            </p>
+        {/* Highlighted creator label */}
+        {highlighted && (highlighted.name || highlighted.instagramUrl) && (
+          <div className="flex flex-col items-center" style={{ gap: vw(4) }}>
+            {highlighted.name && (
+              <p
+                className="font-medium capitalize text-[#132110]"
+                style={{ fontSize: vw(18), letterSpacing: vw(-0.54), lineHeight: 'normal' }}
+              >
+                {highlighted.name}
+              </p>
+            )}
+            {highlighted.instagramUrl && (
+              <div className="flex items-center justify-center" style={{ gap: vw(4) }}>
+                <InstagramIcon />
+                <p
+                  className="text-[#132110] opacity-60"
+                  style={{ fontSize: vw(14), lineHeight: 'normal' }}
+                >
+                  @{highlighted.instagramUrl.replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '').replace(/\/$/, '')}
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </section>
   )

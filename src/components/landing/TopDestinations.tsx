@@ -14,7 +14,7 @@ type Dest = {
   description: string
 }
 
-const DESTINATIONS: Dest[] = [
+const DEFAULT_DESTINATIONS: Dest[] = [
   {
     name: 'Cox Bazar',
     slug: '/destinations/coxs-bazar',
@@ -136,7 +136,16 @@ function DestCard({ name, slug, img, description }: Dest) {
 }
 
 /** Top Destinations — Figma 701:1891 */
-export function TopDestinations() {
+export function TopDestinations({
+  destinations: cmsDestinations,
+}: {
+  destinations?: { name: string; slug: string; imagePath: string; description: string }[]
+}) {
+  const destinations: Dest[] =
+    cmsDestinations && cmsDestinations.length > 0
+      ? cmsDestinations.map((d) => ({ name: d.name, slug: d.slug, img: d.imagePath, description: d.description }))
+      : DEFAULT_DESTINATIONS
+
   return (
     <section
       className="flex w-full flex-col items-center bg-[#fffae7]"
@@ -209,8 +218,8 @@ export function TopDestinations() {
             gap: vw(12),
           }}
         >
-          <DestCard {...DESTINATIONS[0]} />
-          <DestCard {...DESTINATIONS[1]} />
+          {destinations[0] && <DestCard {...destinations[0]} />}
+          {destinations[1] && <DestCard {...destinations[1]} />}
         </div>
 
         {/* Row 2: Sundarban narrow (548) + Rangamati fills remaining */}
@@ -224,8 +233,8 @@ export function TopDestinations() {
             gap: vw(12),
           }}
         >
-          <DestCard {...DESTINATIONS[2]} />
-          <DestCard {...DESTINATIONS[3]} />
+          {destinations[2] && <DestCard {...destinations[2]} />}
+          {destinations[3] && <DestCard {...destinations[3]} />}
         </div>
       </div>
     </section>

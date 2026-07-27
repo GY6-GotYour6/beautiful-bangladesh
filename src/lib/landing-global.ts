@@ -1,0 +1,96 @@
+import 'server-only'
+import { getPayloadClient } from '@/lib/payload'
+
+export type LandingDestination = {
+  name: string
+  slug: string
+  imagePath: string
+  description: string
+}
+
+export type LandingCreator = {
+  name: string
+  imagePath: string
+  instagramUrl: string
+}
+
+export type LandingPageData = {
+  featuredDestinations: LandingDestination[]
+  featuredCreators: LandingCreator[]
+}
+
+const DEFAULT_DESTINATIONS: LandingDestination[] = [
+  {
+    name: 'Cox Bazar',
+    slug: '/destinations/coxs-bazar',
+    imagePath: '/landing/destinations/coxs-bazar.webp',
+    description: "World's longest natural sea beach — 120 km of golden sands along the Bay of Bengal.",
+  },
+  {
+    name: 'Sylhet',
+    slug: '/destinations/sylhet',
+    imagePath: '/landing/destinations/sylhet.webp',
+    description: 'Rolling tea gardens, mystical haors, and the lush highland forests of Bangladesh.',
+  },
+  {
+    name: 'Sundarban',
+    slug: '/destinations/sundarbans',
+    imagePath: '/landing/destinations/sundarbans.png',
+    description: "The world's largest mangrove forest — home to the Royal Bengal Tiger and rare wildlife.",
+  },
+  {
+    name: 'Rangamati',
+    slug: '/destinations/rangamati',
+    imagePath: '/landing/destinations/rangamati.png',
+    description: 'Emerald hills, serene Kaptai Lake, and the rich traditions of the Chittagong Hill Tracts.',
+  },
+]
+
+const DEFAULT_CREATORS: LandingCreator[] = [
+  { name: 'Creator 1', imagePath: '/landing/creators/creator-1.jpg', instagramUrl: '' },
+  { name: 'Creator 2', imagePath: '/landing/creators/creator-2.jpg', instagramUrl: '' },
+  { name: 'Creator 3', imagePath: '/landing/creators/creator-3.jpg', instagramUrl: '' },
+  { name: 'Creator 4', imagePath: '/landing/creators/creator-4.jpg', instagramUrl: '' },
+  { name: 'Creator 5', imagePath: '/landing/creators/creator-5.jpg', instagramUrl: '' },
+  { name: 'Creator 6', imagePath: '/landing/creators/creator-6.jpg', instagramUrl: '' },
+  { name: 'Creator 7', imagePath: '/landing/creators/creator-7.jpg', instagramUrl: '' },
+]
+
+function toDestination(raw: Record<string, unknown>): LandingDestination {
+  return {
+    name: String(raw.name ?? ''),
+    slug: String(raw.slug ?? ''),
+    imagePath: String(raw.imagePath ?? ''),
+    description: String(raw.description ?? ''),
+  }
+}
+
+function toCreator(raw: Record<string, unknown>): LandingCreator {
+  return {
+    name: String(raw.name ?? ''),
+    imagePath: String(raw.imagePath ?? ''),
+    instagramUrl: String(raw.instagramUrl ?? ''),
+  }
+}
+
+export async function getLandingPageData(): Promise<LandingPageData> {
+  try {
+    const payload = await getPayloadClient()
+    const doc = await payload.findGlobal({ slug: 'landing-page', overrideAccess: true })
+    const raw = doc as unknown as Record<string, unknown>
+
+    const destinations =
+      Array.isArray(raw.featuredDestinations) && raw.featuredDestinations.length > 0
+        ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
+        : DEFAULT_DESTINATIONS
+
+    const creators =
+      Array.isArray(raw.featuredCreators) && raw.featuredCreators.length > 0
+        ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
+        : DEFAULT_CREATORS
+
+    return { featuredDestinations: destinations, featuredCreators: creators }
+  } catch {
+    return { featuredDestinations: DEFAULT_DESTINATIONS, featuredCreators: DEFAULT_CREATORS }
+  }
+}
