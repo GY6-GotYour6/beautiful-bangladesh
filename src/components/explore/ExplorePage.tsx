@@ -63,10 +63,9 @@ function ExploreHero() {
         style={{ height: vw(800), borderRadius: vw(20) }}
         data-node-id="700:906"
       >
-        {/* Same hero video as landing page */}
         <video
           className="pointer-events-none absolute inset-0 size-full max-w-none object-cover"
-          src="/hero/hero.mp4"
+          src="/explore/hero.mp4"
           autoPlay
           muted
           loop
