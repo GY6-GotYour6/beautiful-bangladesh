@@ -123,13 +123,13 @@ function DestCard({ name, slug, img, description }: Dest) {
           {name}
         </p>
         <p
-          className="text-white/75"
+          className="overflow-hidden text-white/75"
           style={{
             fontSize: vw(16),
             lineHeight: 1.5,
-            transform: hovered ? 'translateY(0)' : 'translateY(50px)',
+            maxHeight: hovered ? '200px' : '0px',
             opacity: hovered ? 1 : 0,
-            transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
+            transition: `max-height 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
           }}
         >
           {description}
