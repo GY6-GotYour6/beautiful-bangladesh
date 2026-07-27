@@ -171,13 +171,15 @@ export function HeroSection() {
     }
 
     function onWheel(e: WheelEvent) {
-      if (phaseRef.current >= 3) return
+      // Only fully unlock once phase 3 is reached AND its cooldown has cleared
+      if (phaseRef.current >= 3 && !cooldownRef.current) return
       if (!heroRef.current) return
       const top = heroRef.current.getBoundingClientRect().top
       if (top < -5 || top > 5) return // hero not snapped to viewport
       if (e.deltaY <= 0) return        // upward scroll — ignore
       e.preventDefault()
-      advance()
+      if (phaseRef.current < 3) advance()
+      // phase === 3 + cooldown still active: just block the scroll, wait it out
     }
 
     container.addEventListener('wheel', onWheel, { passive: false })
