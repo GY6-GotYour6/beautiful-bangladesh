@@ -17,6 +17,7 @@ import {
   Toggle,
 } from './CmsChrome'
 import {
+  AnalyticsPanel,
   EmbedLinkBox,
   EmbedRowList,
   FaqAccordion,
@@ -274,6 +275,48 @@ export function DestinationEditor({
       />
 
       <div className="mx-auto flex w-full max-w-[800px] flex-col gap-6 px-4 py-8 md:px-0 md:py-10">
+        <SectionCard title="SEO">
+          <Field label="Meta Title">
+            <TextInput value={record.metaTitle || ''} onChange={(v) => patch('metaTitle', v)} />
+          </Field>
+          <Field label="Meta Keywords">
+            <TextInput
+              value={record.metaKeywords || ''}
+              onChange={(v) => patch('metaKeywords', v)}
+            />
+          </Field>
+          <Field label="Robots Tag">
+            <SelectField
+              value={record.robotsTag || 'index, follow'}
+              options={['index, follow', 'noindex, follow', 'index, nofollow', 'noindex, nofollow']}
+              onChange={(v) => patch('robotsTag', v)}
+            />
+          </Field>
+        </SectionCard>
+
+        <SectionCard title="Descriptions">
+          <Field label="Short Description">
+            <TextInput
+              value={record.shortDescription || ''}
+              onChange={(v) => patch('shortDescription', v)}
+              multiline
+              minHeight={100}
+            />
+          </Field>
+          <Field label="Long Description">
+            <TextInput
+              value={record.longDescription || ''}
+              onChange={(v) => patch('longDescription', v)}
+              multiline
+              minHeight={160}
+            />
+          </Field>
+        </SectionCard>
+
+        <SectionCard title="Analytics">
+          <AnalyticsPanel />
+        </SectionCard>
+
         <SectionCard title="Basic Information">
           <Field label="Destination Name">
             <TextInput value={record.name} onChange={(v) => patch('name', v)} />

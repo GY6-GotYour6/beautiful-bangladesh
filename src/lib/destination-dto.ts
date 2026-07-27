@@ -150,6 +150,10 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
     })),
     metaTitle: String(doc.metaTitle || ''),
     metaDescription: String(doc.metaDescription || ''),
+    metaKeywords: String(doc.metaKeywords || ''),
+    robotsTag: String(doc.robotsTag || 'index, follow'),
+    shortDescription: String(doc.shortDescription || ''),
+    longDescription: String(doc.longDescription || ''),
   }
 }
 
@@ -187,6 +191,10 @@ export function toPayloadData(record: CmsDestinationRecord) {
     faqs: record.faqs,
     metaTitle: record.metaTitle || record.heroTitle || record.name,
     metaDescription: record.metaDescription || record.heroSubtitle,
+    metaKeywords: record.metaKeywords || '',
+    robotsTag: record.robotsTag || 'index, follow',
+    shortDescription: record.shortDescription || '',
+    longDescription: record.longDescription || '',
     _status: record.status,
   }
 }

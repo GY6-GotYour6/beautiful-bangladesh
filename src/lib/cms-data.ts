@@ -47,6 +47,10 @@ export type CmsDestinationRecord = {
   faqs: { question: string; answer: string }[]
   metaTitle?: string
   metaDescription?: string
+  metaKeywords?: string
+  robotsTag?: string
+  shortDescription?: string
+  longDescription?: string
 }
 
 /** Seed source for Cox's Bazar + list stubs (Payload is source of truth at runtime). */
@@ -217,6 +221,11 @@ export const coxRecord: CmsDestinationRecord = {
   metaTitle: "Cox's Bazar | Beautiful Bangladesh",
   metaDescription:
     "Home to the world's longest natural sea beach, stretching 120 km along the Bay of Bengal.",
+  metaKeywords: "Cox's Bazar, Sea Beach, Bangladesh, Tourism",
+  robotsTag: 'index, follow',
+  shortDescription: "Home to the world's longest natural sea beach, stretching 120 km along the Bay of Bengal.",
+  longDescription:
+    "Cox's Bazar is Bangladesh's most iconic coastal destination, where endless golden shores meet the Bay of Bengal. From sunrise walks and seafood feasts to dramatic coastal drives and hidden beaches, this 120 km stretch of unbroken shoreline offers an unmatched coastal experience in South Asia.",
 }
 
 export function emptyDestinationRecord(): CmsDestinationRecord {
@@ -250,5 +259,10 @@ export function emptyDestinationRecord(): CmsDestinationRecord {
     related: [],
     relatedIds: [],
     faqs: [],
+    metaTitle: '',
+    metaKeywords: '',
+    robotsTag: 'index, follow',
+    shortDescription: '',
+    longDescription: '',
   }
 }

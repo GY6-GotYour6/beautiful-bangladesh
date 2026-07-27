@@ -740,6 +740,104 @@ export function RelatedPicker({
   )
 }
 
+/* ------------------------------- analytics ---------------------------------- */
+
+function buildLinePath(pts: [number, number][]): string {
+  return pts.reduce((acc, [x, y], i) => {
+    if (i === 0) return `M${x},${y}`
+    const [px, py] = pts[i - 1]
+    const cx = (x - px) * 0.35
+    return `${acc} C${px + cx},${py} ${x - cx},${y} ${x},${y}`
+  }, '')
+}
+
+/** Static analytics mockup — Monthly Visitors + Page Views vs Engagement. */
+export function AnalyticsPanel() {
+  const CW = 688
+
+  // Line chart — 12 months of visitor data (thousands)
+  const visitData = [45, 52, 38, 65, 78, 88, 92, 86, 72, 58, 64, 55]
+  const LX0 = 40, LX1 = 700, LY0 = 20, LY1 = 180
+  const visitPts = visitData.map((v, i): [number, number] => [
+    LX0 + (i / 11) * (LX1 - LX0),
+    LY0 + (1 - v / 100) * (LY1 - LY0),
+  ])
+  const linePath = buildLinePath(visitPts)
+  const fillPath = `${linePath} L${LX1},${LY1} L${LX0},${LY1} Z`
+  const lineMonths = ['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov']
+  const lineMonthX = [40, 160, 280, 400, 520, 640]
+
+  // Bar chart — weekly page views vs engagement (%)
+  const barData: [number, number][] = [[43, 65], [59, 49], [76, 86], [49, 38]]
+  const barDays = ['Mon', 'Tue', 'Wed', 'Thu']
+  const barGX = [40, 216, 392, 568]
+  const BY0 = 20, BY1 = 180, BRANGE = BY1 - BY0
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Monthly Visitors */}
+      <div className="overflow-clip rounded-xl border border-[#f3f4f6]">
+        <div className="flex items-center justify-between px-6 pt-5 pb-3">
+          <p className="text-[14px] font-semibold text-[#132110]">Monthly Visitors</p>
+          <span className="rounded bg-[#f3f4f6] px-2.5 py-1 text-[11px] font-medium text-[#6b7280]">Last 12 Months</span>
+        </div>
+        <div className="px-2 pb-4">
+          <svg viewBox={`0 0 ${CW} 225`} className="w-full" aria-hidden>
+            <line x1={LX0} y1="60" x2={LX1} y2="60" stroke="#f3f4f6" />
+            <line x1={LX0} y1="120" x2={LX1} y2="120" stroke="#f3f4f6" />
+            <line x1={LX0} y1={LY1} x2={LX1} y2={LY1} stroke="#f3f4f6" />
+            <text x="2" y="63" fontSize="10" fill="#9ca3af">100k</text>
+            <text x="2" y="123" fontSize="10" fill="#9ca3af">50k</text>
+            <text x="2" y="183" fontSize="10" fill="#9ca3af">0</text>
+            {lineMonths.map((m, i) => (
+              <text key={m} x={lineMonthX[i]} y="210" fontSize="10" fill="#9ca3af" textAnchor="middle">{m}</text>
+            ))}
+            <path d={fillPath} fill="rgba(49,84,42,0.07)" />
+            <path d={linePath} fill="none" stroke="#31542a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Page Views vs Engagement */}
+      <div className="overflow-clip rounded-xl border border-[#f3f4f6]">
+        <div className="flex items-center justify-between px-6 pt-5 pb-3">
+          <p className="text-[14px] font-semibold text-[#132110]">Page Views vs Engagement</p>
+          <span className="rounded bg-[#f3f4f6] px-2.5 py-1 text-[11px] font-medium text-[#6b7280]">Weekly</span>
+        </div>
+        <div className="px-2 pb-4">
+          <svg viewBox={`0 0 ${CW} 240`} className="w-full" aria-hidden>
+            <line x1={barGX[0]} y1="60" x2="640" y2="60" stroke="#f3f4f6" />
+            <line x1={barGX[0]} y1="120" x2="640" y2="120" stroke="#f3f4f6" />
+            <line x1={barGX[0]} y1={BY1} x2="640" y2={BY1} stroke="#f3f4f6" />
+            <text x="2" y="63" fontSize="10" fill="#9ca3af">100%</text>
+            <text x="2" y="123" fontSize="10" fill="#9ca3af">50%</text>
+            <text x="2" y="183" fontSize="10" fill="#9ca3af">0%</text>
+            {barData.map(([views, eng], gi) => {
+              const gx = barGX[gi]
+              const vh = (views / 100) * BRANGE
+              const eh = (eng / 100) * BRANGE
+              return (
+                <g key={gi}>
+                  <rect x={gx} y={BY1 - vh} width="28" height={vh} rx="3" fill="#31542a" />
+                  <rect x={gx + 40} y={BY1 - eh} width="28" height={eh} rx="3" fill="rgba(49,84,42,0.28)" />
+                </g>
+              )
+            })}
+            {barDays.map((d, i) => (
+              <text key={d} x={barGX[i] + 28} y="210" fontSize="10" fill="#9ca3af" textAnchor="middle">{d}</text>
+            ))}
+            {/* legend */}
+            <rect x={barGX[0]} y="224" width="10" height="10" rx="2" fill="#31542a" />
+            <text x={barGX[0] + 14} y="234" fontSize="10" fill="#6b7280">Page Views</text>
+            <rect x={barGX[0] + 88} y="224" width="10" height="10" rx="2" fill="rgba(49,84,42,0.28)" />
+            <text x={barGX[0] + 102} y="234" fontSize="10" fill="#6b7280">Engagement</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* --------------------------- embed link dropzone ---------------------------- */
 
 /** Dashed box holding a centered embed URL input — design 618:4215. */
