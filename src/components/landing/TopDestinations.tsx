@@ -1,129 +1,170 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
+import type { CSSProperties } from 'react'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
+const SPRING = 'cubic-bezier(0.22,1,0.36,1)'
 
-function ArrowButton({ variant, top, right }: { variant: 'green' | 'white'; top: number; right: number }) {
-  const bg = variant === 'green' ? '#31542a' : 'white'
-  const stroke = variant === 'green' ? 'white' : '#31542a'
-  const border = variant === 'white' ? '1.5px solid white' : 'none'
-  return (
-    <div
-      className="absolute flex items-center justify-center overflow-hidden rounded-full"
-      style={{ top: vw(top), right: vw(right), width: vw(32), height: vw(32), background: bg, border }}
-      aria-hidden="true"
-    >
-      <div style={{ transform: 'rotate(-45deg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
-          <path d="M4 10h12M12 4l6 6-6 6" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-    </div>
-  )
+type Dest = {
+  name: string
+  slug: string
+  img: string
+  description: string
+  arrow: 'green' | 'white'
+  sizeClass: string
+  sizeStyle: CSSProperties
 }
 
-function CoxBazarCard() {
+const DESTINATIONS: Dest[] = [
+  {
+    name: 'Cox Bazar',
+    slug: '/destinations/coxs-bazar',
+    img: '/landing/destinations/coxs-bazar.webp',
+    description: "World's longest natural sea beach — 120 km of golden sands along the Bay of Bengal.",
+    arrow: 'green',
+    sizeClass: 'shrink-0',
+    sizeStyle: { width: vw(808) },
+  },
+  {
+    name: 'Sylhet',
+    slug: '/destinations/sylhet',
+    img: '/landing/destinations/sylhet.webp',
+    description: 'Rolling tea gardens, mystical haors, and the lush highland forests of Bangladesh.',
+    arrow: 'white',
+    sizeClass: 'min-w-0',
+    sizeStyle: { flex: '1 0 0' },
+  },
+  {
+    name: 'Sundarban',
+    slug: '/destinations/sundarbans',
+    img: '/landing/destinations/sundarbans.png',
+    description: "The world's largest mangrove forest — home to the Royal Bengal Tiger and rare wildlife.",
+    arrow: 'white',
+    sizeClass: 'shrink-0',
+    sizeStyle: { width: vw(548) },
+  },
+  {
+    name: 'Rangamati',
+    slug: '/destinations/rangamati',
+    img: '/landing/destinations/rangamati.png',
+    description: 'Emerald hills, serene Kaptai Lake, and the rich traditions of the Chittagong Hill Tracts.',
+    arrow: 'white',
+    sizeClass: 'shrink-0',
+    sizeStyle: { width: vw(808) },
+  },
+]
+
+function DestCard({ name, slug, img, description, arrow, sizeClass, sizeStyle }: Dest) {
+  const [hovered, setHovered] = useState(false)
+
+  const arrowBg = arrow === 'green' ? '#31542a' : 'white'
+  const arrowStroke = arrow === 'green' ? 'white' : '#31542a'
+  const arrowBorder = arrow === 'white' ? '1.5px solid white' : 'none'
+
   return (
     <Link
-      href="/destinations/coxs-bazar"
-      className="relative shrink-0 overflow-clip rounded-[20px]"
-      style={{ width: vw(808), height: '100%' }}
+      href={slug}
+      className={`relative overflow-clip rounded-[20px] ${sizeClass}`}
+      style={{ height: '100%', ...sizeStyle }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
+      {/* Background image — subtle scale on hover */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/landing/destinations/coxs-bazar.webp" alt="Cox Bazar" className="absolute inset-0 size-full max-w-none object-cover" draggable={false} />
-      <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 35%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.70) 100%)' }} aria-hidden="true" />
-      <ArrowButton variant="green" top={24} right={24} />
-      {/* text anchored to bottom — safe for any card height */}
+      <img
+        src={img}
+        alt={name}
+        className="absolute inset-0 size-full max-w-none object-cover"
+        style={{
+          transform: hovered ? 'scale(1.04)' : 'scale(1)',
+          transition: `transform 0.7s ${SPRING}`,
+        }}
+        draggable={false}
+      />
+
+      {/* Gradient overlay */}
       <div
-        className="absolute inset-x-0 bottom-0 flex flex-col items-start text-white"
-        style={{ padding: `0 ${vw(24)} ${vw(16)} ${vw(24)}`, gap: vw(4) }}
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 28%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0.82) 100%)',
+        }}
+        aria-hidden
+      />
+
+      {/* Arrow button — scales up on hover */}
+      <div
+        className="absolute flex items-center justify-center overflow-hidden rounded-full"
+        style={{
+          top: vw(24),
+          right: vw(24),
+          width: vw(40),
+          height: vw(40),
+          background: arrowBg,
+          border: arrowBorder,
+          transform: hovered ? 'scale(1.22)' : 'scale(1)',
+          transition: 'transform 0.3s ease',
+        }}
+        aria-hidden
       >
-        <p className="font-medium leading-none w-full" style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 'normal' }}>
-          Cox Bazar
-        </p>
-        <p className="w-full" style={{ fontSize: vw(21.373), lineHeight: 1.4 }}>
-          Beautiful mangrove with a vast where life where beautiful sea where both jungle &amp; meets with eachother.
-        </p>
+        <div style={{ transform: 'rotate(-45deg)', display: 'flex' }}>
+          <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
+            <path
+              d="M4 10h12M12 4l6 6-6 6"
+              stroke={arrowStroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* Bottom text — container shifts up on hover, revealing description */}
+      <div className="absolute inset-x-0 bottom-0">
+        <div
+          style={{
+            padding: `0 ${vw(24)} ${vw(24)} ${vw(24)}`,
+            transform: hovered ? `translateY(${vw(-48)})` : 'translateY(0)',
+            transition: `transform 0.5s ${SPRING}`,
+          }}
+        >
+          {/* Destination name */}
+          <p
+            className="font-medium text-white"
+            style={{
+              fontSize: vw(88),
+              letterSpacing: vw(-2.64),
+              lineHeight: 1,
+              paddingBottom: vw(8),
+            }}
+          >
+            {name}
+          </p>
+
+          {/* Description — hidden below card boundary, slides in on hover */}
+          <p
+            className="text-white/75"
+            style={{
+              fontSize: vw(16),
+              lineHeight: 1.5,
+              transform: hovered ? 'translateY(0)' : 'translateY(50px)',
+              opacity: hovered ? 1 : 0,
+              transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
+            }}
+          >
+            {description}
+          </p>
+        </div>
       </div>
     </Link>
   )
 }
 
-function SylhetCard() {
-  return (
-    <Link
-      href="/destinations/sylhet"
-      className="relative min-w-0 overflow-clip rounded-[20px]"
-      style={{ flex: '1 0 0', height: '100%' }}
-    >
-      <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/landing/destinations/sylhet.webp" alt="" className="absolute max-w-none size-full rounded-[20px] object-cover" draggable={false} />
-        <div className="absolute inset-0 rounded-[20px] bg-[rgba(0,0,0,0.3)]" />
-      </div>
-      <ArrowButton variant="white" top={20} right={20} />
-      <p
-        className="absolute left-0 whitespace-nowrap font-medium text-white"
-        style={{ bottom: vw(96), fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 'normal', transform: 'translateY(100%)' }}
-      >
-        Sylhet
-      </p>
-    </Link>
-  )
-}
-
-function SundarbanCard() {
-  return (
-    <Link
-      href="/destinations/sundarbans"
-      className="relative shrink-0 overflow-clip rounded-[20px]"
-      style={{ width: vw(548), height: '100%' }}
-    >
-      <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/landing/destinations/sundarbans.png" alt="" className="absolute max-w-none size-full rounded-[20px] object-cover" draggable={false} />
-        <div className="absolute inset-0 rounded-[20px] bg-[rgba(0,0,0,0.3)]" />
-      </div>
-      <ArrowButton variant="white" top={20} right={20} />
-      <div className="absolute bottom-0 left-0">
-        <p className="relative shrink-0 whitespace-nowrap font-medium text-white" style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 'normal' }}>
-          Sundarban
-        </p>
-      </div>
-    </Link>
-  )
-}
-
-function RangamatiCard() {
-  return (
-    <Link
-      href="/destinations/rangamati"
-      className="relative shrink-0 overflow-clip rounded-[20px]"
-      style={{ width: vw(808), height: '100%' }}
-    >
-      <div className="absolute inset-0 pointer-events-none rounded-[20px]" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/landing/destinations/rangamati.png" alt="" className="absolute max-w-none size-full rounded-[20px] object-cover" draggable={false} />
-        <div className="absolute inset-0 rounded-[20px] bg-[rgba(0,0,0,0.3)]" />
-      </div>
-      <ArrowButton variant="white" top={20} right={20} />
-      <div className="absolute bottom-0 left-0">
-        <p className="relative shrink-0 whitespace-nowrap font-medium text-white" style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 'normal' }}>
-          Rangamati
-        </p>
-      </div>
-    </Link>
-  )
-}
-
-/** Top Destinations — Figma 701:1891
- *
- * Flex-fill layout: section is 100dvh, cards fill remaining height after
- * header. No scale transform → no side margins.
- * Card widths stay vw()-based (proportional to 1440px artboard).
- * Cards container is vw(1368) wide — slightly wider than content area,
- * overflowing the padding symmetrically (clipped by section overflow:clip).
- */
+/** Top Destinations — Figma 701:1891 */
 export function TopDestinations() {
   return (
     <section
@@ -156,23 +197,29 @@ export function TopDestinations() {
         >
           <span style={{ fontSize: vw(24), lineHeight: 1.4 }}>View All</span>
           <svg width={28} height={28} viewBox="0 0 28 28" fill="none" aria-hidden>
-            <path d="M11 6l8 8-8 8" stroke="#132110" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M11 6l8 8-8 8"
+              stroke="#132110"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </Link>
       </div>
 
-      {/* Cards grid — fills remaining height, vw(1368) wide */}
+      {/* Cards grid */}
       <div
         className="flex flex-col"
         style={{ flex: '1 0 0', minHeight: 0, width: vw(1368), gap: vw(12) }}
       >
         <div className="flex" style={{ flex: '1 0 0', minHeight: 0, gap: vw(12) }}>
-          <CoxBazarCard />
-          <SylhetCard />
+          <DestCard {...DESTINATIONS[0]} />
+          <DestCard {...DESTINATIONS[1]} />
         </div>
         <div className="flex" style={{ flex: '1 0 0', minHeight: 0, gap: vw(12) }}>
-          <SundarbanCard />
-          <RangamatiCard />
+          <DestCard {...DESTINATIONS[2]} />
+          <DestCard {...DESTINATIONS[3]} />
         </div>
       </div>
     </section>
