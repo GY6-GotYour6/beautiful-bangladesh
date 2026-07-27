@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { navLinks, getActiveNavLabel } from '@/lib/nav-config'
 
@@ -146,19 +146,47 @@ function LatestReelsCard({ visible }: { visible: boolean }) {
 }
 
 export function HeroSection() {
-  const [navVisible, setNavVisible] = useState(false)
-  const [titleVisible, setTitleVisible] = useState(false)
-  const [reelsVisible, setReelsVisible] = useState(false)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const phaseRef = useRef(0)
+  const cooldownRef = useRef(false)
+  const [phase, setPhase] = useState(0)
 
   useEffect(() => {
-    const t1 = setTimeout(() => setNavVisible(true), 400)
-    const t2 = setTimeout(() => setTitleVisible(true), 800)
-    const t3 = setTimeout(() => setReelsVisible(true), 1200)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+    phaseRef.current = phase
+  }, [phase])
+
+  useEffect(() => {
+    const container = heroRef.current?.parentElement
+    if (!container) return
+
+    function advance() {
+      if (cooldownRef.current) return
+      cooldownRef.current = true
+      setPhase((p) => {
+        const next = Math.min(p + 1, 3)
+        phaseRef.current = next
+        return next
+      })
+      setTimeout(() => { cooldownRef.current = false }, 700)
+    }
+
+    function onWheel(e: WheelEvent) {
+      if (phaseRef.current >= 3) return
+      if (!heroRef.current) return
+      const top = heroRef.current.getBoundingClientRect().top
+      if (top < -5 || top > 5) return // hero not snapped to viewport
+      if (e.deltaY <= 0) return        // upward scroll — ignore
+      e.preventDefault()
+      advance()
+    }
+
+    container.addEventListener('wheel', onWheel, { passive: false })
+    return () => container.removeEventListener('wheel', onWheel)
   }, [])
 
   return (
     <div
+      ref={heroRef}
       className="relative hidden md:block"
       style={{ height: '100dvh', overflow: 'clip', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-node-id="701:1861"
@@ -187,19 +215,15 @@ export function HeroSection() {
             aria-hidden="true"
           />
 
-          <HeroNav visible={navVisible} />
+          <HeroNav visible={phase >= 1} />
 
-          {/* "Beautiful Bangladesh" — slides in from the left.
-              position:absolute on this div is fine because the <p> children
-              are NOT absolutely positioned, so transform here doesn't
-              mis-anchor any absolute children. */}
           <div
             className="absolute"
             style={{
               bottom: vw(40),
               left: vw(40),
-              opacity: titleVisible ? 1 : 0,
-              transform: titleVisible ? 'translateX(0)' : 'translateX(-80px)',
+              opacity: phase >= 2 ? 1 : 0,
+              transform: phase >= 2 ? 'translateX(0)' : 'translateX(-80px)',
               transition: 'opacity 0.65s ease, transform 0.65s cubic-bezier(0.22,1,0.36,1)',
             }}
             data-node-id="701:1890"
@@ -218,8 +242,7 @@ export function HeroSection() {
             </p>
           </div>
 
-          {/* Reels card — animation on the card's own div, no wrapper */}
-          <LatestReelsCard visible={reelsVisible} />
+          <LatestReelsCard visible={phase >= 3} />
         </div>
       </section>
     </div>
