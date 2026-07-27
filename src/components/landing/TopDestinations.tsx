@@ -42,9 +42,10 @@ const DESTINATIONS: Dest[] = [
 ]
 
 /*
- * The Link IS the grid item. CSS Grid assigns it a definite height (1fr of
- * the grid row), which makes all absolute children resolve correctly.
- * Flex-stretched wrappers don't give a "definite" height for this purpose.
+ * Card is a flex-column. A zero-height spacer flex-grows to fill space,
+ * pushing text to the bottom. This is independent of card width/height and
+ * avoids the "absolute bottom:0 resolves against wrong ancestor" issue that
+ * caused narrower cards (Sylhet, Sundarban) to have text higher up.
  */
 function DestCard({ name, slug, img, description }: Dest) {
   const [hovered, setHovered] = useState(false)
@@ -52,11 +53,11 @@ function DestCard({ name, slug, img, description }: Dest) {
   return (
     <Link
       href={slug}
-      className="relative overflow-clip rounded-[20px]"
+      className="relative flex flex-col overflow-clip rounded-[20px]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Background image */}
+      {/* Background image — absolute, doesn't affect flex flow */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={img}
@@ -109,34 +110,37 @@ function DestCard({ name, slug, img, description }: Dest) {
         </div>
       </div>
 
-      {/* Bottom text: shifts up on hover to reveal description */}
-      <div className="absolute inset-x-0 bottom-0">
-        <div
+      {/* Spacer: fills all available vertical space, pushing text to the bottom.
+          Works regardless of card width — no containing-block height dependency. */}
+      <div className="flex-1" aria-hidden />
+
+      {/* Text — in flex flow, always flush to card bottom */}
+      <div
+        className="relative z-10"
+        style={{
+          padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}`,
+          transform: hovered ? `translateY(${vw(-40)})` : 'translateY(0)',
+          transition: `transform 0.5s ${SPRING}`,
+        }}
+      >
+        <p
+          className="font-medium text-white"
+          style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 1, paddingBottom: vw(6) }}
+        >
+          {name}
+        </p>
+        <p
+          className="text-white/75"
           style={{
-            padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}`,
-            transform: hovered ? `translateY(${vw(-40)})` : 'translateY(0)',
-            transition: `transform 0.5s ${SPRING}`,
+            fontSize: vw(16),
+            lineHeight: 1.5,
+            transform: hovered ? 'translateY(0)' : 'translateY(50px)',
+            opacity: hovered ? 1 : 0,
+            transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
           }}
         >
-          <p
-            className="font-medium text-white"
-            style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 1, paddingBottom: vw(6) }}
-          >
-            {name}
-          </p>
-          <p
-            className="text-white/75"
-            style={{
-              fontSize: vw(16),
-              lineHeight: 1.5,
-              transform: hovered ? 'translateY(0)' : 'translateY(50px)',
-              opacity: hovered ? 1 : 0,
-              transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
-            }}
-          >
-            {description}
-          </p>
-        </div>
+          {description}
+        </p>
       </div>
     </Link>
   )
