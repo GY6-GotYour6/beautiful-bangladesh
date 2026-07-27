@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import type { CSSProperties } from 'react'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
@@ -13,8 +12,6 @@ type Dest = {
   slug: string
   img: string
   description: string
-  sizeClass: string
-  sizeStyle: CSSProperties
 }
 
 const DESTINATIONS: Dest[] = [
@@ -23,144 +20,125 @@ const DESTINATIONS: Dest[] = [
     slug: '/destinations/coxs-bazar',
     img: '/landing/destinations/coxs-bazar.webp',
     description: "World's longest natural sea beach — 120 km of golden sands along the Bay of Bengal.",
-    sizeClass: 'shrink-0',
-    sizeStyle: { width: vw(808) },
   },
   {
     name: 'Sylhet',
     slug: '/destinations/sylhet',
     img: '/landing/destinations/sylhet.webp',
     description: 'Rolling tea gardens, mystical haors, and the lush highland forests of Bangladesh.',
-    sizeClass: 'min-w-0',
-    sizeStyle: { flex: '1 0 0' },
   },
   {
     name: 'Sundarban',
     slug: '/destinations/sundarbans',
     img: '/landing/destinations/sundarbans.png',
     description: "The world's largest mangrove forest — home to the Royal Bengal Tiger and rare wildlife.",
-    sizeClass: 'shrink-0',
-    sizeStyle: { width: vw(548) },
   },
   {
     name: 'Rangamati',
     slug: '/destinations/rangamati',
     img: '/landing/destinations/rangamati.png',
     description: 'Emerald hills, serene Kaptai Lake, and the rich traditions of the Chittagong Hill Tracts.',
-    sizeClass: 'shrink-0',
-    sizeStyle: { width: vw(808) },
   },
 ]
 
-function DestCard({ name, slug, img, description, sizeClass, sizeStyle }: Dest) {
+/*
+ * The Link IS the grid item. CSS Grid assigns it a definite height (1fr of
+ * the grid row), which makes all absolute children resolve correctly.
+ * Flex-stretched wrappers don't give a "definite" height for this purpose.
+ */
+function DestCard({ name, slug, img, description }: Dest) {
   const [hovered, setHovered] = useState(false)
 
   return (
-    /*
-     * Wrapper div = the flex item in the row. Its height comes from
-     * align-self: stretch (flex default) which resolves against the row's
-     * flex-allocated height — more reliable than height:100% in this chain.
-     */
-    <div className={`relative ${sizeClass}`} style={sizeStyle}>
-      {/* Link fills the wrapper absolutely so absolute children size correctly */}
-      <Link
-        href={slug}
-        className="absolute inset-0 overflow-clip rounded-[20px]"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+    <Link
+      href={slug}
+      className="relative overflow-clip rounded-[20px]"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Background image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={img}
+        alt={name}
+        className="absolute inset-0 size-full max-w-none object-cover"
+        style={{
+          transform: hovered ? 'scale(1.04)' : 'scale(1)',
+          transition: `transform 0.7s ${SPRING}`,
+        }}
+        draggable={false}
+      />
+
+      {/* Gradient overlay */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 28%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0.82) 100%)',
+        }}
+        aria-hidden
+      />
+
+      {/* Arrow: white circle + green arrow by default; inverts on hover */}
+      <div
+        className="absolute flex items-center justify-center overflow-hidden rounded-full"
+        style={{
+          top: vw(24),
+          right: vw(24),
+          width: vw(40),
+          height: vw(40),
+          background: hovered ? '#31542a' : 'white',
+          color: hovered ? 'white' : '#31542a',
+          border: hovered ? '1.5px solid transparent' : '1.5px solid rgba(255,255,255,0.6)',
+          transform: hovered ? 'scale(1.15)' : 'scale(1)',
+          transition:
+            'transform 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease',
+        }}
+        aria-hidden
       >
-        {/* Background image */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={img}
-          alt={name}
-          className="absolute inset-0 size-full max-w-none object-cover"
-          style={{
-            transform: hovered ? 'scale(1.04)' : 'scale(1)',
-            transition: `transform 0.7s ${SPRING}`,
-          }}
-          draggable={false}
-        />
-
-        {/* Gradient overlay */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(to bottom, transparent 28%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0.82) 100%)',
-          }}
-          aria-hidden
-        />
-
-        {/* Arrow button: white → green on hover. Uses CSS currentColor so stroke
-            inherits and transitions smoothly without SVG prop tricks. */}
-        <div
-          className="absolute flex items-center justify-center overflow-hidden rounded-full"
-          style={{
-            top: vw(24),
-            right: vw(24),
-            width: vw(40),
-            height: vw(40),
-            background: hovered ? '#31542a' : 'white',
-            color: hovered ? 'white' : '#31542a',
-            border: hovered ? '1.5px solid transparent' : '1.5px solid rgba(255,255,255,0.6)',
-            transform: hovered ? 'scale(1.15)' : 'scale(1)',
-            transition: 'transform 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease',
-          }}
-          aria-hidden
-        >
-          <div style={{ transform: 'rotate(-45deg)', display: 'flex' }}>
-            <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
-              <path
-                d="M4 10h12M12 4l6 6-6 6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+        <div style={{ transform: 'rotate(-45deg)', display: 'flex' }}>
+          <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
+            <path
+              d="M4 10h12M12 4l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
+      </div>
 
-        {/* Bottom text: container shifts up on hover, revealing description */}
-        <div className="absolute inset-x-0 bottom-0">
-          <div
+      {/* Bottom text: shifts up on hover to reveal description */}
+      <div className="absolute inset-x-0 bottom-0">
+        <div
+          style={{
+            padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}`,
+            transform: hovered ? `translateY(${vw(-40)})` : 'translateY(0)',
+            transition: `transform 0.5s ${SPRING}`,
+          }}
+        >
+          <p
+            className="font-medium text-white"
+            style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 1, paddingBottom: vw(6) }}
+          >
+            {name}
+          </p>
+          <p
+            className="text-white/75"
             style={{
-              padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}`,
-              transform: hovered ? `translateY(${vw(-40)})` : 'translateY(0)',
-              transition: `transform 0.5s ${SPRING}`,
+              fontSize: vw(16),
+              lineHeight: 1.5,
+              transform: hovered ? 'translateY(0)' : 'translateY(50px)',
+              opacity: hovered ? 1 : 0,
+              transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
             }}
           >
-            {/* Destination name */}
-            <p
-              className="font-medium text-white"
-              style={{
-                fontSize: vw(88),
-                letterSpacing: vw(-2.64),
-                lineHeight: 1,
-                paddingBottom: vw(6),
-              }}
-            >
-              {name}
-            </p>
-
-            {/* Description: pushed below card boundary, slides in on hover */}
-            <p
-              className="text-white/75"
-              style={{
-                fontSize: vw(16),
-                lineHeight: 1.5,
-                transform: hovered ? 'translateY(0)' : 'translateY(50px)',
-                opacity: hovered ? 1 : 0,
-                transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
-              }}
-            >
-              {description}
-            </p>
-          </div>
+            {description}
+          </p>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   )
 }
 
@@ -182,7 +160,7 @@ export function TopDestinations() {
       }}
       data-node-id="701:1891"
     >
-      {/* Header row */}
+      {/* Header */}
       <div className="flex w-full shrink-0 items-center justify-between" style={{ maxWidth: vw(1368) }}>
         <h2
           className="shrink-0 font-medium text-[#132110]"
@@ -190,8 +168,6 @@ export function TopDestinations() {
         >
           Top Destinations
         </h2>
-
-        {/* View All — arrow slides right on hover */}
         <Link
           href="/explore"
           className="group flex shrink-0 cursor-pointer items-center text-[#132110]"
@@ -222,16 +198,39 @@ export function TopDestinations() {
         </Link>
       </div>
 
-      {/* Cards grid */}
+      {/* Card grid: two separate CSS grids, one per row, with different column
+          templates. Each Link is a grid item and gets a definite size in both
+          axes, fixing the absolute-child positioning for all four cards. */}
       <div
         className="flex flex-col"
         style={{ flex: '1 0 0', minHeight: 0, width: vw(1368), gap: vw(12) }}
       >
-        <div className="flex" style={{ flex: '1 0 0', minHeight: 0, gap: vw(12) }}>
+        {/* Row 1: Cox Bazar wide (808) + Sylhet fills remaining */}
+        <div
+          style={{
+            flex: '1 0 0',
+            minHeight: 0,
+            display: 'grid',
+            gridTemplateColumns: `${vw(808)} 1fr`,
+            gridTemplateRows: '1fr',
+            gap: vw(12),
+          }}
+        >
           <DestCard {...DESTINATIONS[0]} />
           <DestCard {...DESTINATIONS[1]} />
         </div>
-        <div className="flex" style={{ flex: '1 0 0', minHeight: 0, gap: vw(12) }}>
+
+        {/* Row 2: Sundarban narrow (548) + Rangamati fills remaining */}
+        <div
+          style={{
+            flex: '1 0 0',
+            minHeight: 0,
+            display: 'grid',
+            gridTemplateColumns: `${vw(548)} 1fr`,
+            gridTemplateRows: '1fr',
+            gap: vw(12),
+          }}
+        >
           <DestCard {...DESTINATIONS[2]} />
           <DestCard {...DESTINATIONS[3]} />
         </div>
