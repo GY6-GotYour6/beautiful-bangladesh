@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
 import { MobileCta } from '@/components/landing/MobileSections'
 import { HeroNav } from '@/components/landing/HeroSection'
+import { CtaSection } from '@/components/landing/CtaSection'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
@@ -184,76 +185,12 @@ function ExploreDestinations() {
   )
 }
 
-function ExploreCta() {
-  return (
-    <section
-      className="relative w-full overflow-clip bg-white"
-      style={{ height: vw(800) }}
-      data-node-id="700:939"
-    >
-      {/* "BEAUTIFUL BANGLADESH" — behind the wave mountain */}
-      <p
-        className="pointer-events-none absolute whitespace-nowrap text-center font-semibold leading-none text-transparent"
-        style={{
-          top: vw(117),
-          left: '50%',
-          transform: 'translateX(-50%)',
-          fontSize: vw(116),
-          letterSpacing: 0,
-          backgroundImage: 'url(/explore/beautiful-bangladesh-fill.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-        }}
-        data-node-id="700:940"
-      >
-        BEAUTIFUL BANGLADESH
-      </p>
-
-      {/* Wave / mountain overlay — same halftone structure as landing CTA
-          outer div positions the visible window, inner div contains the
-          full-size image at the exact Figma offsets */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: vw(-23.96),
-          left: vw(-176),
-          width: vw(1792),
-          height: vw(457.791),
-        }}
-        data-node-id="700:941"
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: vw(-160.12),
-            top: vw(-417.26),
-            width: vw(1966.118),
-            height: vw(1112),
-          }}
-          data-node-id="700:942"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/explore/wave.png"
-            alt=""
-            className="absolute inset-0 block max-w-none size-full"
-            draggable={false}
-            aria-hidden="true"
-          />
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function ExploreDesktop() {
   return (
     <div className="relative w-full overflow-x-clip bg-white" data-node-id="700:903">
       <ExploreHero />
       <ExploreDestinations />
-      <ExploreCta />
+      <CtaSection />
     </div>
   )
 }
