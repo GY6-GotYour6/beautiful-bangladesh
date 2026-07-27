@@ -59,7 +59,7 @@ export function SiteFooter() {
   const pathname = usePathname()
   if (pathname.startsWith('/admin')) return null
 
-  const isLanding = pathname === '/'
+  const isLanding = pathname === '/' || pathname === '/explore'
 
   return (
     <footer
