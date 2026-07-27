@@ -9,8 +9,8 @@ export function SiteHeader() {
   const pathname = usePathname()
   if (pathname.startsWith('/cms')) return null
 
-  // Landing page embeds its own white nav pill inside the hero — skip desktop header
-  if (pathname === '/') {
+  // Landing + explore embed their own white nav pill inside the hero — skip desktop header
+  if (pathname === '/' || pathname === '/explore') {
     return <MobileSiteHeader />
   }
 

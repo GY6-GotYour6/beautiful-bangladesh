@@ -132,6 +132,7 @@ export function TopDestinations() {
         height: '100dvh',
         overflow: 'clip',
         scrollSnapAlign: 'start',
+        scrollSnapStop: 'always',
         paddingTop: `min(${vw(80)}, 4dvh)`,
         paddingBottom: `min(${vw(80)}, 4dvh)`,
         paddingLeft: vw(80),

@@ -59,9 +59,12 @@ export function SiteFooter() {
   const pathname = usePathname()
   if (pathname.startsWith('/admin')) return null
 
+  const isLanding = pathname === '/'
+
   return (
     <footer
       className="relative w-full overflow-hidden bg-[#31542a]"
+      style={isLanding ? { scrollSnapAlign: 'start' } : undefined}
       data-node-id="428:486"
     >
       {/* Noise texture overlay */}

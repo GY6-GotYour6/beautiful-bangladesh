@@ -1,173 +1,357 @@
+'use client'
+
 import Link from 'next/link'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
-import { CtaSection } from '@/components/landing/CtaSection'
-import { CtaButton } from '@/components/landing/CtaButton'
 import { MobileCta } from '@/components/landing/MobileSections'
-import { DESKTOP_ARTBOARD, DESKTOP_EXPLORE_OFFSET } from '@/lib/nav-config'
-import type { CmsDestinationListItem } from '@/lib/cms-data'
+import { HeroNav } from '@/components/landing/HeroSection'
 
-type DestCardProps = {
-  name: string
-  slug: string
-  img: string
-}
+const A = 1440
+const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
 
-function DestCard({ name, slug, img }: DestCardProps) {
+const DESTINATIONS = [
+  {
+    name: 'Cox Bazar',
+    slug: 'coxs-bazar',
+    img: '/explore/coxs-bazar.jpg',
+    description:
+      "Home to the world's longest natural sea beach, Cox's Bazar stretches 120 km along the Bay of Bengal with golden sands and stunning sunsets.",
+  },
+  {
+    name: 'Ratargul',
+    slug: 'ratargul',
+    img: '/explore/ratargul.jpg',
+    description:
+      "Bangladesh's only freshwater swamp forest, Ratargul is a mystical green paradise where ancient trees rise from crystal-clear waters year round.",
+  },
+  {
+    name: 'Sajek Valley',
+    slug: 'sajek-valley',
+    img: '/explore/sajek-valley.jpg',
+    description:
+      'Known as the Queen of Hills, Sajek Valley sits among the clouds in the Chittagong Hill Tracts offering breathtaking views of rolling green mountains.',
+  },
+  {
+    name: 'Rangamati',
+    slug: 'rangamati',
+    img: '/explore/rangamati.jpg',
+    description:
+      "A serene lakeside hill district, Rangamati enchants visitors with Kaptai Lake's emerald waters, tribal culture, and lush forested hillscapes.",
+  },
+  {
+    name: 'Saint Martin',
+    slug: 'saint-martin',
+    img: '/explore/saint-martin.jpg',
+    description:
+      "Bangladesh's only coral island, Saint Martin is a tropical gem in the Bay of Bengal with turquoise waters, coral reefs, and pristine beaches.",
+  },
+  {
+    name: 'Sreemangal',
+    slug: 'sreemangal',
+    img: '/explore/sreemangal.jpg',
+    description:
+      'The tea capital of Bangladesh, Sreemangal is surrounded by endless rolling tea gardens, rainforests, and is home to the rare Lawachara wildlife.',
+  },
+]
+
+// ─── Desktop ──────────────────────────────────────────────────────────────────
+
+function ExploreHero() {
   return (
-    <Link
-      href={`/destinations/${slug}`}
-      className="group relative min-w-0 flex-1 h-[300px] overflow-clip rounded-[12px] block"
-      aria-label={name}
-    >
-      {img ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={img}
-          alt=""
-          className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          draggable={false}
-        />
-      ) : (
-        <div className="absolute inset-0 bg-[#2a4a24]" />
-      )}
-      <div className="absolute inset-0 bg-[rgba(0,0,0,0.34)]" />
-      <p
-        className="pointer-events-none absolute bottom-[107px] left-0 right-0 translate-y-full text-center
-          font-[family-name:var(--font-script)] text-[80px] leading-[1.4] tracking-[-2.4px]
-          whitespace-nowrap text-white"
+    <div className="w-full bg-white" style={{ padding: vw(20) }} data-node-id="700:904">
+      <div
+        className="relative w-full overflow-clip"
+        style={{ height: vw(800), borderRadius: vw(20) }}
+        data-node-id="700:906"
       >
-        {name}
-      </p>
-    </Link>
+        {/* Same hero video as landing page */}
+        <video
+          className="pointer-events-none absolute inset-0 size-full max-w-none object-cover"
+          src="/hero/hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero/bg.webp"
+          aria-hidden="true"
+        />
+
+        {/* White nav pill — always visible (no scroll trigger on explore) */}
+        <HeroNav visible={true} />
+
+        {/* "Find · Your · Perfect · Destination" spread across center */}
+        <div
+          className="pointer-events-none absolute text-white"
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: vw(280),
+            fontSize: vw(24),
+            fontWeight: 500,
+            lineHeight: 1,
+            whiteSpace: 'nowrap',
+          }}
+          data-node-id="700:907"
+        >
+          <span data-node-id="700:908">Find</span>
+          <span data-node-id="700:909">Your</span>
+          <span data-node-id="700:910">Perfect</span>
+          <span data-node-id="700:911">Destination</span>
+        </div>
+      </div>
+    </div>
   )
 }
 
-const EXPLORE_TOP = `calc(${DESKTOP_EXPLORE_OFFSET} / ${DESKTOP_ARTBOARD} * 100vw)`
-
-function ExploreCategories({ destinations }: { destinations: CmsDestinationListItem[] }) {
+function DestCard({
+  name,
+  slug,
+  img,
+  description,
+}: {
+  name: string
+  slug: string
+  img: string
+  description: string
+}) {
   return (
-    <section
-      className="bg-white flex flex-col gap-[32px] pb-[40px] px-[40px] w-full"
-      style={{ paddingTop: EXPLORE_TOP }}
-      data-node-id="466:731"
+    <div
+      className="flex min-w-0 flex-1 flex-col"
+      style={{
+        gap: vw(20),
+        borderLeft: '1px solid rgba(0,0,0,0.08)',
+        paddingLeft: vw(24),
+      }}
     >
-      <div className="flex flex-col gap-[16px] text-[#132110]" data-node-id="602:364">
-        <p
-          className="font-[family-name:var(--font-body)] text-[40px] font-medium leading-none
-            tracking-[-0.64px] capitalize"
-          data-node-id="602:365"
-        >
-          Find your{' '}
-          <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-            perfect
-          </span>{' '}
-          destination experience
-        </p>
-        <p
-          className="font-[family-name:var(--font-body)] text-[18px] leading-[1.4] opacity-60"
-          data-node-id="603:412"
-        >
-          Where endless golden shores meet the Bay of Bengal. From sunrise walks and seafood feasts
-          to dramatic coastal drives and hidden beaches. Where endless golden shores meet the Bay of
-          Bengal. From sunrise walks and seafood feasts to dramatic coastal drives and hidden beaches.
-        </p>
-      </div>
+      <p
+        className="w-full shrink-0 font-medium text-[#132110]"
+        style={{ fontSize: vw(24), letterSpacing: vw(-0.72), lineHeight: 'normal' }}
+      >
+        {name}
+      </p>
+      <Link
+        href={`/destinations/${slug}`}
+        className="block w-full shrink-0 overflow-hidden"
+        style={{ height: vw(300), borderRadius: vw(20) }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={img}
+          alt={name}
+          className="size-full max-w-none object-cover transition-transform duration-500 hover:scale-[1.03]"
+          draggable={false}
+        />
+      </Link>
+      <p
+        className="w-full text-[#132110] opacity-60"
+        style={{ fontSize: vw(16), lineHeight: 1.4 }}
+      >
+        {description}
+      </p>
+    </div>
+  )
+}
 
-      {destinations.length === 0 ? (
-        <p className="text-[#132110] opacity-40 text-[18px]">No destinations published yet.</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-[16px]">
-          {destinations.map((d) => (
-            <DestCard key={d.slug} name={d.name} slug={d.slug} img={d.thumb} />
+function ExploreDestinations() {
+  const row1 = DESTINATIONS.slice(0, 3)
+  const row2 = DESTINATIONS.slice(3, 6)
+  return (
+    <section className="w-full bg-white" style={{ padding: vw(40) }} data-node-id="700:912">
+      <div className="flex w-full flex-col" data-node-id="700:1482">
+        {/* Row 1 */}
+        <div
+          className="flex w-full"
+          style={{ gap: vw(32), paddingBottom: vw(24), borderBottom: '1px solid #f0f0f0' }}
+          data-node-id="700:913"
+        >
+          {row1.map((d) => (
+            <DestCard key={d.slug} {...d} />
           ))}
         </div>
-      )}
-
-      <div className="flex justify-center" data-node-id="602:367">
-        <CtaButton size="sm" label="Check Out Reels" />
+        {/* Row 2 */}
+        <div
+          className="flex w-full"
+          style={{ gap: vw(32), paddingTop: vw(24) }}
+          data-node-id="700:926"
+        >
+          {row2.map((d) => (
+            <DestCard key={d.slug} {...d} />
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
-function ExploreDesktop({ destinations }: { destinations: CmsDestinationListItem[] }) {
+function ExploreCta() {
   return (
-    <div className="relative w-full overflow-x-clip bg-white" data-node-id="466:730">
-      <ExploreCategories destinations={destinations} />
-      <CtaSection />
+    <section
+      className="relative w-full overflow-clip bg-white"
+      style={{ height: vw(800) }}
+      data-node-id="700:939"
+    >
+      {/* "BEAUTIFUL BANGLADESH" — behind the wave mountain */}
+      <p
+        className="pointer-events-none absolute whitespace-nowrap text-center font-semibold leading-none text-transparent"
+        style={{
+          top: vw(117),
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: vw(116),
+          letterSpacing: 0,
+          backgroundImage: 'url(/explore/beautiful-bangladesh-fill.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          WebkitBackgroundClip: 'text',
+          backgroundClip: 'text',
+        }}
+        data-node-id="700:940"
+      >
+        BEAUTIFUL BANGLADESH
+      </p>
+
+      {/* Wave / mountain overlay — same halftone structure as landing CTA
+          outer div positions the visible window, inner div contains the
+          full-size image at the exact Figma offsets */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: vw(-23.96),
+          left: vw(-176),
+          width: vw(1792),
+          height: vw(457.791),
+        }}
+        data-node-id="700:941"
+      >
+        <div
+          style={{
+            position: 'absolute',
+            left: vw(-160.12),
+            top: vw(-417.26),
+            width: vw(1966.118),
+            height: vw(1112),
+          }}
+          data-node-id="700:942"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/explore/wave.png"
+            alt=""
+            className="absolute inset-0 block max-w-none size-full"
+            draggable={false}
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ExploreDesktop() {
+  return (
+    <div className="relative w-full overflow-x-clip bg-white" data-node-id="700:903">
+      <ExploreHero />
+      <ExploreDestinations />
+      <ExploreCta />
     </div>
   )
 }
 
-function ExploreMobile({ destinations }: { destinations: CmsDestinationListItem[] }) {
+// ─── Mobile ───────────────────────────────────────────────────────────────────
+
+function MobileDestCard({
+  name,
+  slug,
+  img,
+  description,
+}: {
+  name: string
+  slug: string
+  img: string
+  description: string
+}) {
   return (
-    <div className="relative w-full overflow-x-clip bg-white" data-node-id="498:3222">
-      <section className="flex w-full flex-col gap-[24px] px-[16px] pt-[78px] pb-[40px]">
-        <div className="flex flex-col gap-[12px]">
-          <h1 className="font-[family-name:var(--font-body)] text-[20px] font-medium tracking-[-0.6px] text-[#132110] capitalize">
-            Find your{' '}
-            <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-              perfect
-            </span>{' '}
-            destination experience
-          </h1>
-          <p className="font-[family-name:var(--font-body)] text-[13px] leading-[1.4] text-[#132110] opacity-60">
-            Where endless golden shores meet the Bay of Bengal. From sunrise walks and seafood
-            feasts to dramatic coastal drives and hidden beaches.
-          </p>
-        </div>
+    <div className="flex flex-col gap-[12px]" style={{ borderLeft: '2px solid rgba(0,0,0,0.08)', paddingLeft: 12 }}>
+      <p className="text-[16px] font-medium leading-normal tracking-[-0.48px] text-[#132110]">
+        {name}
+      </p>
+      <Link
+        href={`/destinations/${slug}`}
+        className="block w-full overflow-hidden rounded-[12px]"
+        style={{ height: 180 }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={img}
+          alt={name}
+          className="size-full max-w-none object-cover"
+          draggable={false}
+        />
+      </Link>
+      <p className="text-[13px] leading-[1.4] text-[#132110] opacity-60">{description}</p>
+    </div>
+  )
+}
 
-        {destinations.length === 0 ? (
-          <p className="text-[#132110] opacity-40 text-[13px]">No destinations published yet.</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-[12px]">
-            {destinations.map((d) => (
-              <Link
-                key={d.slug}
-                href={`/destinations/${d.slug}`}
-                className="group relative aspect-[171/120] overflow-clip rounded-[12px] block"
-                aria-label={d.name}
-              >
-                {d.thumb ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={d.thumb}
-                    alt=""
-                    className="absolute inset-0 size-full max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                    draggable={false}
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-[#2a4a24]" />
-                )}
-                <div className="absolute inset-0 bg-[rgba(0,0,0,0.34)]" />
-                <p
-                  className="pointer-events-none absolute bottom-[35%] left-0 right-0 translate-y-full
-                    text-center font-[family-name:var(--font-script)] text-[28px] leading-[1.4]
-                    tracking-[-0.84px] whitespace-nowrap text-white"
-                >
-                  {d.name}
-                </p>
-              </Link>
-            ))}
+function ExploreMobile() {
+  return (
+    <div className="relative w-full overflow-x-clip bg-white">
+      {/* Hero */}
+      <div className="w-full p-[8px]">
+        <div
+          className="relative w-full overflow-clip rounded-[16px]"
+          style={{ height: 'calc(240 / 390 * 100vw)' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/explore/hero-bg.png"
+            alt=""
+            className="absolute inset-0 size-full max-w-none object-cover"
+            draggable={false}
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute text-white"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'calc(48 / 390 * 100vw)',
+              fontSize: 'calc(12 / 390 * 100vw)',
+              fontWeight: 500,
+              lineHeight: 1,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span>Find</span>
+            <span>Your</span>
+            <span>Perfect</span>
+            <span>Destination</span>
           </div>
-        )}
+        </div>
+      </div>
 
-        <CtaButton size="sm" label="Check Out Reels" className="mt-[8px] self-center" />
+      {/* Cards */}
+      <section className="flex w-full flex-col gap-[24px] px-[16px] py-[32px]">
+        {DESTINATIONS.map((d) => (
+          <MobileDestCard key={d.slug} {...d} />
+        ))}
       </section>
+
+      {/* CTA */}
       <MobileCta />
     </div>
   )
 }
 
-type ExplorePageProps = {
-  destinations: CmsDestinationListItem[]
-}
+// ─── Entry ────────────────────────────────────────────────────────────────────
 
-export function ExplorePage({ destinations }: ExplorePageProps) {
+export function ExplorePage() {
   return (
-    <ResponsiveFigmaPage
-      desktop={<ExploreDesktop destinations={destinations} />}
-      mobile={<ExploreMobile destinations={destinations} />}
-    />
+    <ResponsiveFigmaPage desktop={<ExploreDesktop />} mobile={<ExploreMobile />} />
   )
 }

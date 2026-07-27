@@ -1,21 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { navLinks, getActiveNavLabel } from '@/lib/nav-config'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
-
-/**
- * Extra px the user scrolls while the hero is sticky.
- * Divided into 3 phases (~165px each): nav → BB title → reels card.
- */
-const EXTRA_SCROLL = 500
-const T_NAV = 0.1    // ~50px
-const T_TITLE = 0.4  // ~200px
-const T_REELS = 0.7  // ~350px
 
 function ChevronRight({ color = 'currentColor' }: { color?: string }) {
   return (
@@ -25,7 +16,7 @@ function ChevronRight({ color = 'currentColor' }: { color?: string }) {
   )
 }
 
-function HeroNav({ visible }: { visible: boolean }) {
+export function HeroNav({ visible }: { visible: boolean }) {
   const pathname = usePathname()
   const active = getActiveNavLabel(pathname)
 
@@ -155,39 +146,29 @@ function LatestReelsCard({ visible }: { visible: boolean }) {
 }
 
 export function HeroSection() {
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const [progress, setProgress] = useState(0)
+  const [navVisible, setNavVisible] = useState(false)
+  const [titleVisible, setTitleVisible] = useState(false)
+  const [reelsVisible, setReelsVisible] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => {
-      const wrapper = wrapperRef.current
-      if (!wrapper) return
-      const scrolled = -wrapper.getBoundingClientRect().top
-      setProgress(Math.max(0, Math.min(1, scrolled / EXTRA_SCROLL)))
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
+    const t1 = setTimeout(() => setNavVisible(true), 400)
+    const t2 = setTimeout(() => setTitleVisible(true), 800)
+    const t3 = setTimeout(() => setReelsVisible(true), 1200)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
-
-  const navVisible = progress >= T_NAV
-  const titleVisible = progress >= T_TITLE
-  const reelsVisible = progress >= T_REELS
 
   return (
     <div
-      ref={wrapperRef}
       className="relative hidden md:block"
-      style={{ height: `calc(${vw(840)} + ${EXTRA_SCROLL}px)` }}
+      style={{ height: '100dvh', overflow: 'clip', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-node-id="701:1861"
     >
       <section
-        className="sticky top-0 w-full bg-[#fffae7]"
+        className="flex h-full w-full flex-col bg-[#fffae7]"
         style={{ padding: vw(20) }}
       >
         <div
-          className="relative w-full overflow-hidden rounded-[20px]"
-          style={{ height: vw(800), minHeight: 560 }}
+          className="relative min-h-0 flex-1 w-full overflow-hidden rounded-[20px]"
         >
           <video
             className="pointer-events-none absolute inset-0 size-full object-cover"

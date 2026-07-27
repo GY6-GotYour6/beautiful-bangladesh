@@ -29,6 +29,7 @@ export function CreatorsSection() {
         height: '100dvh',
         overflow: 'clip',
         scrollSnapAlign: 'start',
+        scrollSnapStop: 'always',
         padding: vw(80),
         gap: vw(48),
       }}
