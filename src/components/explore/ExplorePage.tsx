@@ -261,7 +261,7 @@ function ExploreDesktop() {
       style={{
         height: '100dvh',
         overflowY: 'scroll',
-        scrollSnapType: 'y proximity',
+        scrollSnapType: 'y mandatory',
       }}
     >
       <ExploreHeroSection />
