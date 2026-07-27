@@ -45,16 +45,10 @@ function DestCard({ name, slug, img, description }: Dest) {
   const [hovered, setHovered] = useState(false)
 
   return (
-    /*
-     * Card is itself a 2-row grid: [spacer 1fr] [text auto].
-     * height:100% resolves against the outer grid track (definite).
-     * The text row is always physically at the bottom — no absolute
-     * positioning, no flex-grow, no containing-block ambiguity.
-     */
     <Link
       href={slug}
       className="relative overflow-clip rounded-[20px]"
-      style={{ display: 'grid', gridTemplateRows: '1fr auto', height: '100%' }}
+      style={{ display: 'grid', gridTemplateRows: '1fr auto' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
