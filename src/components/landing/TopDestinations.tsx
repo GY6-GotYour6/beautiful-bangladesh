@@ -41,23 +41,24 @@ const DESTINATIONS: Dest[] = [
   },
 ]
 
-/*
- * Card is a flex-column. A zero-height spacer flex-grows to fill space,
- * pushing text to the bottom. This is independent of card width/height and
- * avoids the "absolute bottom:0 resolves against wrong ancestor" issue that
- * caused narrower cards (Sylhet, Sundarban) to have text higher up.
- */
 function DestCard({ name, slug, img, description }: Dest) {
   const [hovered, setHovered] = useState(false)
 
   return (
+    /*
+     * Card is itself a 2-row grid: [spacer 1fr] [text auto].
+     * height:100% resolves against the outer grid track (definite).
+     * The text row is always physically at the bottom — no absolute
+     * positioning, no flex-grow, no containing-block ambiguity.
+     */
     <Link
       href={slug}
-      className="relative flex flex-col overflow-clip rounded-[20px]"
+      className="relative overflow-clip rounded-[20px]"
+      style={{ display: 'grid', gridTemplateRows: '1fr auto', height: '100%' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Background image — absolute, doesn't affect flex flow */}
+      {/* Background image — absolute, not in grid flow */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={img}
@@ -80,7 +81,7 @@ function DestCard({ name, slug, img, description }: Dest) {
         aria-hidden
       />
 
-      {/* Arrow: white circle + green arrow by default; inverts on hover */}
+      {/* Arrow */}
       <div
         className="absolute flex items-center justify-center overflow-hidden rounded-full"
         style={{
@@ -92,8 +93,7 @@ function DestCard({ name, slug, img, description }: Dest) {
           color: hovered ? 'white' : '#31542a',
           border: hovered ? '1.5px solid transparent' : '1.5px solid rgba(255,255,255,0.6)',
           transform: hovered ? 'scale(1.15)' : 'scale(1)',
-          transition:
-            'transform 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease',
+          transition: 'transform 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease',
         }}
         aria-hidden
       >
@@ -110,11 +110,10 @@ function DestCard({ name, slug, img, description }: Dest) {
         </div>
       </div>
 
-      {/* Spacer: fills all available vertical space, pushing text to the bottom.
-          Works regardless of card width — no containing-block height dependency. */}
-      <div className="flex-1" aria-hidden />
+      {/* Grid row 1: spacer (1fr) — pushes text row to bottom */}
+      <div aria-hidden />
 
-      {/* Text — in flex flow, always flush to card bottom */}
+      {/* Grid row 2: text (auto height) — always at card bottom */}
       <div
         className="relative z-10"
         style={{
