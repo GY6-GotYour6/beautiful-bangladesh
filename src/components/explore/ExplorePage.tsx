@@ -256,14 +256,17 @@ function ExploreDestinations() {
 }
 
 function ExploreDesktop() {
+  useEffect(() => {
+    if (window.innerWidth < 768) return
+    const html = document.documentElement
+    html.style.scrollSnapType = 'y mandatory'
+    return () => {
+      html.style.scrollSnapType = ''
+    }
+  }, [])
+
   return (
-    <div
-      style={{
-        height: '100dvh',
-        overflowY: 'scroll',
-        scrollSnapType: 'y mandatory',
-      }}
-    >
+    <div className="relative w-full overflow-x-clip">
       <ExploreHeroSection />
       <ExploreDestinations />
       <CtaSection />
