@@ -13,7 +13,6 @@ type Dest = {
   slug: string
   img: string
   description: string
-  arrow: 'green' | 'white'
   sizeClass: string
   sizeStyle: CSSProperties
 }
@@ -24,7 +23,6 @@ const DESTINATIONS: Dest[] = [
     slug: '/destinations/coxs-bazar',
     img: '/landing/destinations/coxs-bazar.webp',
     description: "World's longest natural sea beach — 120 km of golden sands along the Bay of Bengal.",
-    arrow: 'green',
     sizeClass: 'shrink-0',
     sizeStyle: { width: vw(808) },
   },
@@ -33,7 +31,6 @@ const DESTINATIONS: Dest[] = [
     slug: '/destinations/sylhet',
     img: '/landing/destinations/sylhet.webp',
     description: 'Rolling tea gardens, mystical haors, and the lush highland forests of Bangladesh.',
-    arrow: 'white',
     sizeClass: 'min-w-0',
     sizeStyle: { flex: '1 0 0' },
   },
@@ -42,7 +39,6 @@ const DESTINATIONS: Dest[] = [
     slug: '/destinations/sundarbans',
     img: '/landing/destinations/sundarbans.png',
     description: "The world's largest mangrove forest — home to the Royal Bengal Tiger and rare wildlife.",
-    arrow: 'white',
     sizeClass: 'shrink-0',
     sizeStyle: { width: vw(548) },
   },
@@ -51,116 +47,120 @@ const DESTINATIONS: Dest[] = [
     slug: '/destinations/rangamati',
     img: '/landing/destinations/rangamati.png',
     description: 'Emerald hills, serene Kaptai Lake, and the rich traditions of the Chittagong Hill Tracts.',
-    arrow: 'white',
     sizeClass: 'shrink-0',
     sizeStyle: { width: vw(808) },
   },
 ]
 
-function DestCard({ name, slug, img, description, arrow, sizeClass, sizeStyle }: Dest) {
+function DestCard({ name, slug, img, description, sizeClass, sizeStyle }: Dest) {
   const [hovered, setHovered] = useState(false)
 
-  const arrowBg = arrow === 'green' ? '#31542a' : 'white'
-  const arrowStroke = arrow === 'green' ? 'white' : '#31542a'
-  const arrowBorder = arrow === 'white' ? '1.5px solid white' : 'none'
-
   return (
-    <Link
-      href={slug}
-      className={`relative overflow-clip rounded-[20px] ${sizeClass}`}
-      style={{ height: '100%', ...sizeStyle }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Background image — subtle scale on hover */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={img}
-        alt={name}
-        className="absolute inset-0 size-full max-w-none object-cover"
-        style={{
-          transform: hovered ? 'scale(1.04)' : 'scale(1)',
-          transition: `transform 0.7s ${SPRING}`,
-        }}
-        draggable={false}
-      />
-
-      {/* Gradient overlay */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent 28%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0.82) 100%)',
-        }}
-        aria-hidden
-      />
-
-      {/* Arrow button — scales up on hover */}
-      <div
-        className="absolute flex items-center justify-center overflow-hidden rounded-full"
-        style={{
-          top: vw(24),
-          right: vw(24),
-          width: vw(40),
-          height: vw(40),
-          background: arrowBg,
-          border: arrowBorder,
-          transform: hovered ? 'scale(1.22)' : 'scale(1)',
-          transition: 'transform 0.3s ease',
-        }}
-        aria-hidden
+    /*
+     * Wrapper div = the flex item in the row. Its height comes from
+     * align-self: stretch (flex default) which resolves against the row's
+     * flex-allocated height — more reliable than height:100% in this chain.
+     */
+    <div className={`relative ${sizeClass}`} style={sizeStyle}>
+      {/* Link fills the wrapper absolutely so absolute children size correctly */}
+      <Link
+        href={slug}
+        className="absolute inset-0 overflow-clip rounded-[20px]"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
-        <div style={{ transform: 'rotate(-45deg)', display: 'flex' }}>
-          <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
-            <path
-              d="M4 10h12M12 4l6 6-6 6"
-              stroke={arrowStroke}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Bottom text — container shifts up on hover, revealing description */}
-      <div className="absolute inset-x-0 bottom-0">
-        <div
+        {/* Background image */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={img}
+          alt={name}
+          className="absolute inset-0 size-full max-w-none object-cover"
           style={{
-            padding: `0 ${vw(24)} ${vw(24)} ${vw(24)}`,
-            transform: hovered ? `translateY(${vw(-48)})` : 'translateY(0)',
-            transition: `transform 0.5s ${SPRING}`,
+            transform: hovered ? 'scale(1.04)' : 'scale(1)',
+            transition: `transform 0.7s ${SPRING}`,
           }}
-        >
-          {/* Destination name */}
-          <p
-            className="font-medium text-white"
-            style={{
-              fontSize: vw(88),
-              letterSpacing: vw(-2.64),
-              lineHeight: 1,
-              paddingBottom: vw(8),
-            }}
-          >
-            {name}
-          </p>
+          draggable={false}
+        />
 
-          {/* Description — hidden below card boundary, slides in on hover */}
-          <p
-            className="text-white/75"
+        {/* Gradient overlay */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to bottom, transparent 28%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0.82) 100%)',
+          }}
+          aria-hidden
+        />
+
+        {/* Arrow button: white → green on hover. Uses CSS currentColor so stroke
+            inherits and transitions smoothly without SVG prop tricks. */}
+        <div
+          className="absolute flex items-center justify-center overflow-hidden rounded-full"
+          style={{
+            top: vw(24),
+            right: vw(24),
+            width: vw(40),
+            height: vw(40),
+            background: hovered ? '#31542a' : 'white',
+            color: hovered ? 'white' : '#31542a',
+            border: hovered ? '1.5px solid transparent' : '1.5px solid rgba(255,255,255,0.6)',
+            transform: hovered ? 'scale(1.15)' : 'scale(1)',
+            transition: 'transform 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease',
+          }}
+          aria-hidden
+        >
+          <div style={{ transform: 'rotate(-45deg)', display: 'flex' }}>
+            <svg width={20} height={20} viewBox="0 0 20 20" fill="none">
+              <path
+                d="M4 10h12M12 4l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Bottom text: container shifts up on hover, revealing description */}
+        <div className="absolute inset-x-0 bottom-0">
+          <div
             style={{
-              fontSize: vw(16),
-              lineHeight: 1.5,
-              transform: hovered ? 'translateY(0)' : 'translateY(50px)',
-              opacity: hovered ? 1 : 0,
-              transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
+              padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}`,
+              transform: hovered ? `translateY(${vw(-40)})` : 'translateY(0)',
+              transition: `transform 0.5s ${SPRING}`,
             }}
           >
-            {description}
-          </p>
+            {/* Destination name */}
+            <p
+              className="font-medium text-white"
+              style={{
+                fontSize: vw(88),
+                letterSpacing: vw(-2.64),
+                lineHeight: 1,
+                paddingBottom: vw(6),
+              }}
+            >
+              {name}
+            </p>
+
+            {/* Description: pushed below card boundary, slides in on hover */}
+            <p
+              className="text-white/75"
+              style={{
+                fontSize: vw(16),
+                lineHeight: 1.5,
+                transform: hovered ? 'translateY(0)' : 'translateY(50px)',
+                opacity: hovered ? 1 : 0,
+                transition: `transform 0.5s ${SPRING} 0.08s, opacity 0.4s ease 0.08s`,
+              }}
+            >
+              {description}
+            </p>
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   )
 }
 
@@ -190,13 +190,27 @@ export function TopDestinations() {
         >
           Top Destinations
         </h2>
+
+        {/* View All — arrow slides right on hover */}
         <Link
           href="/explore"
-          className="flex shrink-0 items-center text-[#132110] transition-opacity hover:opacity-70"
-          style={{ gap: vw(12) }}
+          className="group flex shrink-0 cursor-pointer items-center text-[#132110]"
+          style={{ gap: vw(8) }}
         >
-          <span style={{ fontSize: vw(24), lineHeight: 1.4 }}>View All</span>
-          <svg width={28} height={28} viewBox="0 0 28 28" fill="none" aria-hidden>
+          <span
+            className="transition-opacity duration-200 group-hover:opacity-70"
+            style={{ fontSize: vw(24), lineHeight: 1.4 }}
+          >
+            View All
+          </span>
+          <svg
+            width={28}
+            height={28}
+            viewBox="0 0 28 28"
+            fill="none"
+            aria-hidden
+            className="transition-transform duration-200 group-hover:translate-x-1"
+          >
             <path
               d="M11 6l8 8-8 8"
               stroke="#132110"
