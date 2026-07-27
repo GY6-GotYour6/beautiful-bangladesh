@@ -48,7 +48,6 @@ function DestCard({ name, slug, img, description }: Dest) {
     <Link
       href={slug}
       className="relative overflow-clip rounded-[20px]"
-      style={{ display: 'grid', gridTemplateRows: '1fr auto' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -104,17 +103,14 @@ function DestCard({ name, slug, img, description }: Dest) {
         </div>
       </div>
 
-      {/* Grid row 1: spacer (1fr) — pushes text row to bottom */}
-      <div aria-hidden />
-
-      {/* Grid row 2: text (auto height) — always at card bottom */}
+      {/* Text anchored to card bottom. All siblings are absolute so the
+          Link has zero intrinsic height — outer grid's align-self:stretch
+          sets the actual height. Description expanding inside this
+          bottom-anchored div lifts the name naturally; no translateY
+          needed and no grid reflow that would fight it. */}
       <div
-        className="relative z-10"
-        style={{
-          padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}`,
-          transform: hovered ? `translateY(${vw(-40)})` : 'translateY(0)',
-          transition: `transform 0.5s ${SPRING}`,
-        }}
+        className="absolute inset-x-0 bottom-0 z-10"
+        style={{ padding: `0 ${vw(24)} ${vw(14)} ${vw(24)}` }}
       >
         <p
           className="font-medium text-white"
