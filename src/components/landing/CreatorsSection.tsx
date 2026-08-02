@@ -25,14 +25,15 @@ function InstagramIcon() {
 
 type Creator = { src: string; name: string; instagramUrl: string }
 
+// Hardcoded fallback — replaced entirely by CMS data the moment any creators are saved
 const DEFAULT_CREATORS: Creator[] = [
   { src: '/landing/creators/creator-1.jpg', name: '', instagramUrl: '' },
   { src: '/landing/creators/creator-2.jpg', name: '', instagramUrl: '' },
   { src: '/landing/creators/creator-3.jpg', name: '', instagramUrl: '' },
   {
     src: '/landing/creators/creator-4.jpg',
-    name: 'Rafsan the Chotobhai',
-    instagramUrl: 'https://www.instagram.com/rafsanthechotobhai',
+    name: 'Iftekhar Rafsan',
+    instagramUrl: 'https://www.instagram.com/thechotobhai/?hl=en',
   },
   { src: '/landing/creators/creator-5.jpg', name: '', instagramUrl: '' },
   { src: '/landing/creators/creator-6.jpg', name: '', instagramUrl: '' },
@@ -44,26 +45,33 @@ export function CreatorsSection({
 }: {
   creators?: { name: string; imagePath: string; instagramUrl: string }[]
 }) {
+  // Use CMS data the moment any creators are saved; otherwise show hardcoded defaults
   const creators: Creator[] =
     cmsCreators && cmsCreators.length > 0
       ? cmsCreators.map((c) => ({ src: c.imagePath, name: c.name, instagramUrl: c.instagramUrl }))
       : DEFAULT_CREATORS
 
   const n = creators.length
-  // Triple the array so we can scroll right endlessly and silently reset from 3rd copy → 2nd copy
+  // Triple the array: [copy-A | copy-B | copy-C]
+  // We always scroll within copy-B, silently resetting from copy-C back to copy-B.
   const extended: Creator[] = [...creators, ...creators, ...creators]
-  // Start at creator-4 position (Math.floor(n/2)) in the MIDDLE copy
+  // Start: creator-4 (index floor(n/2)) inside copy-B
   const START = n + Math.floor(n / 2)
 
   const [idx, setIdx] = useState(START)
+  // When false: BOTH row translateX and card height/bg transitions are disabled
+  // so the seamless reset is truly invisible.
   const [animated, setAnimated] = useState(true)
+  // Extended-array index of hovered card; null = auto-scroll controls focus
   const [focusOverride, setFocusOverride] = useState<number | null>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const focusIdx = focusOverride ?? idx
 
-  // When we've scrolled into the 3rd copy (idx >= 2n), silently jump back to the
-  // equivalent position in the 2nd copy — same visual card, no transition.
+  // After scrolling into copy-C (idx >= 2n), wait for the transition to finish,
+  // then instantly jump back to the equivalent position in copy-B.
+  // Because extended[i] === extended[i-n] visually, with all transitions off the
+  // jump is completely invisible.
   useEffect(() => {
     if (idx >= 2 * n) {
       const t = setTimeout(() => {
@@ -89,15 +97,18 @@ export function CreatorsSection({
     }
   }, [startAuto])
 
-  // translateX so focusIdx card sits at viewport center (720 design px)
   const offsetPx = 720 - (focusIdx * STEP + CARD_W / 2)
 
   const focused = extended[focusIdx]
   const handle = focused?.instagramUrl
     ? focused.instagramUrl
         .replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '')
-        .replace(/\/$/, '')
+        .replace(/[/?].*$/, '')
     : null
+
+  const cardTransition = animated
+    ? 'height 0.55s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.35s ease'
+    : 'none'
 
   return (
     <section
@@ -121,7 +132,6 @@ export function CreatorsSection({
       </h2>
 
       <div className="flex w-full flex-col items-center" style={{ gap: vw(12) }}>
-        {/* Infinite scroll row — overflows hidden, slides right continuously */}
         <div className="w-full" style={{ overflow: 'hidden' }}>
           <div
             style={{
@@ -156,8 +166,7 @@ export function CreatorsSection({
                     width: vw(CARD_W),
                     height: vw(cardH(dist)),
                     background: isActive ? '#f4df92' : '#d4d4d4',
-                    transition:
-                      'height 0.55s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.35s ease',
+                    transition: cardTransition,
                     cursor: c.instagramUrl ? 'pointer' : 'default',
                     display: 'block',
                     textDecoration: 'none',
@@ -176,14 +185,13 @@ export function CreatorsSection({
           </div>
         </div>
 
-        {/* Name + instagram of focused creator */}
         <div
           className="flex flex-col items-center"
           style={{ gap: vw(4), minHeight: vw(42) }}
         >
           {focused?.name && (
             <p
-              className="font-medium capitalize text-[#132110]"
+              className="font-medium text-[#132110]"
               style={{ fontSize: vw(18), letterSpacing: vw(-0.54), lineHeight: 'normal' }}
             >
               {focused.name}
