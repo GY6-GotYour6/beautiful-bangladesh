@@ -1,4 +1,5 @@
 import 'server-only'
+import { unstable_cache } from 'next/cache'
 import { getPayloadClient } from '@/lib/payload'
 
 export type LandingDestination = {
@@ -47,13 +48,17 @@ const DEFAULT_DESTINATIONS: LandingDestination[] = [
 ]
 
 const DEFAULT_CREATORS: LandingCreator[] = [
-  { name: 'Creator 1', imagePath: '/landing/creators/creator-1.jpg', instagramUrl: '' },
-  { name: 'Creator 2', imagePath: '/landing/creators/creator-2.jpg', instagramUrl: '' },
-  { name: 'Creator 3', imagePath: '/landing/creators/creator-3.jpg', instagramUrl: '' },
-  { name: 'Creator 4', imagePath: '/landing/creators/creator-4.jpg', instagramUrl: '' },
-  { name: 'Creator 5', imagePath: '/landing/creators/creator-5.jpg', instagramUrl: '' },
-  { name: 'Creator 6', imagePath: '/landing/creators/creator-6.jpg', instagramUrl: '' },
-  { name: 'Creator 7', imagePath: '/landing/creators/creator-7.jpg', instagramUrl: '' },
+  { name: '', imagePath: '/landing/creators/creator-1.jpg', instagramUrl: '' },
+  { name: '', imagePath: '/landing/creators/creator-2.jpg', instagramUrl: '' },
+  { name: '', imagePath: '/landing/creators/creator-3.jpg', instagramUrl: '' },
+  {
+    name: 'Iftekhar Rafsan',
+    imagePath: '/landing/creators/creator-4.jpg',
+    instagramUrl: 'https://www.instagram.com/thechotobhai/?hl=en',
+  },
+  { name: '', imagePath: '/landing/creators/creator-5.jpg', instagramUrl: '' },
+  { name: '', imagePath: '/landing/creators/creator-6.jpg', instagramUrl: '' },
+  { name: '', imagePath: '/landing/creators/creator-7.jpg', instagramUrl: '' },
 ]
 
 function toDestination(raw: Record<string, unknown>): LandingDestination {
@@ -73,24 +78,48 @@ function toCreator(raw: Record<string, unknown>): LandingCreator {
   }
 }
 
-export async function getLandingPageData(): Promise<LandingPageData> {
-  try {
-    const payload = await getPayloadClient()
-    const doc = await payload.findGlobal({ slug: 'landing-page', overrideAccess: true })
-    const raw = doc as unknown as Record<string, unknown>
-
-    const destinations =
-      Array.isArray(raw.featuredDestinations) && raw.featuredDestinations.length > 0
-        ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
-        : DEFAULT_DESTINATIONS
-
-    const creators =
-      Array.isArray(raw.featuredCreators) && raw.featuredCreators.length > 0
-        ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
-        : DEFAULT_CREATORS
-
-    return { featuredDestinations: destinations, featuredCreators: creators }
-  } catch {
-    return { featuredDestinations: DEFAULT_DESTINATIONS, featuredCreators: DEFAULT_CREATORS }
-  }
+const DEFAULTS: LandingPageData = {
+  featuredDestinations: DEFAULT_DESTINATIONS,
+  featuredCreators: DEFAULT_CREATORS,
 }
+
+async function fetchLandingPageData(): Promise<LandingPageData> {
+  const timeout = new Promise<LandingPageData>((resolve) =>
+    setTimeout(() => resolve(DEFAULTS), 3000),
+  )
+
+  const fetch = (async () => {
+    try {
+      const payload = await getPayloadClient()
+      const doc = await payload.findGlobal({ slug: 'landing-page', overrideAccess: true })
+      const raw = doc as unknown as Record<string, unknown>
+
+      const destinations =
+        Array.isArray(raw.featuredDestinations) && raw.featuredDestinations.length > 0
+          ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
+          : DEFAULT_DESTINATIONS
+
+      const rawCreators = Array.isArray(raw.featuredCreators)
+        ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
+        : []
+      // Treat as real CMS content only when at least one creator has an instagram URL.
+      // Generic placeholder rows (all empty instagramUrl) fall through to DEFAULT_CREATORS.
+      const creators =
+        rawCreators.some((c) => c.instagramUrl.trim())
+          ? rawCreators
+          : DEFAULT_CREATORS
+
+      return { featuredDestinations: destinations, featuredCreators: creators }
+    } catch {
+      return DEFAULTS
+    }
+  })()
+
+  return Promise.race([fetch, timeout])
+}
+
+export const getLandingPageData = unstable_cache(
+  fetchLandingPageData,
+  ['landing-page-data'],
+  { tags: ['landing-page'], revalidate: 3600 },
+)
