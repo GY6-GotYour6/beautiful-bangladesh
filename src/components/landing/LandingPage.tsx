@@ -5,9 +5,7 @@ import {
   MobileHero,
   MobileLatestReels,
   MobileExperience,
-  MobileTopDestinations,
   MobileCreatorReels,
-  MobileBlogs,
   MobileCta,
 } from './MobileSections'
 import { HeroSection } from './HeroSection'
@@ -55,9 +53,7 @@ function LandingMobile() {
         label="Nature culture cuisine"
       />
       <MobileExperience />
-      <MobileTopDestinations />
       <MobileCreatorReels />
-      <MobileBlogs />
       <MobileCta />
     </div>
   )

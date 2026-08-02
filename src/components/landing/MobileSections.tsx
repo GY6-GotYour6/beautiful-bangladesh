@@ -3,7 +3,7 @@ import { destinations } from '@/lib/landing-content'
 import { FigmaFrame } from './FigmaFrame'
 import { CtaButton } from './CtaButton'
 import { ScrollDownCue } from './ScrollDownCue'
-import { ROW1, ROW2 } from './CreatorReels'
+import { ROW1 } from './CreatorReels'
 import { BlogCard, BLOG_CARDS } from './BlogsSection'
 import { ExperienceCarousel } from './ExperienceCarousel'
 
@@ -13,13 +13,6 @@ import { ExperienceCarousel } from './ExperienceCarousel'
  * only the blogs stack uses FigmaFrame because its stamp cards have fixed
  * Figma geometry.
  */
-
-const heroReels = [
-  { src: '/hero/reel1.webp',          alt: "Cox's Bazar reel" },
-  { src: '/hero/reel2.webp',          alt: 'Sunset reel' },
-  { src: '/hero/reel3.webp',          alt: 'Scenic reel' },
-  { src: '/landing/reels/rafsan.png', alt: 'Bangladesh reel' },
-]
 
 export function MobileHero() {
   return (
@@ -62,21 +55,28 @@ export function MobileHero() {
 export function MobileLatestReels() {
   return (
     <section className="flex w-full flex-col gap-[16px] bg-[#faf7f2] px-[16px] pt-[32px] pb-[40px]">
-      <h2 className="font-[family-name:var(--font-body)] text-[24px] font-medium text-[#132110]">
-        Latest Reels
+      <h2 className="text-center font-[family-name:var(--font-body)] text-[24px] font-medium tracking-[-0.72px] text-[#132110]">
+        Top{' '}
+        <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
+          Destinations
+        </span>
       </h2>
       <div className="-mx-[16px] flex gap-[12px] overflow-x-auto px-[16px] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {heroReels.map((r) => (
-          <div
-            key={r.src}
-            className="relative aspect-[178/318] w-[178px] shrink-0 overflow-hidden rounded-[8px]"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={r.src} alt={r.alt} className="absolute inset-0 size-full object-cover" draggable={false} />
-          </div>
+        {destinations.map((d) => (
+          <Link key={d.slug} href={`/destinations/${d.slug}`}>
+            <div className="relative aspect-[178/318] w-[178px] shrink-0 overflow-hidden rounded-[8px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/landing/destinations/${d.slug}.webp`}
+                alt={d.title}
+                className="absolute inset-0 size-full object-cover"
+                draggable={false}
+              />
+            </div>
+          </Link>
         ))}
       </div>
-      <CtaButton size="sm" label="Check Out Reels" className="mt-[8px] self-center" />
+      <CtaButton size="sm" label="Explore All" className="mt-[8px] self-center" />
     </section>
   )
 }
@@ -135,40 +135,6 @@ export function MobileExperience() {
   )
 }
 
-export function MobileTopDestinations() {
-  return (
-    <section className="flex w-full flex-col gap-[24px] bg-white px-[16px] py-[40px]">
-      <h2 className="text-center font-[family-name:var(--font-body)] text-[24px] font-medium tracking-[-0.72px] text-[#132110]">
-        Top{' '}
-        <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
-          Destinations
-        </span>
-      </h2>
-      <div className="grid grid-cols-2 gap-x-[12px] gap-y-[24px]">
-        {destinations.slice(0, 2).map((d) => (
-          <Link key={d.slug} href={`/destinations/${d.slug}`} className="flex flex-col gap-[8px]">
-            <div className="relative aspect-[3/2] w-full overflow-hidden rounded-[8px] bg-[#f2f2f2]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/landing/destinations/${d.slug}.webp`}
-                alt=""
-                className="absolute inset-0 size-full object-cover"
-                draggable={false}
-              />
-            </div>
-            <h3 className="font-[family-name:var(--font-body)] text-[18px] font-medium text-[#132110]">
-              {d.title}
-            </h3>
-            <p className="font-[family-name:var(--font-body)] text-[12px] leading-[1.4] text-[#132110]/70">
-              {d.blurb}
-            </p>
-          </Link>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 /* Geometry from viral-reels.webp (2x export): cards 200x260, 12px gaps,
    rows start at the 16px page margin and bleed off the right edge. */
 function MobileReelRow({ creators }: { creators: readonly { id: string; name: string }[] }) {
@@ -222,7 +188,6 @@ export function MobileCreatorReels() {
         {' Contents'}
       </h2>
       <MobileReelRow creators={ROW1} />
-      <MobileReelRow creators={ROW2} />
     </section>
   )
 }
