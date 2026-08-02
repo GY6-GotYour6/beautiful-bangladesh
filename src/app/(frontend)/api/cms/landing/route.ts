@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { headers as getHeaders } from 'next/headers'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { getPayloadClient } from '@/lib/payload'
 
 export const dynamic = 'force-dynamic'
@@ -30,11 +31,8 @@ export async function PATCH(req: Request) {
       data: body,
       overrideAccess: true,
     })
-    try {
-      const { revalidatePath, revalidateTag } = await import('next/cache')
-      revalidateTag('landing-page')
-      revalidatePath('/', 'layout')
-    } catch {}
+    revalidateTag('landing-page')
+    revalidatePath('/', 'layout')
     return NextResponse.json(doc)
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'digest' in err) throw err
