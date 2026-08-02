@@ -309,8 +309,12 @@ export function LandingEditor({ initial }: { initial: LandingPageData }) {
           featuredCreators: creators,
         }),
       })
+      if (res.status === 401) {
+        setToast({ kind: 'error', text: 'Session expired — please log in again at /admin/login.' })
+        return
+      }
       if (!res.ok) throw new Error(await res.text())
-      setToast({ kind: 'success', text: 'Landing page saved.' })
+      setToast({ kind: 'success', text: 'Landing page saved. Refresh the homepage to see changes.' })
     } catch {
       setToast({ kind: 'error', text: 'Save failed — please try again.' })
     } finally {
