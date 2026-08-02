@@ -3,15 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/#about', label: 'About' },
-  { href: '/explore', label: 'Explore' },
-  { href: '/explore', label: 'Destination' },
-  { href: '#', label: 'Documentation' },
-  { href: '#', label: 'Developers' },
-]
-
 const LEGAL_LINKS = [
   { href: '/privacy', label: 'Privacy Policy' },
   { href: '/terms', label: 'Terms of Service' },
@@ -92,26 +83,14 @@ export function SiteFooter() {
           </p>
         </div>
 
-        {/* Nav links */}
-        <nav className="flex flex-col items-center gap-8 font-[family-name:var(--font-ui)] text-[14px] tracking-[-0.56px] text-[#f8ff98]" aria-label="Footer">
-          <div className="flex gap-[72px]">
-            {NAV_LINKS.slice(0, 5).map((l) => (
-              <Link key={l.label} href={l.href} className="hover:text-[#f8ff98]/70 transition-colors">
-                {l.label}
-              </Link>
-            ))}
-          </div>
-          <div className="flex gap-[72px]">
-            <Link href={NAV_LINKS[5].href} className="hover:text-[#f8ff98]/70 transition-colors">
-              {NAV_LINKS[5].label}
+        {/* Legal links */}
+        <div className="flex gap-[72px] font-[family-name:var(--font-ui)] text-[14px] tracking-[-0.56px] text-[#f8ff98]">
+          {LEGAL_LINKS.map((l) => (
+            <Link key={l.label} href={l.href} className="hover:text-[#f8ff98]/70 transition-colors">
+              {l.label}
             </Link>
-            {LEGAL_LINKS.map((l) => (
-              <Link key={l.label} href={l.href} className="hover:text-[#f8ff98]/70 transition-colors">
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        </nav>
+          ))}
+        </div>
 
         {/* Social icons */}
         <div className="flex gap-2 items-center">
@@ -133,26 +112,14 @@ export function SiteFooter() {
           </p>
         </div>
 
-        {/* Nav links — 3-column grid layout matching Figma */}
-        <nav className="flex flex-col gap-8 w-full font-[family-name:var(--font-ui)] text-[14px] tracking-[-0.56px] text-[#f8ff98]" aria-label="Footer">
-          <div className="flex justify-between w-full">
-            <Link href="/" className="hover:opacity-70 transition-opacity">Home</Link>
-            <Link href="/#about" className="hover:opacity-70 transition-opacity">About</Link>
-            <Link href="/explore" className="hover:opacity-70 transition-opacity">Explore</Link>
-          </div>
-          <div className="flex justify-between w-full">
-            <Link href="#" className="hover:opacity-70 transition-opacity">Documentation</Link>
-            <Link href="/explore" className="hover:opacity-70 transition-opacity">Destination</Link>
-            <Link href="#" className="hover:opacity-70 transition-opacity">Developers</Link>
-          </div>
-          <div className="flex justify-center gap-9 w-full">
-            {LEGAL_LINKS.map((l) => (
-              <Link key={l.label} href={l.href} className="hover:opacity-70 transition-opacity">
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        </nav>
+        {/* Legal links */}
+        <div className="flex justify-center gap-9 w-full font-[family-name:var(--font-ui)] text-[14px] tracking-[-0.56px] text-[#f8ff98]">
+          {LEGAL_LINKS.map((l) => (
+            <Link key={l.label} href={l.href} className="hover:opacity-70 transition-opacity">
+              {l.label}
+            </Link>
+          ))}
+        </div>
 
         {/* Social icons */}
         <div className="flex gap-2 items-center">
