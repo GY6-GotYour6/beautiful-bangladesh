@@ -4,14 +4,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
-
 const CARD_W = 250
 const GAP = 12
 const STEP = CARD_W + GAP
 
-function cardH(distFromCenter: number): number {
+function cardH(dist: number): number {
   const steps = [340, 300, 280, 250]
-  return steps[Math.min(Math.abs(distFromCenter), steps.length - 1)]
+  return steps[Math.min(dist, steps.length - 1)]
 }
 
 function InstagramIcon() {
@@ -24,7 +23,9 @@ function InstagramIcon() {
   )
 }
 
-const DEFAULT_CREATORS = [
+type Creator = { src: string; name: string; instagramUrl: string }
+
+const DEFAULT_CREATORS: Creator[] = [
   { src: '/landing/creators/creator-1.jpg', name: '', instagramUrl: '' },
   { src: '/landing/creators/creator-2.jpg', name: '', instagramUrl: '' },
   { src: '/landing/creators/creator-3.jpg', name: '', instagramUrl: '' },
@@ -43,36 +44,55 @@ export function CreatorsSection({
 }: {
   creators?: { name: string; imagePath: string; instagramUrl: string }[]
 }) {
-  const creators =
+  const creators: Creator[] =
     cmsCreators && cmsCreators.length > 0
       ? cmsCreators.map((c) => ({ src: c.imagePath, name: c.name, instagramUrl: c.instagramUrl }))
       : DEFAULT_CREATORS
 
-  const initIdx = Math.floor(creators.length / 2)
-  const [activeIdx, setActiveIdx] = useState(initIdx)
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const n = creators.length
+  // Triple the array so we can scroll right endlessly and silently reset from 3rd copy → 2nd copy
+  const extended: Creator[] = [...creators, ...creators, ...creators]
+  // Start at creator-4 position (Math.floor(n/2)) in the MIDDLE copy
+  const START = n + Math.floor(n / 2)
 
-  const focusIdx = hoveredIdx ?? activeIdx
+  const [idx, setIdx] = useState(START)
+  const [animated, setAnimated] = useState(true)
+  const [focusOverride, setFocusOverride] = useState<number | null>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const focusIdx = focusOverride ?? idx
+
+  // When we've scrolled into the 3rd copy (idx >= 2n), silently jump back to the
+  // equivalent position in the 2nd copy — same visual card, no transition.
+  useEffect(() => {
+    if (idx >= 2 * n) {
+      const t = setTimeout(() => {
+        setAnimated(false)
+        setIdx((prev) => prev - n)
+        requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)))
+      }, 560)
+      return () => clearTimeout(t)
+    }
+  }, [idx, n])
 
   const startAuto = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      setActiveIdx((prev) => (prev + 1) % creators.length)
+    if (timerRef.current) clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => {
+      setIdx((prev) => prev + 1)
     }, 2500)
-  }, [creators.length])
+  }, [])
 
   useEffect(() => {
     startAuto()
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+      if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [startAuto])
 
-  // Shift row so focusIdx card is centered at viewport midpoint (720 design px)
+  // translateX so focusIdx card sits at viewport center (720 design px)
   const offsetPx = 720 - (focusIdx * STEP + CARD_W / 2)
 
-  const focused = creators[focusIdx]
+  const focused = extended[focusIdx]
   const handle = focused?.instagramUrl
     ? focused.instagramUrl
         .replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '')
@@ -101,7 +121,7 @@ export function CreatorsSection({
       </h2>
 
       <div className="flex w-full flex-col items-center" style={{ gap: vw(12) }}>
-        {/* Card row — slides to keep focused card centered */}
+        {/* Infinite scroll row — overflows hidden, slides right continuously */}
         <div className="w-full" style={{ overflow: 'hidden' }}>
           <div
             style={{
@@ -109,11 +129,11 @@ export function CreatorsSection({
               alignItems: 'flex-end',
               gap: vw(GAP),
               transform: `translateX(calc(${offsetPx} / ${A} * 100vw))`,
-              transition: 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: animated ? 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
               willChange: 'transform',
             }}
           >
-            {creators.map((c, i) => {
+            {extended.map((c, i) => {
               const dist = Math.abs(i - focusIdx)
               const isActive = i === focusIdx
               return (
@@ -124,11 +144,11 @@ export function CreatorsSection({
                   rel="noopener noreferrer"
                   onClick={!c.instagramUrl ? (e) => e.preventDefault() : undefined}
                   onMouseEnter={() => {
-                    setHoveredIdx(i)
-                    if (intervalRef.current) clearInterval(intervalRef.current)
+                    setFocusOverride(i)
+                    if (timerRef.current) clearInterval(timerRef.current)
                   }}
                   onMouseLeave={() => {
-                    setHoveredIdx(null)
+                    setFocusOverride(null)
                     startAuto()
                   }}
                   className="relative shrink-0 overflow-hidden rounded-[12px]"
@@ -139,8 +159,8 @@ export function CreatorsSection({
                     transition:
                       'height 0.55s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.35s ease',
                     cursor: c.instagramUrl ? 'pointer' : 'default',
-                    textDecoration: 'none',
                     display: 'block',
+                    textDecoration: 'none',
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
