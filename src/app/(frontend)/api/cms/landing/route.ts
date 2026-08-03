@@ -31,7 +31,7 @@ export async function PATCH(req: Request) {
       data: body,
       overrideAccess: true,
     })
-    revalidateTag('landing-page')
+    revalidateTag('landing-page', 'default')
     revalidatePath('/', 'layout')
     return NextResponse.json(doc)
   } catch (err: unknown) {
