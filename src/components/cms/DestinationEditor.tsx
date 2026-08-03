@@ -47,7 +47,7 @@ function moveItem<T>(arr: T[], from: number, to: number): T[] {
   return next
 }
 
-type ArrayKey = 'foods' | 'subDestinations' | 'cultureItems' | 'highlights' | 'social' | 'faqs'
+type ArrayKey = 'foods' | 'nature' | 'cultureItems' | 'highlights' | 'social' | 'faqs'
 
 export function DestinationEditor({
   initial,
@@ -117,7 +117,7 @@ export function DestinationEditor({
   const cardRows = (items: CmsCardItem[]) =>
     items.map((f) => ({ title: f.title, embedUrl: f.embedUrl || '' }))
   /** Merge an {title, embedUrl} row edit back into the full card item (description preserved). */
-  function cardOps(key: 'foods' | 'subDestinations' | 'cultureItems') {
+  function cardOps(key: 'foods' | 'nature' | 'cultureItems') {
     const ops = listOps<CmsCardItem>(key, emptyCard)
     return {
       ...ops,
@@ -427,11 +427,11 @@ export function DestinationEditor({
           />
         </SectionCard>
 
-        <SectionCard title="Go To Destinations" count={record.subDestinations.length}>
+        <SectionCard title="Nature" count={record.nature.length}>
           <EmbedRowList
             addLabel="Add Sub-Destination"
-            items={cardRows(record.subDestinations)}
-            {...cardOps('subDestinations')}
+            items={cardRows(record.nature)}
+            {...cardOps('nature')}
           />
         </SectionCard>
 

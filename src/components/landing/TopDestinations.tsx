@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { destinationHref } from '@/lib/explore-destinations'
+import type { LandingDestination } from '@/lib/landing-global'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
@@ -14,39 +16,13 @@ type Dest = {
   description: string
 }
 
-const DEFAULT_DESTINATIONS: Dest[] = [
-  {
-    name: 'Cox Bazar',
-    slug: '/destinations/coxs-bazar',
-    img: '/landing/destinations/coxs-bazar.webp',
-    description: "World's longest natural sea beach — 120 km of golden sands along the Bay of Bengal.",
-  },
-  {
-    name: 'Sylhet',
-    slug: '/destinations/sylhet',
-    img: '/landing/destinations/sylhet.webp',
-    description: 'Rolling tea gardens, mystical haors, and the lush highland forests of Bangladesh.',
-  },
-  {
-    name: 'Sundarban',
-    slug: '/destinations/sundarbans',
-    img: '/landing/destinations/sundarbans.png',
-    description: "The world's largest mangrove forest — home to the Royal Bengal Tiger and rare wildlife.",
-  },
-  {
-    name: 'Rangamati',
-    slug: '/destinations/rangamati',
-    img: '/landing/destinations/rangamati.png',
-    description: 'Emerald hills, serene Kaptai Lake, and the rich traditions of the Chittagong Hill Tracts.',
-  },
-]
 
 function DestCard({ name, slug, img, description }: Dest) {
   const [hovered, setHovered] = useState(false)
 
   return (
     <Link
-      href={slug}
+      href={destinationHref(slug)}
       className="relative overflow-clip rounded-[20px]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -114,14 +90,14 @@ function DestCard({ name, slug, img, description }: Dest) {
       >
         <p
           className="font-medium text-white"
-          style={{ fontSize: vw(88), letterSpacing: vw(-2.64), lineHeight: 1, paddingBottom: vw(6) }}
+          style={{ fontSize: vw(40), letterSpacing: vw(-1.2), lineHeight: 1.05, paddingBottom: vw(6) }}
         >
           {name}
         </p>
         <p
           className="overflow-hidden text-white/75"
           style={{
-            fontSize: vw(16),
+            fontSize: vw(15),
             lineHeight: 1.5,
             maxHeight: hovered ? '200px' : '0px',
             opacity: hovered ? 1 : 0,
@@ -139,15 +115,22 @@ function DestCard({ name, slug, img, description }: Dest) {
 export function TopDestinations({
   destinations: cmsDestinations,
 }: {
-  destinations?: { name: string; slug: string; imagePath: string; description: string }[]
+  destinations?: LandingDestination[]
 }) {
-  const destinations: Dest[] =
-    cmsDestinations && cmsDestinations.length > 0
-      ? cmsDestinations.map((d) => ({ name: d.name, slug: d.slug, img: d.imagePath, description: d.description }))
-      : DEFAULT_DESTINATIONS
+  // CMS-only, same rule as the mobile section: nothing published means no
+  // section at all, rather than a heading over an empty grid.
+  if (!cmsDestinations || cmsDestinations.length === 0) return null
+
+  const destinations: Dest[] = cmsDestinations.map((d) => ({
+    name: d.name,
+    slug: d.slug,
+    img: d.imagePath,
+    description: d.description,
+  }))
 
   return (
     <section
+      id="destinations"
       className="flex w-full flex-col items-center bg-[#fffae7]"
       style={{
         height: '100dvh',
@@ -200,42 +183,24 @@ export function TopDestinations({
         </Link>
       </div>
 
-      {/* Card grid: two separate CSS grids, one per row, with different column
-          templates. Each Link is a grid item and gets a definite size in both
-          axes, fixing the absolute-child positioning for all four cards. */}
+      {/* Card grid: three per row, every card the same size. `gridAutoRows: 1fr`
+          keeps rows equal for any number of destinations. Each Link is a grid
+          item sized by the grid — absolute children position correctly because
+          the Link has definite dimensions. */}
       <div
-        className="flex flex-col"
-        style={{ flex: '1 0 0', minHeight: 0, width: vw(1368), gap: vw(12) }}
+        style={{
+          flex: '1 0 0',
+          minHeight: 0,
+          width: vw(1368),
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridAutoRows: '1fr',
+          gap: vw(12),
+        }}
       >
-        {/* Row 1: Cox Bazar wide (808) + Sylhet fills remaining */}
-        <div
-          style={{
-            flex: '1 0 0',
-            minHeight: 0,
-            display: 'grid',
-            gridTemplateColumns: `${vw(808)} 1fr`,
-            gridTemplateRows: '1fr',
-            gap: vw(12),
-          }}
-        >
-          {destinations[0] && <DestCard {...destinations[0]} />}
-          {destinations[1] && <DestCard {...destinations[1]} />}
-        </div>
-
-        {/* Row 2: Sundarban narrow (548) + Rangamati fills remaining */}
-        <div
-          style={{
-            flex: '1 0 0',
-            minHeight: 0,
-            display: 'grid',
-            gridTemplateColumns: `${vw(548)} 1fr`,
-            gridTemplateRows: '1fr',
-            gap: vw(12),
-          }}
-        >
-          {destinations[2] && <DestCard {...destinations[2]} />}
-          {destinations[3] && <DestCard {...destinations[3]} />}
-        </div>
+        {destinations.map((d) => (
+          <DestCard key={d.slug} {...d} />
+        ))}
       </div>
     </section>
   )

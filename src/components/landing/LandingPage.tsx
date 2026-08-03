@@ -10,7 +10,6 @@ import {
 } from './MobileSections'
 import { HeroSection } from './HeroSection'
 import { TopDestinations } from './TopDestinations'
-import { CreatorsSection } from './CreatorsSection'
 import { CtaSection } from './CtaSection'
 import { ResponsiveFigmaPage } from './ResponsiveFigmaPage'
 import { FigmaSection } from './FigmaSection'
@@ -32,18 +31,25 @@ function LandingDesktop({ data }: { data?: LandingPageData }) {
   return (
     <div className="relative w-full overflow-x-clip bg-[#fffae7]">
       <HeroSection />
-      <TopDestinations destinations={data?.featuredDestinations} />
-      <CreatorsSection creators={data?.featuredCreators} />
+      <TopDestinations destinations={data?.cmsDestinations} />
       <CtaSection />
     </div>
   )
 }
 
-function LandingMobile() {
+function LandingMobile({ data }: { data?: LandingPageData }) {
+  // The mobile tree only mounts after ResponsiveFigmaPage's media-query effect
+  // flips, which is after the browser has already tried to honour the URL hash.
+  // Re-run the scroll once the target section actually exists.
+  useEffect(() => {
+    if (window.location.hash !== '#destinations') return
+    document.getElementById('destinations')?.scrollIntoView()
+  }, [])
+
   return (
     <div className="relative w-full overflow-x-clip bg-[#faf7f2]">
       <MobileHero />
-      <MobileLatestReels />
+      <MobileLatestReels destinations={data?.cmsDestinations} />
       <FigmaSection
         id="about"
         src={`${MOBILE_BASE}/landing-intro.webp`}
@@ -63,7 +69,7 @@ export function LandingPage({ data }: { data?: LandingPageData }) {
   return (
     <ResponsiveFigmaPage
       desktop={<LandingDesktop data={data} />}
-      mobile={<LandingMobile />}
+      mobile={<LandingMobile data={data} />}
     />
   )
 }

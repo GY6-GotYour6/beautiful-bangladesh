@@ -17,6 +17,13 @@ export type LandingCreator = {
 
 export type LandingPageData = {
   featuredDestinations: LandingDestination[]
+  /**
+   * Destinations that genuinely came from the CMS — never back-filled with
+   * defaults. Empty when nothing is published (or on error/timeout), so
+   * consumers can render nothing at all. `featuredDestinations` keeps its
+   * defaults fallback for the desktop section.
+   */
+  cmsDestinations: LandingDestination[]
   featuredCreators: LandingCreator[]
 }
 
@@ -80,6 +87,7 @@ function toCreator(raw: Record<string, unknown>): LandingCreator {
 
 const DEFAULTS: LandingPageData = {
   featuredDestinations: DEFAULT_DESTINATIONS,
+  cmsDestinations: [],
   featuredCreators: DEFAULT_CREATORS,
 }
 
@@ -94,10 +102,17 @@ async function fetchLandingPageData(): Promise<LandingPageData> {
       const doc = await payload.findGlobal({ slug: 'landing-page', overrideAccess: true })
       const raw = doc as unknown as Record<string, unknown>
 
-      const destinations =
-        Array.isArray(raw.featuredDestinations) && raw.featuredDestinations.length > 0
-          ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
-          : DEFAULT_DESTINATIONS
+      const rawDestinations = Array.isArray(raw.featuredDestinations)
+        ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
+        : []
+
+      const destinations = rawDestinations.length > 0 ? rawDestinations : DEFAULT_DESTINATIONS
+
+      // Only rows with everything a card needs count as real CMS content —
+      // placeholder rows with blank fields must not render.
+      const cmsDestinations = rawDestinations.filter(
+        (d) => d.name.trim() && d.slug.trim() && d.imagePath.trim(),
+      )
 
       const rawCreators = Array.isArray(raw.featuredCreators)
         ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
@@ -109,7 +124,7 @@ async function fetchLandingPageData(): Promise<LandingPageData> {
           ? rawCreators
           : DEFAULT_CREATORS
 
-      return { featuredDestinations: destinations, featuredCreators: creators }
+      return { featuredDestinations: destinations, cmsDestinations, featuredCreators: creators }
     } catch {
       return DEFAULTS
     }

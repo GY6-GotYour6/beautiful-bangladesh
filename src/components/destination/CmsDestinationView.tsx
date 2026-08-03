@@ -256,7 +256,7 @@ function DesktopCardRow({ title, items }: { title: string; items: CmsCardItem[] 
 }
 
 function DesktopMustTry({ record }: { record: CmsDestinationRecord }) {
-  const hasAny = record.foods.length || record.subDestinations.length || record.cultureItems.length
+  const hasAny = record.foods.length || record.nature.length || record.cultureItems.length
   if (!hasAny) return null
   return (
     <section className="w-full bg-[#faf7f2] px-[80px] py-[80px]">
@@ -264,8 +264,8 @@ function DesktopMustTry({ record }: { record: CmsDestinationRecord }) {
         {record.foods.length > 0 && (
           <DesktopCardRow title="Must Try Food" items={record.foods} />
         )}
-        {record.subDestinations.length > 0 && (
-          <DesktopCardRow title="Go To Destinations" items={record.subDestinations} />
+        {record.nature.length > 0 && (
+          <DesktopCardRow title="Nature" items={record.nature} />
         )}
         {record.cultureItems.length > 0 && (
           <DesktopCardRow title="Heritage &amp; Culture" items={record.cultureItems} />
@@ -693,14 +693,14 @@ function MobileCardRow({ title, items }: { title: string; items: CmsCardItem[] }
 }
 
 function MobileMustTry({ record }: { record: CmsDestinationRecord }) {
-  const hasAny = record.foods.length || record.subDestinations.length || record.cultureItems.length
+  const hasAny = record.foods.length || record.nature.length || record.cultureItems.length
   if (!hasAny) return null
   return (
     <section className="w-full bg-[#faf7f2] py-[28px]">
       <div className="flex flex-col gap-[32px]">
         {record.foods.length > 0 && <MobileCardRow title="Must Try Food" items={record.foods} />}
-        {record.subDestinations.length > 0 && (
-          <MobileCardRow title="Go To Destinations" items={record.subDestinations} />
+        {record.nature.length > 0 && (
+          <MobileCardRow title="Nature" items={record.nature} />
         )}
         {record.cultureItems.length > 0 && (
           <MobileCardRow title="Heritage &amp; Culture" items={record.cultureItems} />

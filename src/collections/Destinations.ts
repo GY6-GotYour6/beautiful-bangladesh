@@ -209,8 +209,9 @@ export const Destinations: CollectionConfig = {
               fields: cardFields,
             },
             {
-              name: 'subDestinations',
+              name: 'nature',
               type: 'array',
+              label: 'Nature',
               labels: { singular: 'Spot', plural: 'Spots' },
               fields: cardFields,
             },

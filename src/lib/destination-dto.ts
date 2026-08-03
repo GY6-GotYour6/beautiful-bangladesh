@@ -40,7 +40,7 @@ function countItems(doc: Record<string, unknown>): number {
   const keys = [
     'gallery',
     'foods',
-    'subDestinations',
+    'nature',
     'cultureItems',
     'events',
     'highlights',
@@ -82,7 +82,7 @@ export function toListItem(doc: Record<string, unknown>): CmsDestinationListItem
 export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationRecord {
   const status = (doc._status as CmsStatus) || 'draft'
   const foods = Array.isArray(doc.foods) ? doc.foods : []
-  const subDestinations = Array.isArray(doc.subDestinations) ? doc.subDestinations : []
+  const nature = Array.isArray(doc.nature) ? doc.nature : []
   const cultureItems = Array.isArray(doc.cultureItems) ? doc.cultureItems : []
   const events = Array.isArray(doc.events) ? doc.events : []
   const highlights = Array.isArray(doc.highlights) ? doc.highlights : []
@@ -115,7 +115,7 @@ export function toEditorRecord(doc: Record<string, unknown>): CmsDestinationReco
       .map((g: { image?: MediaLike }) => mediaId(g?.image))
       .filter((id): id is number | string => id != null),
     foods: foods.map(toCardItem),
-    subDestinations: subDestinations.map(toCardItem),
+    nature: nature.map(toCardItem),
     cultureItems: cultureItems.map(toCardItem),
     events: events.map((f: { title?: string; date?: string }) => ({
       title: String(f.title || ''),
@@ -177,7 +177,7 @@ export function toPayloadData(record: CmsDestinationRecord) {
     sidebarQuote: record.sidebarQuote,
     gallery: (record.galleryIds || []).map((id) => ({ image: id })),
     foods: record.foods,
-    subDestinations: record.subDestinations,
+    nature: record.nature,
     cultureItems: record.cultureItems,
     events: record.events,
     highlightImage: record.highlightImageId || undefined,

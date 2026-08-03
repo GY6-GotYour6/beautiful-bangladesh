@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { navLinks, getActiveNavLabel } from '@/lib/nav-config'
+import { ContactModal } from '@/components/site/ContactModal'
 
 const A = 1440
 const vw = (px: number) => `calc(${px} / ${A} * 100vw)`
@@ -19,6 +20,7 @@ function ChevronRight({ color = 'currentColor' }: { color?: string }) {
 export function HeroNav({ visible }: { visible: boolean }) {
   const pathname = usePathname()
   const active = getActiveNavLabel(pathname)
+  const [contactOpen, setContactOpen] = useState(false)
 
   return (
     <div
@@ -44,9 +46,10 @@ export function HeroNav({ visible }: { visible: boolean }) {
         draggable={false}
       />
 
-      <Link
-        href="/explore"
-        className="flex shrink-0 items-center gap-[8px] border-2 border-[#31542a] bg-[#f8ff98] font-medium text-[#31542a] transition-opacity hover:opacity-80"
+      <button
+        type="button"
+        onClick={() => setContactOpen(true)}
+        className="flex shrink-0 cursor-pointer items-center gap-[8px] border-2 border-[#31542a] bg-[#f8ff98] font-medium text-[#31542a] transition-opacity hover:opacity-80"
         style={{
           height: vw(40),
           borderRadius: vw(20),
@@ -58,7 +61,9 @@ export function HeroNav({ visible }: { visible: boolean }) {
       >
         Contact Us
         <ChevronRight color="#31542a" />
-      </Link>
+      </button>
+
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
 
       <div
         className="absolute left-1/2 top-1/2 flex items-center"
@@ -163,7 +168,7 @@ export function HeroSection() {
       if (cooldownRef.current) return
       cooldownRef.current = true
       setPhase((p) => {
-        const next = Math.min(p + 1, 3)
+        const next = Math.min(p + 1, 2)
         phaseRef.current = next
         return next
       })
@@ -172,13 +177,13 @@ export function HeroSection() {
 
     function onWheel(e: WheelEvent) {
       // Only fully unlock once phase 3 is reached AND its cooldown has cleared
-      if (phaseRef.current >= 3 && !cooldownRef.current) return
+      if (phaseRef.current >= 2 && !cooldownRef.current) return
       if (!heroRef.current) return
       const top = heroRef.current.getBoundingClientRect().top
       if (top < -5 || top > 5) return // hero not snapped to viewport
       if (e.deltaY <= 0) return        // upward scroll — ignore
       e.preventDefault()
-      if (phaseRef.current < 3) advance()
+      if (phaseRef.current < 2) advance()
       // phase === 3 + cooldown still active: just block the scroll, wait it out
     }
 
@@ -244,7 +249,6 @@ export function HeroSection() {
             </p>
           </div>
 
-          <LatestReelsCard visible={phase >= 3} />
         </div>
       </section>
     </div>

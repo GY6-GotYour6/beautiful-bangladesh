@@ -27,7 +27,7 @@ export const MOBILE_HEADER_CLIP = 68
 export const DESKTOP_ARTBOARD = 1440
 export const MOBILE_ARTBOARD = 390
 
-export type NavLabel = 'Home' | 'About' | 'Explore' | 'Destination'
+export type NavLabel = 'Home' | 'About' | 'Destination'
 
 export type NavLink = {
   href: string
@@ -37,14 +37,13 @@ export type NavLink = {
 export const navLinks: readonly NavLink[] = [
   { href: '/', label: 'Home' },
   { href: '/#about', label: 'About' },
-  { href: '/explore', label: 'Explore' },
-  { href: '/explore', label: 'Destination' },
+  { href: '/#destinations', label: 'Destination' },
 ] as const
 
 /** Route → which pill label is active (ignores inconsistent Figma instance overrides). */
 export function getActiveNavLabel(pathname: string): NavLabel | null {
   if (pathname.startsWith('/destinations')) return 'Destination'
-  if (pathname.startsWith('/explore')) return 'Explore'
+  if (pathname.startsWith('/explore')) return 'Destination'
   if (pathname === '/') return 'Home'
   return null
 }

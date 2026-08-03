@@ -35,7 +35,7 @@ export type CmsDestinationRecord = {
   gallery?: string[]
   galleryIds?: (number | string)[]
   foods: CmsCardItem[]
-  subDestinations: CmsCardItem[]
+  nature: CmsCardItem[]
   cultureItems: CmsCardItem[]
   events: { title: string; date: string }[]
   highlightImage?: string
@@ -154,7 +154,7 @@ export const coxRecord: CmsDestinationRecord = {
     { title: 'Local Prawn Curry', description: 'Rich and aromatic' },
     { title: 'Fresh Tropical Fruits', description: 'Seasonal market picks' },
   ],
-  subDestinations: [
+  nature: [
     { title: "Saint Martin's Island", description: "Bangladesh's only coral island" },
     { title: 'Inani Beach', description: 'Dramatic rock formations' },
     { title: 'Himchari Waterfall', description: 'Lush forest trails' },
@@ -249,7 +249,7 @@ export function emptyDestinationRecord(): CmsDestinationRecord {
     gallery: [],
     galleryIds: [],
     foods: [],
-    subDestinations: [],
+    nature: [],
     cultureItems: [],
     events: [],
     highlightImage: '',

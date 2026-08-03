@@ -1,8 +1,11 @@
+'use client'
+
 import Link from 'next/link'
-import { destinations } from '@/lib/landing-content'
+import { useState } from 'react'
+import { ContactModal } from '@/components/site/ContactModal'
+import { destinationHref } from '@/lib/explore-destinations'
+import type { LandingDestination } from '@/lib/landing-global'
 import { FigmaFrame } from './FigmaFrame'
-import { CtaButton } from './CtaButton'
-import { ScrollDownCue } from './ScrollDownCue'
 import { ROW1 } from './CreatorReels'
 import { BlogCard, BLOG_CARDS } from './BlogsSection'
 import { ExperienceCarousel } from './ExperienceCarousel'
@@ -15,6 +18,8 @@ import { ExperienceCarousel } from './ExperienceCarousel'
  */
 
 export function MobileHero() {
+  const [contactOpen, setContactOpen] = useState(false)
+
   return (
     <section
       className="w-full bg-[#faf7f2] px-[8px] pt-[62px]"
@@ -44,17 +49,44 @@ export function MobileHero() {
         <p className="absolute left-[20px] right-[20px] top-[150px] font-[family-name:var(--font-ui)] text-[14px] leading-[1.4] text-white/85">
           From mangrove forests and rolling hills to waterfalls, tea estates, and endless coastlines
         </p>
-        {/* Full-width flex row + justify-center so centering survives the
-            cue's transform-based bob animation */}
-        <ScrollDownCue position={{ left: 0, right: 0, bottom: 24, justifyContent: 'center' }} />
+        {/* Sits where the scroll cue used to be. Same button language as the
+            desktop hero nav — lime fill, green border and type — sized for the
+            390 artboard. */}
+        <div className="absolute inset-x-0 bottom-[24px] flex justify-center">
+          <button
+            type="button"
+            onClick={() => setContactOpen(true)}
+            className="flex h-[38px] shrink-0 cursor-pointer items-center gap-[6px] rounded-full border-2 border-[#31542a] bg-[#f8ff98] px-[14px] font-[family-name:var(--font-body)] text-[14px] leading-[1.4] font-medium text-[#31542a] transition-opacity hover:opacity-80"
+          >
+            Contact Us
+            <svg width={14} height={14} viewBox="0 0 16 16" fill="none" aria-hidden>
+              <path
+                d="M6 3l5 5-5 5"
+                stroke="#31542a"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </section>
   )
 }
 
-export function MobileLatestReels() {
+export function MobileLatestReels({ destinations }: { destinations?: LandingDestination[] }) {
+  // Nothing published in the CMS — render no section at all rather than a
+  // heading with an empty rail underneath.
+  if (!destinations || destinations.length === 0) return null
+
   return (
-    <section className="flex w-full flex-col gap-[16px] bg-[#faf7f2] px-[16px] pt-[32px] pb-[40px]">
+    <section
+      id="destinations"
+      className="flex w-full scroll-mt-[70px] flex-col gap-[16px] bg-[#faf7f2] px-[16px] pt-[32px] pb-[40px]"
+    >
       <h2 className="text-center font-[family-name:var(--font-body)] text-[24px] font-medium tracking-[-0.72px] text-[#132110]">
         Top{' '}
         <span className="font-[family-name:var(--font-script)] font-bold text-[#31542a]">
@@ -63,20 +95,24 @@ export function MobileLatestReels() {
       </h2>
       <div className="-mx-[16px] flex gap-[12px] overflow-x-auto px-[16px] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {destinations.map((d) => (
-          <Link key={d.slug} href={`/destinations/${d.slug}`}>
+          <Link key={d.slug} href={destinationHref(d.slug)}>
             <div className="relative aspect-[178/318] w-[178px] shrink-0 overflow-hidden rounded-[8px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/landing/destinations/${d.slug}.webp`}
-                alt={d.title}
+                src={d.imagePath}
+                alt={d.name}
                 className="absolute inset-0 size-full object-cover"
                 draggable={false}
               />
+              {/* Scrim keeps the white name legible over bright photos */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-[110px] bg-gradient-to-b from-black/55 via-black/25 to-transparent" />
+              <h3 className="absolute inset-x-0 top-[14px] px-[10px] text-center font-[family-name:var(--font-script)] text-[22px] leading-[1.15] font-bold text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+                {d.name}
+              </h3>
             </div>
           </Link>
         ))}
       </div>
-      <CtaButton size="sm" label="Explore All" className="mt-[8px] self-center" />
     </section>
   )
 }
@@ -272,9 +308,6 @@ export function MobileCta() {
           style={{ height: 890 }}
           draggable={false}
         />
-        <div className="absolute bottom-[36px] left-1/2 z-10 -translate-x-1/2">
-          <CtaButton size="sm" label="Check Out Reels" />
-        </div>
       </div>
     </FigmaFrame>
   )

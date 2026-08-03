@@ -93,7 +93,7 @@ export interface Config {
     'landing-page': LandingPage;
   };
   globalsSelect: {
-    'landing-page': LandingPageSelect<true> | LandingPageSelect<false>;
+    'landing-page': LandingPageSelect<false> | LandingPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -244,7 +244,7 @@ export interface Destination {
         id?: string | null;
       }[]
     | null;
-  subDestinations?:
+  nature?:
     | {
         title: string;
         description?: string | null;
@@ -504,7 +504,7 @@ export interface DestinationsSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
-  subDestinations?:
+  nature?:
     | T
     | {
         title?: T;
@@ -601,6 +601,67 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-page".
+ */
+export interface LandingPage {
+  id: number;
+  featuredDestinations?:
+    | {
+        name: string;
+        /**
+         * Destination slug — e.g. coxs-bazar → /destinations/coxs-bazar
+         */
+        slug: string;
+        /**
+         * Image path — e.g. /landing/destinations/coxs-bazar.webp
+         */
+        imagePath: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  featuredCreators?:
+    | {
+        name: string;
+        /**
+         * Image path — e.g. /landing/creators/creator-1.jpg
+         */
+        imagePath: string;
+        instagramUrl?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-page_select".
+ */
+export interface LandingPageSelect<T extends boolean = true> {
+  featuredDestinations?:
+    | T
+    | {
+        name?: T;
+        slug?: T;
+        imagePath?: T;
+        description?: T;
+        id?: T;
+      };
+  featuredCreators?:
+    | T
+    | {
+        name?: T;
+        imagePath?: T;
+        instagramUrl?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -617,36 +678,6 @@ export interface Auth {
   [k: string]: unknown;
 }
 
-
-export interface LandingPage {
-  id: number;
-  featuredDestinations?:
-    | {
-        name: string;
-        slug: string;
-        imagePath: string;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  featuredCreators?:
-    | {
-        name: string;
-        imagePath: string;
-        instagramUrl?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-
-export interface LandingPageSelect<T extends boolean = true> {
-  featuredDestinations?: T | { name?: T; slug?: T; imagePath?: T; description?: T; id?: T };
-  featuredCreators?: T | { name?: T; imagePath?: T; instagramUrl?: T; id?: T };
-  updatedAt?: T;
-  createdAt?: T;
-}
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
