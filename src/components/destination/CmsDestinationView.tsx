@@ -3,6 +3,7 @@ import type { CmsCardItem, CmsDestinationRecord } from '@/lib/cms-data'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { MobileCta } from '@/components/landing/MobileSections'
 import { ResponsiveFigmaPage } from '@/components/landing/ResponsiveFigmaPage'
+import { ScrollToTop } from '@/components/site/ScrollToTop'
 import {
   DESKTOP_ARTBOARD,
   DESKTOP_HERO_HEIGHT,
@@ -888,9 +889,14 @@ function MobileDestination({ record }: { record: CmsDestinationRecord }) {
 
 export function CmsDestinationView({ record }: { record: CmsDestinationRecord }) {
   return (
-    <ResponsiveFigmaPage
-      desktop={<DesktopDestination record={record} />}
-      mobile={<MobileDestination record={record} />}
-    />
+    <>
+      {/* Arriving from a landing-page card must start at the top, not at the
+          scroll offset carried over from the landing page. */}
+      <ScrollToTop />
+      <ResponsiveFigmaPage
+        desktop={<DesktopDestination record={record} />}
+        mobile={<MobileDestination record={record} />}
+      />
+    </>
   )
 }
