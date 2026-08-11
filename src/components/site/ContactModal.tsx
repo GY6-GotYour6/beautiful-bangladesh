@@ -26,14 +26,19 @@ function CloseIcon() {
 
 function Field({
   id,
+  name,
   label,
   type = 'text',
   rows,
+  disabled,
 }: {
   id: string
+  /** Stable form key. `id` comes from useId() (":r1:") and is useless as a name. */
+  name: string
   label: string
   type?: string
   rows?: number
+  disabled?: boolean
 }) {
   const base =
     'w-full rounded-[12px] border bg-white/5 px-[14px] py-[11px] font-[family-name:var(--font-ui)] text-[15px] leading-[1.4] text-white outline-none transition-colors placeholder:text-white/35 focus:bg-white/10'
@@ -46,9 +51,10 @@ function Field({
       {rows ? (
         <textarea
           id={id}
-          name={id}
+          name={name}
           rows={rows}
           required
+          disabled={disabled}
           className={`${base} resize-none`}
           style={{ borderColor: 'rgba(248,255,152,0.28)' }}
           onFocus={(e) => (e.currentTarget.style.borderColor = LIME)}
@@ -57,9 +63,10 @@ function Field({
       ) : (
         <input
           id={id}
-          name={id}
+          name={name}
           type={type}
           required
+          disabled={disabled}
           className={base}
           style={{ borderColor: 'rgba(248,255,152,0.28)' }}
           onFocus={(e) => (e.currentTarget.style.borderColor = LIME)}
@@ -74,11 +81,15 @@ function Field({
  * Contact popup — brand green panel with lime accents, matching the CTA and
  * nav button language. Shared by the desktop hero nav and the mobile hero.
  *
- * NOTE: submitting only flips to a local success state — there is no backend
- * endpoint wired up yet.
+ * Submits to `POST /api/contact`, which stores the message as a
+ * `contact-submissions` doc readable in /cms. No email is sent yet.
  */
 export function ContactModal({ open, onClose }: Props) {
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  /** When the form became visible — used to reject implausibly fast submits. */
+  const openedAt = useRef(0)
   // Starts false so SSR and first client render agree; the portal target only
   // exists after mount.
   const [mounted, setMounted] = useState(false)
@@ -87,6 +98,7 @@ export function ContactModal({ open, onClose }: Props) {
   const nameId = useId()
   const emailId = useId()
   const messageId = useId()
+  const honeypotId = useId()
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -109,10 +121,15 @@ export function ContactModal({ open, onClose }: Props) {
 
   // Reset back to the form the next time it opens.
   useEffect(() => {
+    if (open) {
+      openedAt.current = Date.now()
+      return
+    }
     // Resets the success view on close. The modal returns null at that point,
     // so the extra render is not observable and there is no cascade.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!open) setSent(false)
+    setSent(false)
+    setError(null)
   }, [open])
 
   // Deliberate mount guard: this modal portals into document.body, which only
@@ -123,9 +140,40 @@ export function ContactModal({ open, onClose }: Props) {
 
   if (!open || !mounted) return null
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSent(true)
+    if (sending) return
+
+    const form = new FormData(e.currentTarget)
+    setSending(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.get('name'),
+          email: form.get('email'),
+          message: form.get('message'),
+          company: form.get('company'), // honeypot — humans never fill this
+          elapsedMs: Date.now() - openedAt.current,
+          sourcePath: window.location.pathname,
+        }),
+      })
+
+      if (!res.ok) {
+        const json = (await res.json().catch(() => null)) as { error?: string } | null
+        throw new Error(json?.error || 'Could not send your message. Please try again.')
+      }
+
+      setSent(true)
+    } catch (err) {
+      // Keep the filled-in form mounted so nothing typed is lost on failure.
+      setError(err instanceof Error ? err.message : 'Could not send your message.')
+    } finally {
+      setSending(false)
+    }
   }
 
   // Portalled to body: the desktop hero nav is a transformed, overflow-hidden
@@ -213,25 +261,51 @@ export function ContactModal({ open, onClose }: Props) {
             </p>
 
             <form onSubmit={handleSubmit} className="mt-[22px] flex flex-col gap-[14px]">
-              <Field id={nameId} label="Name" />
-              <Field id={emailId} label="Email" type="email" />
-              <Field id={messageId} label="Message" rows={4} />
+              <Field id={nameId} name="name" label="Name" disabled={sending} />
+              <Field id={emailId} name="email" label="Email" type="email" disabled={sending} />
+              <Field id={messageId} name="message" label="Message" rows={4} disabled={sending} />
+
+              {/* Honeypot. Hidden from sight and from assistive tech, and skipped
+                  in the tab order — only a bot ever fills it in. */}
+              <div className="absolute left-[-9999px]" aria-hidden="true">
+                <label htmlFor={honeypotId}>Company</label>
+                <input
+                  id={honeypotId}
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
+              {error ? (
+                <p
+                  role="alert"
+                  className="rounded-[10px] px-[12px] py-[9px] font-[family-name:var(--font-ui)] text-[14px] leading-[1.45] text-white"
+                  style={{ backgroundColor: 'rgba(255,120,110,0.18)', border: '1px solid rgba(255,150,140,0.5)' }}
+                >
+                  {error}
+                </p>
+              ) : null}
 
               <button
                 type="submit"
-                className="mt-[6px] inline-flex h-[48px] items-center justify-center gap-[8px] rounded-full font-[family-name:var(--font-body)] text-[17px] font-medium transition-opacity hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f8ff98]"
+                disabled={sending}
+                className="mt-[6px] inline-flex h-[48px] items-center justify-center gap-[8px] rounded-full font-[family-name:var(--font-body)] text-[17px] font-medium transition-opacity hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f8ff98] disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ backgroundColor: LIME, color: GREEN }}
               >
-                Send message
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                  <path
-                    d="M6 3.5L10.5 8L6 12.5"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                {sending ? 'Sending…' : 'Send message'}
+                {sending ? null : (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path
+                      d="M6 3.5L10.5 8L6 12.5"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
               </button>
             </form>
           </>

@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     destinations: Destination;
+    'contact-submissions': ContactSubmission;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     destinations: DestinationsSelect<false> | DestinationsSelect<true>;
+    'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -315,6 +317,35 @@ export interface Destination {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Messages sent from the contact form on the public site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions".
+ */
+export interface ContactSubmission {
+  id: number;
+  status: 'new' | 'read' | 'replied' | 'archived';
+  name: string;
+  email: string;
+  message: string;
+  /**
+   * Captured automatically — useful for tracing spam.
+   */
+  meta?: {
+    /**
+     * Page the form was submitted from
+     */
+    sourcePath?: string | null;
+    userAgent?: string | null;
+    /**
+     * From the x-forwarded-for header (Vercel sets this)
+     */
+    ip?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -349,6 +380,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'destinations';
         value: number | Destination;
+      } | null)
+    | ({
+        relationTo: 'contact-submissions';
+        value: number | ContactSubmission;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -558,6 +593,25 @@ export interface DestinationsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-submissions_select".
+ */
+export interface ContactSubmissionsSelect<T extends boolean = true> {
+  status?: T;
+  name?: T;
+  email?: T;
+  message?: T;
+  meta?:
+    | T
+    | {
+        sourcePath?: T;
+        userAgent?: T;
+        ip?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

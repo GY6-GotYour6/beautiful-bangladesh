@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Destinations } from './collections/Destinations'
+import { ContactSubmissions } from './collections/ContactSubmissions'
 import { LandingPageGlobal } from './globals/LandingPage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -21,7 +22,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Destinations],
+  collections: [Users, Media, Destinations, ContactSubmissions],
   globals: [LandingPageGlobal],
   editor: lexicalEditor(),
   graphQL: {
