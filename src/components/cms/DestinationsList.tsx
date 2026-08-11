@@ -85,25 +85,55 @@ export function DestinationsList({ initial }: { initial: CmsDestinationListItem[
 
   async function runDelete(targets: CmsDestinationListItem[]) {
     setDeleting(true)
-    try {
-      for (const d of targets) await deleteOne(d)
-      const gone = new Set(targets.map((d) => d.slug))
+
+    // Track what actually succeeded. A bulk delete that fails halfway has still
+    // removed rows from the database, so the list has to drop those regardless
+    // of the error — otherwise it keeps showing destinations that no longer
+    // exist until the page is reloaded.
+    const deleted: CmsDestinationListItem[] = []
+    let failure: unknown = null
+
+    for (const d of targets) {
+      try {
+        await deleteOne(d)
+        deleted.push(d)
+      } catch (e) {
+        failure = e
+        break
+      }
+    }
+
+    if (deleted.length > 0) {
+      const gone = new Set(deleted.map((d) => d.slug))
       setItems((prev) => prev.filter((d) => !gone.has(d.slug)))
       setSelected((prev) => {
         const next = new Set(prev)
         gone.forEach((s) => next.delete(s))
         return next
       })
+    }
+
+    if (failure) {
+      const reason = failure instanceof Error ? failure.message : 'Delete failed'
+      setToast({
+        kind: 'error',
+        text:
+          deleted.length > 0
+            ? `${reason} — ${deleted.length} of ${targets.length} deleted, the rest were left in place`
+            : reason,
+      })
+    } else {
       setToast({
         kind: 'success',
-        text: targets.length === 1 ? `Deleted “${targets[0].name}”` : `Deleted ${targets.length} destinations`,
+        text:
+          targets.length === 1
+            ? `Deleted “${targets[0].name}”`
+            : `Deleted ${targets.length} destinations`,
       })
-    } catch (e) {
-      setToast({ kind: 'error', text: e instanceof Error ? e.message : 'Delete failed' })
-    } finally {
-      setDeleting(false)
-      setConfirming(null)
     }
+
+    setDeleting(false)
+    setConfirming(null)
   }
 
   return (

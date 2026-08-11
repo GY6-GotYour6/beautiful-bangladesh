@@ -57,11 +57,20 @@ export const Destinations: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [
-      ({ data }) => {
-        // Normalize slug server-side so API consumers can't create unroutable slugs
-        if (data && (data.slug || data.name)) {
-          data.slug = slugify(String(data.slug || data.name))
+      ({ data, originalDoc }) => {
+        if (!data) return data
+
+        // Normalize slug server-side so API consumers can't create unroutable
+        // slugs. An explicit slug is always honoured (that is a deliberate
+        // rename); a slug is only *derived* from the name when the doc has none
+        // yet. Re-deriving on every write meant a PATCH carrying just `name`
+        // silently changed a published URL, with no redirect from the old one.
+        if (data.slug) {
+          data.slug = slugify(String(data.slug))
+        } else if (!originalDoc?.slug && data.name) {
+          data.slug = slugify(String(data.name))
         }
+
         return data
       },
     ],

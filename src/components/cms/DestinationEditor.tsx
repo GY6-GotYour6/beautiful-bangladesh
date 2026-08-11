@@ -159,7 +159,11 @@ export function DestinationEditor({
       const slug = record.slug || slugify(record.name)
       if (!slug) throw new Error('Slug is required')
 
-      const payloadBody = toPayloadData({ ...record, slug, status })
+      // Snapshot exactly what goes to the server. Everything below reconciles
+      // against `sent`, never against the live `record`, which the user may
+      // keep editing while the request is in flight.
+      const sent = { ...record, slug, status }
+      const payloadBody = toPayloadData(sent)
       const isCreate = isNew || !record.id
 
       const res = await fetch(isCreate ? '/api/destinations' : `/api/destinations/${record.id}`, {
@@ -176,9 +180,16 @@ export function DestinationEditor({
 
       const json = (await res.json()) as { doc?: { id: number | string; slug?: string }; id?: number | string; slug?: string }
       const doc = json.doc || json
-      const next = { ...record, id: doc.id, slug: doc.slug || slug, status }
-      savedJson.current = JSON.stringify(next)
-      setRecord(next)
+      // Only the fields the server owns get written back. Merging them onto the
+      // *current* record preserves any keystrokes made during the request —
+      // replacing the whole record with a closure-captured snapshot silently
+      // discarded them.
+      const serverFields = { id: doc.id, slug: doc.slug || slug, status }
+
+      // The dirty baseline is what was actually persisted, so if the user did
+      // keep typing, the form correctly stays dirty and still warns on exit.
+      savedJson.current = JSON.stringify({ ...sent, ...serverFields })
+      setRecord((current) => ({ ...current, ...serverFields }))
       setToast({ kind: 'success', text: status === 'published' ? 'Published' : 'Draft saved' })
       router.refresh()
       if (isCreate && doc.slug) {
