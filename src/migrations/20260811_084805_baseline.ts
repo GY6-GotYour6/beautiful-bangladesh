@@ -11,6 +11,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__destinations_v_version_region" AS ENUM('Chittagong', 'Khulna', 'Sylhet', 'Barishal', 'Dhaka', 'Rajshahi', 'Rangpur', 'Mymensingh');
   CREATE TYPE "public"."enum__destinations_v_version_hangout_type" AS ENUM('Group/Couple', 'Solo', 'Family');
   CREATE TYPE "public"."enum__destinations_v_version_status" AS ENUM('draft', 'published');
+  CREATE TYPE "public"."enum_contact_submissions_status" AS ENUM('new', 'read', 'replied', 'archived');
   CREATE TABLE "users_sessions" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
@@ -84,7 +85,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"image_id" integer
   );
   
-  CREATE TABLE "destinations_sub_destinations" (
+  CREATE TABLE "destinations_nature" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"id" varchar PRIMARY KEY NOT NULL,
@@ -191,7 +192,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_uuid" varchar
   );
   
-  CREATE TABLE "_destinations_v_version_sub_destinations" (
+  CREATE TABLE "_destinations_v_version_nature" (
   	"_order" integer NOT NULL,
   	"_parent_id" integer NOT NULL,
   	"id" serial PRIMARY KEY NOT NULL,
@@ -289,6 +290,19 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"destinations_id" integer
   );
   
+  CREATE TABLE "contact_submissions" (
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"status" "enum_contact_submissions_status" DEFAULT 'new' NOT NULL,
+  	"name" varchar NOT NULL,
+  	"email" varchar NOT NULL,
+  	"message" varchar NOT NULL,
+  	"meta_source_path" varchar,
+  	"meta_user_agent" varchar,
+  	"meta_ip" varchar,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+  );
+  
   CREATE TABLE "payload_kv" (
   	"id" serial PRIMARY KEY NOT NULL,
   	"key" varchar NOT NULL,
@@ -309,7 +323,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"path" varchar NOT NULL,
   	"users_id" integer,
   	"media_id" integer,
-  	"destinations_id" integer
+  	"destinations_id" integer,
+  	"contact_submissions_id" integer
   );
   
   CREATE TABLE "payload_preferences" (
@@ -366,8 +381,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "destinations_gallery" ADD CONSTRAINT "destinations_gallery_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."destinations"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "destinations_foods" ADD CONSTRAINT "destinations_foods_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "destinations_foods" ADD CONSTRAINT "destinations_foods_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."destinations"("id") ON DELETE cascade ON UPDATE no action;
-  ALTER TABLE "destinations_sub_destinations" ADD CONSTRAINT "destinations_sub_destinations_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
-  ALTER TABLE "destinations_sub_destinations" ADD CONSTRAINT "destinations_sub_destinations_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."destinations"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "destinations_nature" ADD CONSTRAINT "destinations_nature_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "destinations_nature" ADD CONSTRAINT "destinations_nature_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."destinations"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "destinations_culture_items" ADD CONSTRAINT "destinations_culture_items_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "destinations_culture_items" ADD CONSTRAINT "destinations_culture_items_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."destinations"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "destinations_events" ADD CONSTRAINT "destinations_events_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
@@ -384,8 +399,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_destinations_v_version_gallery" ADD CONSTRAINT "_destinations_v_version_gallery_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_destinations_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_destinations_v_version_foods" ADD CONSTRAINT "_destinations_v_version_foods_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_destinations_v_version_foods" ADD CONSTRAINT "_destinations_v_version_foods_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_destinations_v"("id") ON DELETE cascade ON UPDATE no action;
-  ALTER TABLE "_destinations_v_version_sub_destinations" ADD CONSTRAINT "_destinations_v_version_sub_destinations_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
-  ALTER TABLE "_destinations_v_version_sub_destinations" ADD CONSTRAINT "_destinations_v_version_sub_destinations_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_destinations_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_destinations_v_version_nature" ADD CONSTRAINT "_destinations_v_version_nature_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
+  ALTER TABLE "_destinations_v_version_nature" ADD CONSTRAINT "_destinations_v_version_nature_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_destinations_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_destinations_v_version_culture_items" ADD CONSTRAINT "_destinations_v_version_culture_items_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_destinations_v_version_culture_items" ADD CONSTRAINT "_destinations_v_version_culture_items_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_destinations_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_destinations_v_version_events" ADD CONSTRAINT "_destinations_v_version_events_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
@@ -403,6 +418,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_media_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_destinations_fk" FOREIGN KEY ("destinations_id") REFERENCES "public"."destinations"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_contact_submissions_fk" FOREIGN KEY ("contact_submissions_id") REFERENCES "public"."contact_submissions"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_preferences"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_preferences_rels" ADD CONSTRAINT "payload_preferences_rels_users_fk" FOREIGN KEY ("users_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "landing_page_featured_destinations" ADD CONSTRAINT "landing_page_featured_destinations_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."landing_page"("id") ON DELETE cascade ON UPDATE no action;
@@ -424,9 +440,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "destinations_foods_order_idx" ON "destinations_foods" USING btree ("_order");
   CREATE INDEX "destinations_foods_parent_id_idx" ON "destinations_foods" USING btree ("_parent_id");
   CREATE INDEX "destinations_foods_image_idx" ON "destinations_foods" USING btree ("image_id");
-  CREATE INDEX "destinations_sub_destinations_order_idx" ON "destinations_sub_destinations" USING btree ("_order");
-  CREATE INDEX "destinations_sub_destinations_parent_id_idx" ON "destinations_sub_destinations" USING btree ("_parent_id");
-  CREATE INDEX "destinations_sub_destinations_image_idx" ON "destinations_sub_destinations" USING btree ("image_id");
+  CREATE INDEX "destinations_nature_order_idx" ON "destinations_nature" USING btree ("_order");
+  CREATE INDEX "destinations_nature_parent_id_idx" ON "destinations_nature" USING btree ("_parent_id");
+  CREATE INDEX "destinations_nature_image_idx" ON "destinations_nature" USING btree ("image_id");
   CREATE INDEX "destinations_culture_items_order_idx" ON "destinations_culture_items" USING btree ("_order");
   CREATE INDEX "destinations_culture_items_parent_id_idx" ON "destinations_culture_items" USING btree ("_parent_id");
   CREATE INDEX "destinations_culture_items_image_idx" ON "destinations_culture_items" USING btree ("image_id");
@@ -458,9 +474,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_destinations_v_version_foods_order_idx" ON "_destinations_v_version_foods" USING btree ("_order");
   CREATE INDEX "_destinations_v_version_foods_parent_id_idx" ON "_destinations_v_version_foods" USING btree ("_parent_id");
   CREATE INDEX "_destinations_v_version_foods_image_idx" ON "_destinations_v_version_foods" USING btree ("image_id");
-  CREATE INDEX "_destinations_v_version_sub_destinations_order_idx" ON "_destinations_v_version_sub_destinations" USING btree ("_order");
-  CREATE INDEX "_destinations_v_version_sub_destinations_parent_id_idx" ON "_destinations_v_version_sub_destinations" USING btree ("_parent_id");
-  CREATE INDEX "_destinations_v_version_sub_destinations_image_idx" ON "_destinations_v_version_sub_destinations" USING btree ("image_id");
+  CREATE INDEX "_destinations_v_version_nature_order_idx" ON "_destinations_v_version_nature" USING btree ("_order");
+  CREATE INDEX "_destinations_v_version_nature_parent_id_idx" ON "_destinations_v_version_nature" USING btree ("_parent_id");
+  CREATE INDEX "_destinations_v_version_nature_image_idx" ON "_destinations_v_version_nature" USING btree ("image_id");
   CREATE INDEX "_destinations_v_version_culture_items_order_idx" ON "_destinations_v_version_culture_items" USING btree ("_order");
   CREATE INDEX "_destinations_v_version_culture_items_parent_id_idx" ON "_destinations_v_version_culture_items" USING btree ("_parent_id");
   CREATE INDEX "_destinations_v_version_culture_items_image_idx" ON "_destinations_v_version_culture_items" USING btree ("image_id");
@@ -490,6 +506,10 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_destinations_v_rels_parent_idx" ON "_destinations_v_rels" USING btree ("parent_id");
   CREATE INDEX "_destinations_v_rels_path_idx" ON "_destinations_v_rels" USING btree ("path");
   CREATE INDEX "_destinations_v_rels_destinations_id_idx" ON "_destinations_v_rels" USING btree ("destinations_id");
+  CREATE INDEX "contact_submissions_status_idx" ON "contact_submissions" USING btree ("status");
+  CREATE INDEX "contact_submissions_email_idx" ON "contact_submissions" USING btree ("email");
+  CREATE INDEX "contact_submissions_updated_at_idx" ON "contact_submissions" USING btree ("updated_at");
+  CREATE INDEX "contact_submissions_created_at_idx" ON "contact_submissions" USING btree ("created_at");
   CREATE UNIQUE INDEX "payload_kv_key_idx" ON "payload_kv" USING btree ("key");
   CREATE INDEX "payload_locked_documents_global_slug_idx" ON "payload_locked_documents" USING btree ("global_slug");
   CREATE INDEX "payload_locked_documents_updated_at_idx" ON "payload_locked_documents" USING btree ("updated_at");
@@ -500,6 +520,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_users_id_idx" ON "payload_locked_documents_rels" USING btree ("users_id");
   CREATE INDEX "payload_locked_documents_rels_media_id_idx" ON "payload_locked_documents_rels" USING btree ("media_id");
   CREATE INDEX "payload_locked_documents_rels_destinations_id_idx" ON "payload_locked_documents_rels" USING btree ("destinations_id");
+  CREATE INDEX "payload_locked_documents_rels_contact_submissions_id_idx" ON "payload_locked_documents_rels" USING btree ("contact_submissions_id");
   CREATE INDEX "payload_preferences_key_idx" ON "payload_preferences" USING btree ("key");
   CREATE INDEX "payload_preferences_updated_at_idx" ON "payload_preferences" USING btree ("updated_at");
   CREATE INDEX "payload_preferences_created_at_idx" ON "payload_preferences" USING btree ("created_at");
@@ -522,7 +543,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "media" CASCADE;
   DROP TABLE "destinations_gallery" CASCADE;
   DROP TABLE "destinations_foods" CASCADE;
-  DROP TABLE "destinations_sub_destinations" CASCADE;
+  DROP TABLE "destinations_nature" CASCADE;
   DROP TABLE "destinations_culture_items" CASCADE;
   DROP TABLE "destinations_events" CASCADE;
   DROP TABLE "destinations_highlights" CASCADE;
@@ -532,7 +553,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "destinations_rels" CASCADE;
   DROP TABLE "_destinations_v_version_gallery" CASCADE;
   DROP TABLE "_destinations_v_version_foods" CASCADE;
-  DROP TABLE "_destinations_v_version_sub_destinations" CASCADE;
+  DROP TABLE "_destinations_v_version_nature" CASCADE;
   DROP TABLE "_destinations_v_version_culture_items" CASCADE;
   DROP TABLE "_destinations_v_version_events" CASCADE;
   DROP TABLE "_destinations_v_version_highlights" CASCADE;
@@ -540,6 +561,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "_destinations_v_version_faqs" CASCADE;
   DROP TABLE "_destinations_v" CASCADE;
   DROP TABLE "_destinations_v_rels" CASCADE;
+  DROP TABLE "contact_submissions" CASCADE;
   DROP TABLE "payload_kv" CASCADE;
   DROP TABLE "payload_locked_documents" CASCADE;
   DROP TABLE "payload_locked_documents_rels" CASCADE;
@@ -557,5 +579,6 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__destinations_v_version_reels_platform";
   DROP TYPE "public"."enum__destinations_v_version_region";
   DROP TYPE "public"."enum__destinations_v_version_hangout_type";
-  DROP TYPE "public"."enum__destinations_v_version_status";`)
+  DROP TYPE "public"."enum__destinations_v_version_status";
+  DROP TYPE "public"."enum_contact_submissions_status";`)
 }

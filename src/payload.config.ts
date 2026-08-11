@@ -11,6 +11,7 @@ import { Media } from './collections/Media'
 import { Destinations } from './collections/Destinations'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { LandingPageGlobal } from './globals/LandingPage'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -41,6 +42,10 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL,
     },
+    // Without this, `payload migrate` has nothing to run in production and the
+    // schema only ever changes via dev push — which never happens on Vercel,
+    // because push is gated on NODE_ENV !== 'production'.
+    prodMigrations: migrations,
   }),
   sharp,
   plugins: [

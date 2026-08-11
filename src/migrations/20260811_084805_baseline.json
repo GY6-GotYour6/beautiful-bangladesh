@@ -750,8 +750,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.destinations_sub_destinations": {
-      "name": "destinations_sub_destinations",
+    "public.destinations_nature": {
+      "name": "destinations_nature",
       "schema": "",
       "columns": {
         "_order": {
@@ -798,8 +798,8 @@
         }
       },
       "indexes": {
-        "destinations_sub_destinations_order_idx": {
-          "name": "destinations_sub_destinations_order_idx",
+        "destinations_nature_order_idx": {
+          "name": "destinations_nature_order_idx",
           "columns": [
             {
               "expression": "_order",
@@ -813,8 +813,8 @@
           "method": "btree",
           "with": {}
         },
-        "destinations_sub_destinations_parent_id_idx": {
-          "name": "destinations_sub_destinations_parent_id_idx",
+        "destinations_nature_parent_id_idx": {
+          "name": "destinations_nature_parent_id_idx",
           "columns": [
             {
               "expression": "_parent_id",
@@ -828,8 +828,8 @@
           "method": "btree",
           "with": {}
         },
-        "destinations_sub_destinations_image_idx": {
-          "name": "destinations_sub_destinations_image_idx",
+        "destinations_nature_image_idx": {
+          "name": "destinations_nature_image_idx",
           "columns": [
             {
               "expression": "image_id",
@@ -845,9 +845,9 @@
         }
       },
       "foreignKeys": {
-        "destinations_sub_destinations_image_id_media_id_fk": {
-          "name": "destinations_sub_destinations_image_id_media_id_fk",
-          "tableFrom": "destinations_sub_destinations",
+        "destinations_nature_image_id_media_id_fk": {
+          "name": "destinations_nature_image_id_media_id_fk",
+          "tableFrom": "destinations_nature",
           "tableTo": "media",
           "columnsFrom": [
             "image_id"
@@ -858,9 +858,9 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "destinations_sub_destinations_parent_id_fk": {
-          "name": "destinations_sub_destinations_parent_id_fk",
-          "tableFrom": "destinations_sub_destinations",
+        "destinations_nature_parent_id_fk": {
+          "name": "destinations_nature_parent_id_fk",
+          "tableFrom": "destinations_nature",
           "tableTo": "destinations",
           "columnsFrom": [
             "_parent_id"
@@ -2114,8 +2114,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public._destinations_v_version_sub_destinations": {
-      "name": "_destinations_v_version_sub_destinations",
+    "public._destinations_v_version_nature": {
+      "name": "_destinations_v_version_nature",
       "schema": "",
       "columns": {
         "_order": {
@@ -2168,8 +2168,8 @@
         }
       },
       "indexes": {
-        "_destinations_v_version_sub_destinations_order_idx": {
-          "name": "_destinations_v_version_sub_destinations_order_idx",
+        "_destinations_v_version_nature_order_idx": {
+          "name": "_destinations_v_version_nature_order_idx",
           "columns": [
             {
               "expression": "_order",
@@ -2183,8 +2183,8 @@
           "method": "btree",
           "with": {}
         },
-        "_destinations_v_version_sub_destinations_parent_id_idx": {
-          "name": "_destinations_v_version_sub_destinations_parent_id_idx",
+        "_destinations_v_version_nature_parent_id_idx": {
+          "name": "_destinations_v_version_nature_parent_id_idx",
           "columns": [
             {
               "expression": "_parent_id",
@@ -2198,8 +2198,8 @@
           "method": "btree",
           "with": {}
         },
-        "_destinations_v_version_sub_destinations_image_idx": {
-          "name": "_destinations_v_version_sub_destinations_image_idx",
+        "_destinations_v_version_nature_image_idx": {
+          "name": "_destinations_v_version_nature_image_idx",
           "columns": [
             {
               "expression": "image_id",
@@ -2215,9 +2215,9 @@
         }
       },
       "foreignKeys": {
-        "_destinations_v_version_sub_destinations_image_id_media_id_fk": {
-          "name": "_destinations_v_version_sub_destinations_image_id_media_id_fk",
-          "tableFrom": "_destinations_v_version_sub_destinations",
+        "_destinations_v_version_nature_image_id_media_id_fk": {
+          "name": "_destinations_v_version_nature_image_id_media_id_fk",
+          "tableFrom": "_destinations_v_version_nature",
           "tableTo": "media",
           "columnsFrom": [
             "image_id"
@@ -2228,9 +2228,9 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "_destinations_v_version_sub_destinations_parent_id_fk": {
-          "name": "_destinations_v_version_sub_destinations_parent_id_fk",
-          "tableFrom": "_destinations_v_version_sub_destinations",
+        "_destinations_v_version_nature_parent_id_fk": {
+          "name": "_destinations_v_version_nature_parent_id_fk",
+          "tableFrom": "_destinations_v_version_nature",
           "tableTo": "_destinations_v",
           "columnsFrom": [
             "_parent_id"
@@ -3361,6 +3361,144 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.contact_submissions": {
+      "name": "contact_submissions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "enum_contact_submissions_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'new'"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meta_source_path": {
+          "name": "meta_source_path",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meta_user_agent": {
+          "name": "meta_user_agent",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meta_ip": {
+          "name": "meta_ip",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "contact_submissions_status_idx": {
+          "name": "contact_submissions_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "contact_submissions_email_idx": {
+          "name": "contact_submissions_email_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "contact_submissions_updated_at_idx": {
+          "name": "contact_submissions_updated_at_idx",
+          "columns": [
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "contact_submissions_created_at_idx": {
+          "name": "contact_submissions_created_at_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.payload_kv": {
       "name": "payload_kv",
       "schema": "",
@@ -3538,6 +3676,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "contact_submissions_id": {
+          "name": "contact_submissions_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -3630,6 +3774,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "payload_locked_documents_rels_contact_submissions_id_idx": {
+          "name": "payload_locked_documents_rels_contact_submissions_id_idx",
+          "columns": [
+            {
+              "expression": "contact_submissions_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -3678,6 +3837,19 @@
           "tableTo": "destinations",
           "columnsFrom": [
             "destinations_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payload_locked_documents_rels_contact_submissions_fk": {
+          "name": "payload_locked_documents_rels_contact_submissions_fk",
+          "tableFrom": "payload_locked_documents_rels",
+          "tableTo": "contact_submissions",
+          "columnsFrom": [
+            "contact_submissions_id"
           ],
           "columnsTo": [
             "id"
@@ -4307,6 +4479,16 @@
         "draft",
         "published"
       ]
+    },
+    "public.enum_contact_submissions_status": {
+      "name": "enum_contact_submissions_status",
+      "schema": "public",
+      "values": [
+        "new",
+        "read",
+        "replied",
+        "archived"
+      ]
     }
   },
   "schemas": {},
@@ -4319,6 +4501,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "cd9c2064-5c9d-43c7-8158-9d0644432d57",
+  "id": "46a0533a-efbd-4398-9d2f-88297eb55302",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
