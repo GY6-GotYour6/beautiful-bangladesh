@@ -109,9 +109,16 @@ export function ContactModal({ open, onClose }: Props) {
 
   // Reset back to the form the next time it opens.
   useEffect(() => {
+    // Resets the success view on close. The modal returns null at that point,
+    // so the extra render is not observable and there is no cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!open) setSent(false)
   }, [open])
 
+  // Deliberate mount guard: this modal portals into document.body, which only
+  // exists on the client. Rendering it during SSR/first paint causes a
+  // hydration mismatch, so the flag must flip after mount, not during render.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
 
   if (!open || !mounted) return null

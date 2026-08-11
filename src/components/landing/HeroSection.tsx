@@ -87,69 +87,6 @@ export function HeroNav({ visible }: { visible: boolean }) {
   )
 }
 
-/**
- * Animation applied directly on the card's own positioned div to avoid the
- * CSS bug where transform on a wrapper creates a new containing block,
- * causing position:absolute children to mis-position.
- */
-function LatestReelsCard({ visible }: { visible: boolean }) {
-  return (
-    <div
-      className="absolute overflow-hidden rounded-[12px] bg-white"
-      style={{
-        bottom: vw(40),
-        right: vw(40),
-        width: vw(400),
-        height: vw(182),
-        padding: vw(8),
-        display: 'flex',
-        gap: vw(12),
-        // Slide from right — applied directly here (no wrapper div)
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateX(0)' : 'translateX(80px)',
-        transition: 'opacity 0.65s ease, transform 0.65s cubic-bezier(0.22,1,0.36,1)',
-      }}
-    >
-      <div className="shrink-0 overflow-hidden rounded-[8px]" style={{ width: vw(128) }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/landing/assets/hero/latest-reels-thumb.jpg"
-          alt=""
-          className="size-full object-cover"
-          draggable={false}
-        />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col justify-between">
-        <div className="flex flex-col" style={{ gap: vw(6) }}>
-          <p className="font-medium text-[#132110]" style={{ fontSize: vw(16), lineHeight: 1.4 }}>
-            Latest Reels
-          </p>
-          <p className="text-[#132110] opacity-60" style={{ fontSize: vw(14), lineHeight: 1.2 }}>
-            From mangrove forests and{' '}rolling hills to waterfalls,{' '}tea estates, and endless coastlines
-          </p>
-        </div>
-
-        <Link
-          href="/#creator-reels"
-          className="flex shrink-0 items-center justify-center gap-[8px] border-2 border-[#31542a] bg-[#f8ff98] text-[#31542a] transition-opacity hover:opacity-80"
-          style={{
-            height: vw(36),
-            borderRadius: vw(200),
-            paddingLeft: vw(12),
-            paddingRight: vw(12),
-            fontSize: vw(16),
-            lineHeight: 1.4,
-          }}
-        >
-          Checkout Reels
-          <ChevronRight color="#31542a" />
-        </Link>
-      </div>
-    </div>
-  )
-}
-
 export function HeroSection() {
   const heroRef = useRef<HTMLDivElement>(null)
   const phaseRef = useRef(0)

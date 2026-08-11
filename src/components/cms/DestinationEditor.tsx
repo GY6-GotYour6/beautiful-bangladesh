@@ -67,6 +67,11 @@ export function DestinationEditor({
   const published = record.status === 'published'
 
   const savedJson = useRef(JSON.stringify(initial))
+  // The last-saved snapshot is intentionally not reactive: it updates on save,
+  // and a state-backed copy would re-render the whole editor on every keystroke
+  // just to recompute a boolean. The unsaved-changes banner only has to be
+  // correct at render time.
+  // eslint-disable-next-line react-hooks/refs
   const dirty = useMemo(() => JSON.stringify(record) !== savedJson.current, [record])
 
   useEffect(() => {
@@ -185,6 +190,9 @@ export function DestinationEditor({
       setSaving(false)
     }
   }
+  // Keeps the keyboard-shortcut handler pointing at a `save` closure over the
+  // current record without re-binding the listener on every keystroke.
+  // eslint-disable-next-line react-hooks/refs
   saveRef.current = (status) => void save(status)
 
   function makeImageUpload(

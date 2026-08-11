@@ -21,6 +21,9 @@ export function DestinationsList({ initial }: { initial: CmsDestinationListItem[
   // View pref is client-only; read after mount so server and first client render agree.
   useEffect(() => {
     const stored = localStorage.getItem(VIEW_KEY)
+    // localStorage is unavailable during SSR, so seeding this in useState would
+    // produce a hydration mismatch. Reading it after mount is the correct trade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stored === 'grid' || stored === 'list') setView(stored)
   }, [])
 

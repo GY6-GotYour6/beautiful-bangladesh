@@ -64,6 +64,11 @@ export function ExperienceCarousel({
   const [active,    setActive]    = useState(2)
   const [jumpState, setJumpState] = useState<JumpState>(null)
   const activeRef = useRef(2)
+  // The timeout chain below reads the live index without re-subscribing.
+  // Syncing this in an effect instead would land a frame late and re-trigger
+  // the carousel reset bug (the row transform and the per-card height/background
+  // transitions have to stay disabled together).
+  // eslint-disable-next-line react-hooks/refs
   activeRef.current = active
 
   useEffect(() => {

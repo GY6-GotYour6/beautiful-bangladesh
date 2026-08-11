@@ -1,17 +1,17 @@
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-import { FlatCompat } from '@eslint/eslintrc'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-})
+// eslint-config-next 16 ships native flat configs, so this no longer goes
+// through @eslint/eslintrc's FlatCompat shim — that path threw
+// "Converting circular structure to JSON" and made `next lint` unrunnable.
+// `core-web-vitals` already bundles `next` and `next/typescript`.
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextCoreWebVitals,
   {
+    // Scoped to TS — the @typescript-eslint plugin is only registered for these
+    // files, and referencing its rules from an unscoped object fails to resolve.
+    // Must match `next/typescript`'s own glob exactly — it registers the
+    // plugin only for these, so a wider glob (e.g. .mts) fails to resolve.
+    files: ['**/*.ts', '**/*.tsx'],
     rules: {
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
@@ -31,7 +31,12 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ['.next/', 'src/payload-types.ts', 'src/payload-generated-schema.ts'],
+    ignores: [
+      '.next/',
+      'src/payload-types.ts',
+      'src/payload-generated-schema.ts',
+      'src/migrations/',
+    ],
   },
 ]
 

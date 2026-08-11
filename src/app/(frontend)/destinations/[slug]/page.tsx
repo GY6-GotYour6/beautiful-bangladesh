@@ -35,12 +35,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function DestinationRoute({ params }: Props) {
   const { slug } = await params
 
+  // The fetch is kept out of the JSX return: rendering inside a `try` would
+  // swallow errors thrown *during* render, including Next's own control-flow
+  // signals, and turn a component bug into a silent 404.
+  let record: Awaited<ReturnType<typeof getPublishedDestination>> = null
   try {
-    const record = await getPublishedDestination(slug)
-    if (record) return <CmsDestinationView record={record} />
+    record = await getPublishedDestination(slug)
   } catch {
-    // DB unavailable
+    // DB unavailable — fall through to the 404 rather than a 500.
   }
 
-  notFound()
+  if (!record) notFound()
+
+  return <CmsDestinationView record={record} />
 }

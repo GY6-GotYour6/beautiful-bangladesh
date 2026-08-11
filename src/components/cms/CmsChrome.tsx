@@ -49,6 +49,7 @@ export function CmsTopBar({ crumbs, actions, backHref, title }: Props) {
                   {crumbs.map((c, i) => (
                     <span key={`${c.label}-${i}`} className="flex items-center gap-2">
                       {i > 0 ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- static local SVG icon; next/image adds no optimisation for inline SVG
                         <img src="/cms/icons/chevron-right.svg" alt="" width={12} height={12} />
                       ) : null}
                       {c.href ? (
@@ -441,6 +442,7 @@ export function SelectField({
           </option>
         ))}
       </select>
+      {/* eslint-disable-next-line @next/next/no-img-element -- static local SVG icon; next/image adds no optimisation for inline SVG */}
       <img
         src="/cms/icons/chevron-down.svg"
         alt=""
