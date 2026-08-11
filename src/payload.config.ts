@@ -11,7 +11,8 @@ import { Media } from './collections/Media'
 import { Destinations } from './collections/Destinations'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { LandingPageGlobal } from './globals/LandingPage'
-import { migrations } from './migrations'
+// NOTE: `migrations` is intentionally not imported — see the prodMigrations
+// comment on the db adapter below. Re-add the import when re-enabling it.
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -41,15 +42,29 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL,
-      // pg defaults to `connectionTimeoutMillis: 0` — wait forever. That turned
-      // an unreachable database into a Vercel build that hung until the platform
-      // timeout instead of failing with a usable error. Never leave this unset.
+      // Every one of these bounds a different way to hang. pg leaves them all
+      // unbounded by default, which is how an unreachable Neon turned into
+      // Vercel builds that ran until the platform killed them.
+      //   connectionTimeoutMillis — opening the socket
+      //   query_timeout          — client-side wait for a result
+      //   statement_timeout      — server-side execution cap
+      // Never leave these unset. Raise statement_timeout before running any
+      // migration with heavy DDL.
       connectionTimeoutMillis: 10_000,
+      query_timeout: 15_000,
+      statement_timeout: 15_000,
     },
-    // Without this, `payload migrate` has nothing to run in production and the
-    // schema only ever changes via dev push — which never happens on Vercel,
-    // because push is gated on NODE_ENV !== 'production'.
-    prodMigrations: migrations,
+    // prodMigrations is DELIBERATELY NOT SET.
+    //
+    // It does not merely enable `payload migrate` — it makes Payload attempt
+    // migrations every time it initialises with NODE_ENV=production, including
+    // during `next build`'s page-data collection. With Neon unreachable from
+    // Vercel's build environment that hangs the build, which is exactly what
+    // happened on 2026-08-11 (twice: once via the build script, once via this).
+    //
+    // Re-enable `prodMigrations: migrations` together with the
+    // `npm run build:migrate` build command, and only once Neon is confirmed
+    // reachable from Vercel builds.
   }),
   sharp,
   plugins: [
