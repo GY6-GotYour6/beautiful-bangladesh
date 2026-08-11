@@ -41,6 +41,10 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL,
+      // pg defaults to `connectionTimeoutMillis: 0` — wait forever. That turned
+      // an unreachable database into a Vercel build that hung until the platform
+      // timeout instead of failing with a usable error. Never leave this unset.
+      connectionTimeoutMillis: 10_000,
     },
     // Without this, `payload migrate` has nothing to run in production and the
     // schema only ever changes via dev push — which never happens on Vercel,

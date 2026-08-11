@@ -751,7 +751,14 @@ function buildLinePath(pts: [number, number][]): string {
   }, '')
 }
 
-/** Static analytics mockup — Monthly Visitors + Page Views vs Engagement. */
+/**
+ * Static analytics mockup — Monthly Visitors + Page Views vs Engagement.
+ *
+ * The figures below are hardcoded design placeholders, identical for every
+ * destination. Until a real source is wired up this MUST stay visibly labelled:
+ * an unlabelled chart reading ~90k monthly visitors is a fabricated metric that
+ * someone will eventually screenshot and act on.
+ */
 export function AnalyticsPanel() {
   const CW = 688
 
@@ -775,6 +782,15 @@ export function AnalyticsPanel() {
 
   return (
     <div className="flex flex-col gap-5">
+      <p
+        role="note"
+        className="rounded-lg border border-[#f0c36d] bg-[#fdf6e3] px-4 py-3 text-[13px] leading-[1.5] text-[#7a5c12]"
+      >
+        <strong className="font-semibold">Sample data — not real traffic.</strong> These charts are
+        design placeholders showing the same figures for every destination. Analytics are not
+        connected yet.
+      </p>
+
       {/* Monthly Visitors */}
       <div className="overflow-clip rounded-xl border border-[#f3f4f6]">
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
