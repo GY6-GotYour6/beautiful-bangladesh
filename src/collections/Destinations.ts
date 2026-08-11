@@ -26,10 +26,14 @@ function slugify(value: string) {
 
 async function revalidateDestination(slug?: string | null) {
   try {
-    const { revalidatePath } = await import('next/cache')
+    const { revalidatePath, revalidateTag } = await import('next/cache')
     if (slug) revalidatePath(`/destinations/${slug}`)
     revalidatePath('/explore')
     revalidatePath('/cms')
+    // The landing page's Top Destinations falls back to this collection,
+    // so publishing a destination has to drop that cached payload too.
+    revalidateTag('landing-page', 'default')
+    revalidatePath('/')
   } catch {
     // Outside Next request context (seed / CLI)
   }

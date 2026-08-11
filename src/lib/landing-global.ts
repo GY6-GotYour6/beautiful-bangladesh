@@ -77,6 +77,45 @@ function toDestination(raw: Record<string, unknown>): LandingDestination {
   }
 }
 
+/** Prefer a card-sized render, fall back to the original upload. */
+function mediaUrl(raw: unknown): string {
+  if (!raw || typeof raw !== 'object') return ''
+  const media = raw as Record<string, unknown>
+  const sizes = media.sizes as Record<string, { url?: string } | undefined> | undefined
+  return String(sizes?.card?.url ?? sizes?.hero?.url ?? media.url ?? '')
+}
+
+/**
+ * Published docs from the `destinations` collection, shaped as landing cards.
+ * This is what renders when nobody has curated the Landing Page global — the
+ * editors add destinations in `/cms/destinations` and expect them on `/`.
+ * `featured` docs sort first.
+ */
+async function fetchCollectionDestinations(
+  payload: Awaited<ReturnType<typeof getPayloadClient>>,
+): Promise<LandingDestination[]> {
+  const res = await payload.find({
+    collection: 'destinations',
+    where: { _status: { equals: 'published' } },
+    sort: '-featured',
+    limit: 4,
+    depth: 1,
+    overrideAccess: true,
+  })
+
+  return res.docs
+    .map((doc) => {
+      const raw = doc as unknown as Record<string, unknown>
+      return {
+        name: String(raw.name ?? ''),
+        slug: String(raw.slug ?? ''),
+        imagePath: mediaUrl(raw.heroImage) || mediaUrl(raw.highlightImage),
+        description: String(raw.heroSubtitle ?? raw.overviewDescription ?? raw.metaDescription ?? ''),
+      }
+    })
+    .filter((d) => d.name.trim() && d.slug.trim() && d.imagePath.trim())
+}
+
 function toCreator(raw: Record<string, unknown>): LandingCreator {
   return {
     name: String(raw.name ?? ''),
@@ -110,9 +149,14 @@ async function fetchLandingPageData(): Promise<LandingPageData> {
 
       // Only rows with everything a card needs count as real CMS content —
       // placeholder rows with blank fields must not render.
-      const cmsDestinations = rawDestinations.filter(
+      const curated = rawDestinations.filter(
         (d) => d.name.trim() && d.slug.trim() && d.imagePath.trim(),
       )
+
+      // The global is a curated override; with nothing curated, fall back to
+      // the destinations collection so published docs reach the landing page.
+      const cmsDestinations =
+        curated.length > 0 ? curated : await fetchCollectionDestinations(payload)
 
       const rawCreators = Array.isArray(raw.featuredCreators)
         ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
