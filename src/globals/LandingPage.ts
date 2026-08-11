@@ -11,7 +11,11 @@ export const LandingPageGlobal: GlobalConfig = {
     afterChange: [
       async () => {
         try {
-          const { revalidatePath } = await import('next/cache')
+          const { revalidatePath, revalidateTag } = await import('next/cache')
+          // The landing data lives in an `unstable_cache` entry keyed by this
+          // tag. `revalidatePath` alone does not drop it, so curating the
+          // global would otherwise stay invisible for the full 1h TTL.
+          revalidateTag('landing-page', 'default')
           revalidatePath('/')
         } catch {
           // Outside Next request context

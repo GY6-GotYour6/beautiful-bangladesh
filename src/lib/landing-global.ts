@@ -68,6 +68,13 @@ const DEFAULT_CREATORS: LandingCreator[] = [
   { name: '', imagePath: '/landing/creators/creator-7.jpg', instagramUrl: '' },
 ]
 
+/** How many published destinations the landing sections will show. */
+const COLLECTION_LIMIT = 12
+
+/** Hard ceiling on the CMS read. Exceeding it fails the request rather than
+ *  resolving to defaults, so a slow database can never be cached as "empty". */
+const FETCH_TIMEOUT_MS = 10_000
+
 function toDestination(raw: Record<string, unknown>): LandingDestination {
   return {
     name: String(raw.name ?? ''),
@@ -97,8 +104,10 @@ async function fetchCollectionDestinations(
   const res = await payload.find({
     collection: 'destinations',
     where: { _status: { equals: 'published' } },
-    sort: '-featured',
-    limit: 4,
+    // Secondary sort keeps the order stable — Postgres does not guarantee
+    // tie order among rows with the same `featured` value.
+    sort: ['-featured', 'name'],
+    limit: COLLECTION_LIMIT,
     depth: 1,
     overrideAccess: true,
   })
@@ -113,7 +122,19 @@ async function fetchCollectionDestinations(
         description: String(raw.heroSubtitle ?? raw.overviewDescription ?? raw.metaDescription ?? ''),
       }
     })
-    .filter((d) => d.name.trim() && d.slug.trim() && d.imagePath.trim())
+    .filter((d) => {
+      const ok = Boolean(d.name.trim() && d.slug.trim() && d.imagePath.trim())
+      if (!ok) {
+        // Silently dropping a published doc looks like "my destination vanished",
+        // so say which one and why.
+        console.warn(
+          `[landing] skipping destination "${d.name || '(unnamed)'}" — missing ${
+            !d.name.trim() ? 'name' : !d.slug.trim() ? 'slug' : 'heroImage/highlightImage'
+          }`,
+        )
+      }
+      return ok
+    })
 }
 
 function toCreator(raw: Record<string, unknown>): LandingCreator {
@@ -130,55 +151,85 @@ const DEFAULTS: LandingPageData = {
   featuredCreators: DEFAULT_CREATORS,
 }
 
+/**
+ * Reads the CMS. Throws on failure or timeout — it must NEVER resolve to
+ * `DEFAULTS`, because this function's result is what gets cached for an hour.
+ * Returning a fallback here is what made Top Destinations disappear: one slow
+ * cold read after a publish got stored as `cmsDestinations: []`.
+ */
 async function fetchLandingPageData(): Promise<LandingPageData> {
-  const timeout = new Promise<LandingPageData>((resolve) =>
-    setTimeout(() => resolve(DEFAULTS), 3000),
-  )
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`landing CMS read exceeded ${FETCH_TIMEOUT_MS}ms`)),
+      FETCH_TIMEOUT_MS,
+    )
+  })
 
   const fetch = (async () => {
-    try {
-      const payload = await getPayloadClient()
-      const doc = await payload.findGlobal({ slug: 'landing-page', overrideAccess: true })
-      const raw = doc as unknown as Record<string, unknown>
+    const payload = await getPayloadClient()
+    const doc = await payload.findGlobal({ slug: 'landing-page', overrideAccess: true })
+    const raw = doc as unknown as Record<string, unknown>
 
-      const rawDestinations = Array.isArray(raw.featuredDestinations)
-        ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
-        : []
+    const rawDestinations = Array.isArray(raw.featuredDestinations)
+      ? (raw.featuredDestinations as Record<string, unknown>[]).map(toDestination)
+      : []
 
-      const destinations = rawDestinations.length > 0 ? rawDestinations : DEFAULT_DESTINATIONS
+    const destinations = rawDestinations.length > 0 ? rawDestinations : DEFAULT_DESTINATIONS
 
-      // Only rows with everything a card needs count as real CMS content —
-      // placeholder rows with blank fields must not render.
-      const curated = rawDestinations.filter(
-        (d) => d.name.trim() && d.slug.trim() && d.imagePath.trim(),
-      )
+    // Only rows with everything a card needs count as real CMS content —
+    // placeholder rows with blank fields must not render.
+    const curated = rawDestinations.filter(
+      (d) => d.name.trim() && d.slug.trim() && d.imagePath.trim(),
+    )
 
-      // The global is a curated override; with nothing curated, fall back to
-      // the destinations collection so published docs reach the landing page.
-      const cmsDestinations =
-        curated.length > 0 ? curated : await fetchCollectionDestinations(payload)
+    // The global is a curated override; with nothing curated, fall back to
+    // the destinations collection so published docs reach the landing page.
+    const cmsDestinations =
+      curated.length > 0 ? curated : await fetchCollectionDestinations(payload)
 
-      const rawCreators = Array.isArray(raw.featuredCreators)
-        ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
-        : []
-      // Treat as real CMS content only when at least one creator has an instagram URL.
-      // Generic placeholder rows (all empty instagramUrl) fall through to DEFAULT_CREATORS.
-      const creators =
-        rawCreators.some((c) => c.instagramUrl.trim())
-          ? rawCreators
-          : DEFAULT_CREATORS
+    const rawCreators = Array.isArray(raw.featuredCreators)
+      ? (raw.featuredCreators as Record<string, unknown>[]).map(toCreator)
+      : []
+    // Treat as real CMS content only when at least one creator has an instagram URL.
+    // Generic placeholder rows (all empty instagramUrl) fall through to DEFAULT_CREATORS.
+    const creators = rawCreators.some((c) => c.instagramUrl.trim())
+      ? rawCreators
+      : DEFAULT_CREATORS
 
-      return { featuredDestinations: destinations, cmsDestinations, featuredCreators: creators }
-    } catch {
-      return DEFAULTS
-    }
+    return { featuredDestinations: destinations, cmsDestinations, featuredCreators: creators }
   })()
 
-  return Promise.race([fetch, timeout])
+  try {
+    return await Promise.race([fetch, timeout])
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
-export const getLandingPageData = unstable_cache(
+const getCachedLandingPageData = unstable_cache(
   fetchLandingPageData,
   ['landing-page-data'],
   { tags: ['landing-page'], revalidate: 3600 },
 )
+
+/**
+ * Cached read with two guarantees the plain cache cannot give:
+ *
+ *  1. A failed read degrades for exactly ONE request. `unstable_cache` does not
+ *     store a rejected promise, and the fallback below is applied outside it.
+ *  2. An empty result is never trusted from cache. A blank Top Destinations is
+ *     almost always a transient read that got frozen for the hour TTL, so we
+ *     re-read live before rendering nothing. Costs an extra query only while
+ *     the collection genuinely has no published destinations.
+ */
+export async function getLandingPageData(): Promise<LandingPageData> {
+  try {
+    const data = await getCachedLandingPageData()
+    if (data.cmsDestinations.length > 0) return data
+    return await fetchLandingPageData()
+  } catch (err) {
+    console.error('[landing] CMS read failed, rendering defaults for this request:', err)
+    return DEFAULTS
+  }
+}
