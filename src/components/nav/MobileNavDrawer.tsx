@@ -90,7 +90,7 @@ export function MobileNavDrawer({ open, onClose, panelId, onContact }: Props) {
             onClose()
             onContact()
           }}
-          className="mt-[2px] flex h-[38px] w-fit shrink-0 cursor-pointer items-center gap-[6px] rounded-full border-2 border-[#31542a] bg-[#f8ff98] px-[14px] font-[family-name:var(--font-body)] text-[14px] leading-[1.4] font-medium text-[#31542a] transition-opacity hover:opacity-80"
+          className="mt-[2px] flex h-[38px] w-full shrink-0 cursor-pointer items-center justify-center gap-[6px] rounded-full border-2 border-[#31542a] bg-[#f8ff98] px-[14px] font-[family-name:var(--font-body)] text-[14px] leading-[1.4] font-medium text-[#31542a] transition-opacity hover:opacity-80"
         >
           Contact Us
           <svg width={14} height={14} viewBox="0 0 16 16" fill="none" aria-hidden>
