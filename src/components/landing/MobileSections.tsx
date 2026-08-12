@@ -1,8 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
-import { ContactModal } from '@/components/site/ContactModal'
 import { destinationHref } from '@/lib/explore-destinations'
 import type { LandingDestination } from '@/lib/landing-global'
 import { FigmaFrame } from './FigmaFrame'
@@ -17,9 +15,8 @@ import { ExperienceCarousel } from './ExperienceCarousel'
  * Figma geometry.
  */
 
+/** Contact Us now lives in the hamburger drawer (`MobileNavDrawer`), sitewide. */
 export function MobileHero() {
-  const [contactOpen, setContactOpen] = useState(false)
-
   return (
     <section
       className="w-full bg-[#faf7f2] px-[8px] pt-[62px]"
@@ -49,30 +46,7 @@ export function MobileHero() {
         <p className="absolute left-[20px] right-[20px] top-[150px] font-[family-name:var(--font-ui)] text-[14px] leading-[1.4] text-white/85">
           From mangrove forests and rolling hills to waterfalls, tea estates, and endless coastlines
         </p>
-        {/* Sits where the scroll cue used to be. Same button language as the
-            desktop hero nav — lime fill, green border and type — sized for the
-            390 artboard. */}
-        <div className="absolute inset-x-0 bottom-[24px] flex justify-center">
-          <button
-            type="button"
-            onClick={() => setContactOpen(true)}
-            className="flex h-[38px] shrink-0 cursor-pointer items-center gap-[6px] rounded-full border-2 border-[#31542a] bg-[#f8ff98] px-[14px] font-[family-name:var(--font-body)] text-[14px] leading-[1.4] font-medium text-[#31542a] transition-opacity hover:opacity-80"
-          >
-            Contact Us
-            <svg width={14} height={14} viewBox="0 0 16 16" fill="none" aria-hidden>
-              <path
-                d="M6 3l5 5-5 5"
-                stroke="#31542a"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
       </div>
-
-      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </section>
   )
 }

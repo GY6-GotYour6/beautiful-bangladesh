@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useId, useState } from 'react'
+import { ContactModal } from '@/components/site/ContactModal'
 import { MobileNavDrawer } from './MobileNavDrawer'
 
 /** Logo intrinsic ratio — `/nav/logo.svg` viewBox is 173.472 × 30. */
@@ -26,6 +27,8 @@ function MenuIcon() {
  */
 export function MobileSiteHeader() {
   const [open, setOpen] = useState(false)
+  // Lives here, not in the drawer: opening it closes the drawer, which unmounts.
+  const [contactOpen, setContactOpen] = useState(false)
   const panelId = useId()
 
   return (
@@ -60,7 +63,13 @@ export function MobileSiteHeader() {
           <MenuIcon />
         </button>
       </header>
-      <MobileNavDrawer open={open} onClose={() => setOpen(false)} panelId={panelId} />
+      <MobileNavDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        panelId={panelId}
+        onContact={() => setContactOpen(true)}
+      />
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </div>
   )
 }
