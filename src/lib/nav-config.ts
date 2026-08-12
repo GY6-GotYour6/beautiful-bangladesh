@@ -5,9 +5,9 @@ export const NAV_ACCENT = '#F8FF98'
 export const NAV_INACTIVE = '#FFFFFF'
 export const NAV_CREAM = '#F9F6F1'
 
-/** Desktop header band: instance y=20 + height 48 */
-export const DESKTOP_HEADER_TOP = 20
-export const DESKTOP_HEADER_HEIGHT = 48
+/** Desktop header band: the shared hero pill — y=40 + height 60 */
+export const DESKTOP_HEADER_TOP = 40
+export const DESKTOP_HEADER_HEIGHT = 60
 export const DESKTOP_HEADER_CLIP = DESKTOP_HEADER_TOP + DESKTOP_HEADER_HEIGHT
 /** Gap between header and hero image — Hero frame `466:883` gap */
 export const DESKTOP_HEADER_GAP = 24

@@ -84,11 +84,11 @@ function FaqItem({
             height="12"
             viewBox="0 0 12 12"
             fill="none"
-            className={`transition-transform ${open ? 'rotate-90' : ''}`}
+            className={`transition-transform ${open ? 'rotate-180' : ''}`}
             style={{ width: s.icon, height: s.icon }}
           >
             <path
-              d="M4.5 2.5L8 6l-3.5 3.5"
+              d="M2.5 4.5L6 8l3.5-3.5"
               stroke="currentColor"
               strokeWidth="1.5"
               strokeLinecap="round"

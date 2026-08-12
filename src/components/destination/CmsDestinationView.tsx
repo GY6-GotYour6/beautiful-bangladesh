@@ -7,7 +7,6 @@ import { ScrollToTop } from '@/components/site/ScrollToTop'
 import {
   DESKTOP_ARTBOARD,
   DESKTOP_HERO_HEIGHT,
-  DESKTOP_HERO_OFFSET,
   DESKTOP_PAGE_INSET,
   MOBILE_HEADER_CLIP,
 } from '@/lib/nav-config'
@@ -77,7 +76,9 @@ function DesktopHero({ record }: { record: CmsDestinationRecord }) {
       style={{
         paddingLeft: `${DESKTOP_PAGE_INSET}px`,
         paddingRight: `${DESKTOP_PAGE_INSET}px`,
-        paddingTop: vw(DESKTOP_HERO_OFFSET),
+        // The shared white nav pill floats OVER this hero image (same as the
+        // landing page), so the image starts just below the viewport top.
+        paddingTop: vw(20),
       }}
     >
       <div className="relative w-full" style={{ height: vw(DESKTOP_HERO_HEIGHT) }}>
@@ -95,7 +96,8 @@ function DesktopHero({ record }: { record: CmsDestinationRecord }) {
         <div className="pointer-events-none absolute inset-0 rounded-[40px_40px_0_0] bg-gradient-to-b from-black/45 via-black/10 to-black/35" />
 
         {/* Title — top left */}
-        <div className="absolute left-[60px] top-[100px] max-w-[580px]">
+        {/* Title clears the nav pill (top 40 + height 60) */}
+        <div className="absolute left-[60px] top-[170px] max-w-[580px]">
           <h1 className="font-[family-name:var(--font-body)] text-[64px] font-medium leading-[1.05] tracking-[-1.5px] text-white">
             {record.heroTitle || record.name}
           </h1>
@@ -520,7 +522,7 @@ function DesktopFaq({ record }: { record: CmsDestinationRecord }) {
                   alt=""
                   width={i === 0 ? 24 : 20}
                   height={i === 0 ? 24 : 20}
-                  className="mt-[2px] shrink-0 rotate-90 transition-transform duration-200 group-open:-rotate-90"
+                  className="mt-[2px] shrink-0 transition-transform duration-200 group-open:rotate-180"
                   draggable={false}
                 />
               </summary>
@@ -853,7 +855,7 @@ function MobileFaq({ record }: { record: CmsDestinationRecord }) {
                 alt=""
                 width={18}
                 height={18}
-                className="shrink-0 rotate-90 transition-transform duration-200 group-open:-rotate-90"
+                className="shrink-0 transition-transform duration-200 group-open:rotate-180"
                 draggable={false}
               />
             </summary>

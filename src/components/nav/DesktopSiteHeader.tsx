@@ -1,60 +1,22 @@
 'use client'
 
-import Link from 'next/link'
-import {
-  DESKTOP_ARTBOARD,
-  DESKTOP_HEADER_CLIP,
-  DESKTOP_HEADER_HEIGHT,
-  DESKTOP_HEADER_TOP,
-  DESKTOP_PAGE_INSET,
-} from '@/lib/nav-config'
-import { NavPill } from './NavPill'
-import { useDesktopNavScale } from './useNavScale'
+import { HeroNav, HERO_NAV_TOP, HERO_NAV_WIDTH } from './HeroNav'
 
-/** Sticky desktop header — Designs `428:414`, scale-synced like FigmaFrame. */
+const vw = (px: number) => `calc(${px} / 1440 * 100vw)`
+
+/**
+ * Sitewide desktop header. Renders the SAME white pill as the landing hero
+ * (`HeroNav`) — the navbar must be identical on every route.
+ * Absolute (not fixed) so it scrolls away with the hero, like the landing page.
+ */
 export function DesktopSiteHeader() {
-  const scale = useDesktopNavScale()
-
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 top-0 z-50 hidden md:block"
-      aria-hidden={false}
+      className="pointer-events-none absolute inset-x-0 z-50 hidden md:block"
+      style={{ top: vw(HERO_NAV_TOP) }}
     >
-      <div
-        className="pointer-events-none w-full overflow-visible"
-        style={{
-          height: DESKTOP_HEADER_CLIP * scale,
-        }}
-      >
-        <div
-          className="pointer-events-auto"
-          style={{
-            width: DESKTOP_ARTBOARD,
-            height: DESKTOP_HEADER_CLIP,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-          }}
-        >
-          <header
-            className="relative flex content-stretch items-center justify-between"
-            style={{
-              marginLeft: DESKTOP_PAGE_INSET,
-              marginTop: DESKTOP_HEADER_TOP,
-              width: DESKTOP_ARTBOARD - DESKTOP_PAGE_INSET * 2,
-              height: DESKTOP_HEADER_HEIGHT,
-            }}
-            data-node-id="428:414"
-          >
-            <Link
-              href="/"
-              className="relative shrink-0 whitespace-nowrap font-[family-name:var(--font-display)] text-[32px] leading-[1.1] font-bold tracking-[-0.64px] text-[#31542a] uppercase outline-none not-italic focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#31542a]"
-              data-node-id="428:406"
-            >
-              beautiful Bangladesh{' '}
-            </Link>
-            <NavPill />
-          </header>
-        </div>
+      <div className="pointer-events-auto mx-auto" style={{ width: vw(HERO_NAV_WIDTH) }}>
+        <HeroNav elevated />
       </div>
     </div>
   )
